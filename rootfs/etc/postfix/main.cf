@@ -1,0 +1,156 @@
+#######################
+## GENERALS SETTINGS ##
+#######################
+
+smtpd_banner         = $myhostname ESMTP $mail_name (Debian/GNU)
+biff                 = no
+append_dot_mydomain  = no
+readme_directory     = no
+delay_warning_time   = 4h
+mailbox_command      = procmail -a "$EXTENSION"
+recipient_delimiter  = +
+disable_vrfy_command = yes
+message_size_limit   = 502400000
+mailbox_size_limit   = 1024000000
+
+inet_interfaces = all
+inet_protocols = ipv4
+
+myhostname    = <FQDN>
+myorigin      = <FQDN>
+mydestination = localhost localhost.$mydomain
+mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+relayhost     =
+
+alias_maps     = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+####################
+## TLS PARAMETERS ##
+####################
+# Smtp ( OUTGOING / Client )
+smtp_tls_loglevel            = 1
+smtp_tls_security_level      = may
+# smtp_tls_CAfile            = <CAFILE>
+smtp_tls_protocols           = !SSLv2, !SSLv3
+smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
+smtp_tls_mandatory_ciphers   = high
+smtp_tls_exclude_ciphers     = aNULL, eNULL, EXPORT, DES, 3DES, RC2, RC4, MD5, PSK, SRP, DSS, AECDH, ADH
+smtp_tls_note_starttls_offer = yes
+
+# ---------------------------------------------------------------------------------------------------
+
+# Smtpd ( INCOMING / Server )
+smtpd_tls_loglevel            = 1
+smtpd_tls_auth_only           = yes
+smtpd_tls_security_level      = may
+smtpd_tls_received_header     = yes
+smtpd_tls_protocols           = !SSLv2, !SSLv3
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
+smtpd_tls_mandatory_ciphers   = medium
+
+# Infos (voir : postconf -d)
+# Medium cipherlist = aNULL:-aNULL:ALL:!EXPORT:!LOW:+RC4:@STRENGTH
+# High cipherlist   = aNULL:-aNULL:ALL:!EXPORT:!LOW:!MEDIUM:+RC4:@STRENGTH
+
+# smtpd_tls_exclude_ciphers   = NE PAS modifier cette directive pour des raisons de compatibilité
+#                               avec les autres serveurs de mail afin d'éviter une erreur du type
+#                               "no shared cipher" ou "no cipher overlap" puis un fallback en
+#                               plain/text...
+# smtpd_tls_cipherlist        = Ne pas modifier non plus !
+
+# smtpd_tls_CAfile            = $smtp_tls_CAfile
+smtpd_tls_cert_file           = <CERTFILE>
+smtpd_tls_key_file            = <KEYFILE>
+smtpd_tls_dh1024_param_file   = $config_directory/dh2048.pem
+smtpd_tls_dh512_param_file    = $config_directory/dh512.pem
+
+tls_preempt_cipherlist = yes
+tls_random_source      = dev:/dev/urandom
+
+smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+lmtp_tls_session_cache_database  = btree:${data_directory}/lmtp_scache
+
+# ----------------------------------------------------------------------
+
+#####################
+## SASL PARAMETERS ##
+#####################
+
+smtpd_sasl_auth_enable          = yes
+smtpd_sasl_type                 = dovecot
+smtpd_sasl_path                 = private/auth
+smtpd_sasl_security_options     = noanonymous
+smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
+smtpd_sasl_local_domain         = $mydomain
+smtpd_sasl_authenticated_header = yes
+
+broken_sasl_auth_clients = yes
+
+##############################
+## VIRTUALS MAPS PARAMETERS ##
+##############################
+
+virtual_uid_maps        = static:<UID>
+virtual_gid_maps        = static:<GID>
+virtual_minimum_uid     = <UID>
+virtual_mailbox_base    = /var/mail
+virtual_transport       = lmtp:unix:private/dovecot-lmtp
+virtual_mailbox_domains = mysql:/etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
+virtual_mailbox_maps    = mysql:/etc/postfix/mysql/mysql-virtual-mailbox-maps.cf
+virtual_alias_maps      = mysql:/etc/postfix/mysql/mysql-virtual-alias-maps.cf
+
+######################
+## ERRORS REPORTING ##
+######################
+
+# notify_classes = bounce, delay, resource, software
+notify_classes = resource, software
+
+error_notice_recipient     = admin@<DOMAIN>
+# delay_notice_recipient   = admin@<DOMAIN>
+# bounce_notice_recipient  = admin@<DOMAIN>
+# 2bounce_notice_recipient = admin@<DOMAIN>
+
+##################
+## RESTRICTIONS ##
+##################
+
+smtpd_recipient_restrictions =
+     permit_mynetworks,
+     permit_sasl_authenticated,
+     reject_non_fqdn_recipient,
+     reject_unauth_destination,
+     reject_unknown_recipient_domain,
+     reject_rbl_client zen.spamhaus.org
+
+smtpd_helo_restrictions =
+     permit_mynetworks,
+     permit_sasl_authenticated,
+     reject_invalid_helo_hostname,
+     reject_non_fqdn_helo_hostname
+     # reject_unknown_helo_hostname
+
+smtpd_client_restrictions =
+     permit_mynetworks,
+     permit_inet_interfaces,
+     permit_sasl_authenticated
+     # reject_plaintext_session,
+     # reject_unauth_pipelining
+
+smtpd_sender_restrictions =
+     reject_non_fqdn_sender,
+     reject_unknown_sender_domain
+
+#############
+## MILTERS ##
+#############
+
+content_filter = amavis:[127.0.0.1]:10024
+receive_override_options = no_address_mappings
+
+milter_protocol       = 6
+milter_default_action = accept
+smtpd_milters         = unix:/opendkim/opendkim.sock, unix:/opendmarc/opendmarc.sock
+non_smtpd_milters     = unix:/opendkim/opendkim.sock

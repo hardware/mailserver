@@ -1,0 +1,11 @@
+# Paramètres de connexion
+driver = mysql
+connect = host=<DBHOST> dbname=<DBNAME> user=<DBUSER> password=<DBPASS>
+
+# Permet de définir l'algorithme de hachage.
+# Pour plus d'information: http://wiki2.dovecot.org/Authentication/PasswordSchemes
+# /!\ ATTENTION : ne pas oublier de modifier le paramètre \$CONF['encrypt'] de PostfixAdmin
+default_pass_scheme = MD5-CRYPT
+
+# Requête de récupération du mot de passe du compte utilisateur
+password_query = SELECT password FROM mailbox WHERE username = '%u'

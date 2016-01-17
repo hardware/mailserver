@@ -1,0 +1,110 @@
+#!/bin/bash
+
+[[ -z $DOMAIN ]] && echo "DOMAIN is empty" && exit 1
+[[ -z $FQDN ]] && echo "FQDN is empty" && exit 1
+[[ -z $CERTFILE ]] && CERTFILE=/ssl/selfsigned/mailserver.crt
+[[ -z $KEYFILE ]] && KEYFILE=/ssl/selfsigned/mailserver.key
+
+# SSL certificates
+mkdir -p /ssl/selfsigned/
+
+if [ ! -e $CERTFILE ] || [ ! -e $KEYFILE ]; then
+  openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
+    -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=admin@${DOMAIN}" \
+    -keyout $KEYFILE \
+    -out $CERTFILE
+fi
+
+# DH Parameters
+if [ ! -e "/etc/postfix/dh2048.pem" ] || [ ! -e "/etc/postfix/dh512.pem" ]; then
+  openssl dhparam -out /etc/postfix/dh2048.pem 2048
+  openssl dhparam -out /etc/postfix/dh512.pem 512
+fi
+
+mkdir -p /var/mail/vhosts/"${DOMAIN}"
+groupadd -g "${GID}" vmail
+useradd -g vmail -u "${UID}" vmail -d /var/mail
+chown -R vmail:vmail /var/mail
+chown -R vmail:dovecot /etc/dovecot
+chmod -R o-rwx /etc/dovecot
+
+# OpenDKIM
+mkdir /var/spool/postfix/opendkim
+chown opendkim: /var/spool/postfix/opendkim
+usermod -aG opendkim postfix
+
+if [ ! -e "/etc/opendkim/keys/${DOMAIN}/mail.private" ]; then
+  mkdir -p /etc/opendkim/keys && cd /etc/opendkim/keys
+
+  mkdir "${DOMAIN}" && cd "${DOMAIN}"
+  opendkim-genkey -s mail -d "${DOMAIN}" -b 1024
+  chown opendkim:opendkim mail.private
+  chmod 400 mail.private mail.txt
+fi
+
+# OpenDMARC
+mkdir /var/spool/postfix/opendmarc
+chown opendmarc: /var/spool/postfix/opendmarc
+usermod -aG opendmarc postfix
+
+# Amavis
+# usermod -aG amavis clamav
+
+# Sieve
+mkdir /var/mail/sieve
+touch /var/mail/sieve/default.sieve && chown -R vmail:vmail /var/mail/sieve
+cat > /var/mail/sieve/default.sieve <<EOF
+require ["fileinto"];
+
+if header :contains "Subject" "*****SPAM*****" {
+
+    fileinto "Junk";
+
+}
+EOF
+
+sievec /var/mail/sieve/default.sieve
+
+# Check configuration
+# ------------------------------------------------------------------------
+# Postfix
+sed -i -e "s/<FQDN>/${FQDN}/g" \
+       -e "s/<DOMAIN>/${DOMAIN}/g" \
+       -e "s/<UID>/${UID}/g" \
+       -e "s/<GID>/${GID}/g" \
+       -e "s/<CERTFILE>/${CERTFILE}/g" \
+       -e "s/<KEYFILE>/${KEYFILE}/g" /etc/postfix/main.cf
+
+sed -i -e "s/<DBHOST>/${DBHOST}/g" \
+       -e "s/<DBNAME>/${DBNAME}/g" \
+       -e "s/<DBUSER>/${DBUSER}/g" \
+       -e "s/<DBPASS>/${DBPASS}/g" /etc/postfix/mysql/*.cf
+
+# Dovecot
+sed -i -e "s/<UID>/${UID}/g" \
+       -e "s/<GID>/${GID}/g" /etc/dovecot/conf.d/10-mail.conf
+
+sed -i -e "s/<DBHOST>/${DBHOST}/g" \
+       -e "s/<DBNAME>/${DBNAME}/g" \
+       -e "s/<DBUSER>/${DBUSER}/g" \
+       -e "s/<DBPASS>/${DBPASS}/g" /etc/dovecot/dovecot-sql.conf.ext
+
+sed -i -e "s/<CERTFILE>/${CERTFILE}/g" \
+       -e "s/<KEYFILE>/${KEYFILE}/g" /etc/dovecot/conf.d/10-ssl.conf
+
+sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/dovecot/conf.d/20-lmtp.conf
+
+# OpenDKIM
+sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/KeyTable
+sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/SigningTable
+sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/TrustedHosts
+
+# OpenDMARC
+sed -i "s/<FQDN>/${FQDN}/g" /etc/opendmarc/opendmarc.conf
+
+# Spamassassin
+sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/spamassassin/local.cf
+# ------------------------------------------------------------------------
+
+# RUN !
+supervisord -n

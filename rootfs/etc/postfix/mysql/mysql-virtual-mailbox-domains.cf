@@ -1,0 +1,6 @@
+hosts    = <DBHOST>
+user     = <DBUSER>
+password = <DBPASS>
+dbname   = <DBNAME>
+
+query = SELECT domain FROM domain WHERE domain='%s' and backupmx = 0 and active = 1
