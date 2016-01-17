@@ -1,10 +1,11 @@
 #!/bin/bash
 
-[[ -z $CERTFILE ]] && CERTFILE=/ssl/selfsigned/mailserver.crt
-[[ -z $KEYFILE ]] && KEYFILE=/ssl/selfsigned/mailserver.key
-
 # SSL certificates
+CERTFILE=/ssl/selfsigned/mailserver.crt
+KEYFILE=/ssl/selfsigned/mailserver.key
+
 mkdir -p /ssl/selfsigned/
+mkdir -p /ssl/postfix/
 
 if [ ! -e $CERTFILE ] || [ ! -e $KEYFILE ]; then
   openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
@@ -14,14 +15,14 @@ if [ ! -e $CERTFILE ] || [ ! -e $KEYFILE ]; then
 fi
 
 # DH Parameters
-if [ ! -e "/etc/postfix/dh2048.pem" ] || [ ! -e "/etc/postfix/dh512.pem" ]; then
-  openssl dhparam -out /etc/postfix/dh2048.pem 2048
-  openssl dhparam -out /etc/postfix/dh512.pem 512
+if [ ! -e "/ssl/postfix/dh2048.pem" ] || [ ! -e "/ssl/postfix/dh512.pem" ]; then
+  openssl dhparam -out /ssl/postfix/dh2048.pem 2048
+  openssl dhparam -out /ssl/postfix/dh512.pem 512
 fi
 
 mkdir -p /var/mail/vhosts/"${DOMAIN}"
-groupadd -g "${GID}" vmail
-useradd -g vmail -u "${UID}" vmail -d /var/mail
+groupadd -g 5000 vmail
+useradd -g vmail -u 5000 vmail -d /var/mail
 chown -R vmail:vmail /var/mail
 chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
@@ -44,10 +45,10 @@ sievec /var/mail/sieve/default.sieve
 # Postfix
 sed -i -e "s/<FQDN>/${FQDN}/g" \
        -e "s/<DOMAIN>/${DOMAIN}/g" \
-       -e "s/<UID>/${UID}/g" \
-       -e "s/<GID>/${GID}/g" \
-       -e "s/<CERTFILE>/${CERTFILE}/g" \
-       -e "s/<KEYFILE>/${KEYFILE}/g" /etc/postfix/main.cf
+       -e "s/<UID>/5000/g" \
+       -e "s/<GID>/5000/g" \
+       -e "s|<CERTFILE>|${CERTFILE}|g" \
+       -e "s|<KEYFILE>|${KEYFILE}|g" /etc/postfix/main.cf
 
 sed -i -e "s/<DBHOST>/${DBHOST}/g" \
        -e "s/<DBNAME>/${DBNAME}/g" \
@@ -55,16 +56,16 @@ sed -i -e "s/<DBHOST>/${DBHOST}/g" \
        -e "s/<DBPASS>/${DBPASS}/g" /etc/postfix/mysql/*.cf
 
 # Dovecot
-sed -i -e "s/<UID>/${UID}/g" \
-       -e "s/<GID>/${GID}/g" /etc/dovecot/conf.d/10-mail.conf
+sed -i -e "s/<UID>/5000/g" \
+       -e "s/<GID>/5000/g" /etc/dovecot/conf.d/10-mail.conf
 
 sed -i -e "s/<DBHOST>/${DBHOST}/g" \
        -e "s/<DBNAME>/${DBNAME}/g" \
        -e "s/<DBUSER>/${DBUSER}/g" \
        -e "s/<DBPASS>/${DBPASS}/g" /etc/dovecot/dovecot-sql.conf.ext
 
-sed -i -e "s/<CERTFILE>/${CERTFILE}/g" \
-       -e "s/<KEYFILE>/${KEYFILE}/g" /etc/dovecot/conf.d/10-ssl.conf
+sed -i -e "s|<CERTFILE>|${CERTFILE}|g" \
+       -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
 
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/dovecot/conf.d/20-lmtp.conf
 

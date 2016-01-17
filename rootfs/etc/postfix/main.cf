@@ -62,8 +62,8 @@ smtpd_tls_mandatory_ciphers   = medium
 # smtpd_tls_CAfile            = $smtp_tls_CAfile
 smtpd_tls_cert_file           = <CERTFILE>
 smtpd_tls_key_file            = <KEYFILE>
-smtpd_tls_dh1024_param_file   = $config_directory/dh2048.pem
-smtpd_tls_dh512_param_file    = $config_directory/dh512.pem
+smtpd_tls_dh1024_param_file   = /ssl/postfix/dh2048.pem
+smtpd_tls_dh512_param_file    = /ssl/postfix/dh512.pem
 
 tls_preempt_cipherlist = yes
 tls_random_source      = dev:/dev/urandom
