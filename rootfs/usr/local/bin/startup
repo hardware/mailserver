@@ -80,6 +80,9 @@ sed -i "s/<FQDN>/${FQDN}/g" /etc/opendmarc/opendmarc.conf
 # Spamassassin
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/spamassassin/local.cf
 
+# Amavis
+sed -i "s/<FQDN>/${FQDN}/g" /etc/amavis/conf.d/05-node_id
+
 # Mailname
 sed -i "s/<FQDN>/${FQDN}/g" /etc/mailname
 
