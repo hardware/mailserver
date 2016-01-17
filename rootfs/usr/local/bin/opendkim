@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 trap "{ echo Stopping opendkim; kill -9 $(pidof /usr/sbin/opendkim); sleep 3; exit 0; }" EXIT
 

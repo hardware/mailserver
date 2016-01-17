@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[[ -z $DOMAIN ]] && echo "DOMAIN is empty" && exit 1
-[[ -z $FQDN ]] && echo "FQDN is empty" && exit 1
 [[ -z $CERTFILE ]] && CERTFILE=/ssl/selfsigned/mailserver.crt
 [[ -z $KEYFILE ]] && KEYFILE=/ssl/selfsigned/mailserver.key
 
