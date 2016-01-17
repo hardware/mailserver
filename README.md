@@ -27,8 +27,9 @@ docker build -t hardware/mailserver
 ### How to use
 
 ```
-docker run -d
-  -e "FQDN=mail.domain.tld" \
+docker run -d \
+  -e "FQDN=mail.domain.tld"
+  -e "DOMAIN=domain.tld"
   -e "DBHOST=localhost" \
   -e "DBUSER=postfix" \
   -e "DBNAME=postfix" \
@@ -44,13 +45,14 @@ docker run -d
 mail:
   image: hardware/mailserver
   ports:
-  - "25:25"
-  - "143:143"
-  - "587:587"
-  - "993:993"
-  - "4190:4190"
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+    - "4190:4190"
   environment:
     - FQDN=mail.domain.tld
+    - DOMAIN=domain.tld
     - DBHOST=localhost
     - DBUSER=postfix
     - DBNAME=postfix

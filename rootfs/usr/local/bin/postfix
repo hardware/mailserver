@@ -1,0 +1,6 @@
+#!/bin/bash
+
+trap "{ echo Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
+
+/usr/sbin/postfix -c /etc/postfix start
+sleep infinity

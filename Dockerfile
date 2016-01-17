@@ -2,6 +2,7 @@ FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
 ENV FQDN=mail.domain.tld
+ENV DOMAIN=domain.tld
 ENV DBHOST=localhost
 ENV DBNAME=postfix
 ENV DBUSER=postfix
@@ -13,16 +14,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     postfix postfix-mysql \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
     opendkim opendkim-tools opendmarc \
-    amavisd-new spamassassin spamc \
+    amavisd-new spamassassin spamc clamav-milter \
     supervisor openssl dnsutils \
-    # dovecot-pop3d \ # clamav-milter \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 ADD rootfs /
-RUN chmod +x /usr/bin/startup
+RUN chmod +x /usr/local/bin/*
 
 VOLUME /var/mail /ssl
 EXPOSE 25 143 587 993 4190
 
-CMD ["/usr/bin/startup"]
+CMD ["/usr/local/bin/startup"]

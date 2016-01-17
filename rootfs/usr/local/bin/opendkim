@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+trap "{ echo Stopping opendkim; kill -9 $(pidof /usr/sbin/opendkim); sleep 3; exit 0; }" EXIT
+
+chown -R opendkim:opendkim /etc/opendkim
+mkdir /var/spool/postfix/opendkim
+chown opendkim: /var/spool/postfix/opendkim
+usermod -aG opendkim postfix
+
+if [ ! -e "/etc/opendkim/keys/${DOMAIN}/mail.private" ]; then
+  mkdir -p /etc/opendkim/keys && cd /etc/opendkim/keys
+
+  mkdir "${DOMAIN}" && cd "${DOMAIN}"
+  opendkim-genkey -s mail -d "${DOMAIN}" -b 1024
+  chown opendkim:opendkim mail.private
+  chmod 400 mail.private mail.txt
+fi
+
+/usr/sbin/opendkim -f -x /etc/opendkim/opendkim.conf
