@@ -2,8 +2,13 @@
 
 trap "{ echo Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
 
-# Add services file to Postfix chroot jail
+# Add etc files to Postfix chroot jail
 cp -f /etc/services /var/spool/postfix/etc/services
+cp -f /etc/hosts /var/spool/postfix/etc/hosts
+cp -f /etc/localtime /var/spool/postfix/etc/localtime
+cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
+# Start Postfix
 /usr/sbin/postfix -c /etc/postfix start
+
 sleep infinity
