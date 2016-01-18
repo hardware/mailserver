@@ -1,24 +1,32 @@
 # hardware/mailserver
 
-## IN DEVELOPMENT !!
+### Requirement
 
-## Requirement
-
+- Docker 1.0 or higher
 - MySQL
-- Postfixadmin
+- Postfixadmin (optional)
 
-## Components
+### Components
 
-- Postfix
-- Dovecot
-- OpenDKIM
-- OpenDMARC
-- Spamassassin
-- ClamAV
-- Amavis
-- Supervisor
+- Postfix 2.11.3
+- Dovecot 2.2.13
+- OpenDKIM 2.9.2
+- OpenDMARC 1.3.0
+- Spamassassin 3.4.0
+- ClamAV 0.98.7
+- Amavisd-new 2.10.1
+- Supervisor 3.0r1
+- ManageSieve server
 
-## Install
+### Ports
+
+- **25** : SMTP
+- **143** : IMAP (STARTTLS)
+- **587** : SMTP (STARTTLS)
+- **993** : IMAP (SSL/TLS)
+- **4190** : SIEVE (STARTTLS)
+
+### Build
 
 ```
 docker build -t hardware/mailserver
@@ -28,22 +36,34 @@ docker build -t hardware/mailserver
 
 ```
 docker run -d \
-  -e "FQDN=mail.domain.tld"
-  -e "DOMAIN=domain.tld"
-  -e "DBHOST=localhost" \
-  -e "DBUSER=postfix" \
-  -e "DBNAME=postfix" \
-  -e "DBPASS=xxxxxxx" \
-  -v /docker/mail:/var/mail \
+  -e DBHOST=localhost \
+  -e DBUSER=postfix \
+  -e DBNAME=postfix \
+  -e DBPASS=xxxxxxx \
   -v /docker/ssl:/ssl \
+  -v /docker/mail:/var/mail \
+  -v /docker/dovecot:/var/lib/dovecot \
+  -v /docker/opendkim:/etc/opendkim/keys \
+  -h mail.domain.tld \
   hardware/mailserver
 ```
 
+### Environment variables
+
+- **DBHOST** = MySQL instance ip/hostname (*optional*, default: localhost)
+- **DBUSER** = MYSQL database username (*optional*, default: postfix)
+- **DBNAME** = MYSQL database name (*optional*, default: postfix)
+- **DBPASS** = MYSQL database (**required**)
+
 ### Docker-compose
+
+#### Docker-compose.yml
 
 ```
 mail:
   image: hardware/mailserver
+  domainname: domain.tld
+  hostname: mail
   ports:
     - "25:25"
     - "143:143"
@@ -51,8 +71,6 @@ mail:
     - "993:993"
     - "4190:4190"
   environment:
-    - FQDN=mail.domain.tld
-    - DOMAIN=domain.tld
     - DBHOST=localhost
     - DBUSER=postfix
     - DBNAME=postfix
@@ -60,6 +78,8 @@ mail:
   volumes:
     - /docker/mail:/var/mail
     - /docker/ssl:/ssl
+    - /docker/dovecot:/var/lib/dovecot
+    - /docker/opendkim:/etc/opendkim/keys
 
 mysql:
   image: mysql:5.7.10
@@ -71,3 +91,65 @@ mysql:
     - MYSQL_USER=postfix
     - MYSQL_PASSWORD=xxxx
 ```
+
+#### Run !
+
+```
+docker-compose up -d
+```
+
+### DNS records
+
+```
+HOSTNAME            CLASS             RECORD TYPE          VALUE
+------------------------------------------------------------------------------------------------
+mail                IN                A                    SERVER_IPV4
+@                   IN                MX          10       mail.domain.tld.
+@                   IN                SPF                  "v=spf1 a mx ip4:SERVER_IPV4 ~all"
+@                   IN                TXT                  "v=spf1 a mx ip4:SERVER_IPV4 ~all"
+mail._domainkey     IN                TXT                  "v=DKIM1; k=rsa; p=DKIM Public Key"
+_dmarc              IN                TXT                  "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject"
+```
+
+The DKIM public key is available on host here :
+
+`/docker/opendkim/domain.tld/mail.txt`
+
+### Email client settings :
+
+- IMAP/SMTP username : user@domain.tld
+- Incoming IMAP server : mail.domain.tld (your FQDN)
+- Outgoing SMTP server : mail.domain.tld (your FQDN)
+- IMAP port : 993
+- SMTP port : 587
+- IMAP Encryption protocol : SSL/TLS
+- SMTP Encryption protocol : STARTTLS
+
+## Roadmap
+
+- Let's encrypt
+- POP3 optional support (port 110 & 995)
+- SMTPS optional support (port 465)
+
+## Contribute
+
+- Fork this repository
+- Create a new feature branch for a new functionality or bugfix
+- Commit your changes
+- Push your code and open a new pull request
+- Use [issues](https://github.com/hardware/mailserver/issues) for any questions
+
+## Support
+
+https://github.com/hardware/mailserver/issues
+
+## Contact
+
+- [contact@meshup.net](mailto:contact@meshup.net)
+- [http://twitter.com/hardvvare](http://twitter.com/hardvvare)
+
+## License
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Hardware, <contact@meshup.net>

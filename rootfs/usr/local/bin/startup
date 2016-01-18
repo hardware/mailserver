@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# ENV
+export FQDN="$(hostname --fqdn)"
+export DOMAIN="$(hostname --domain)"
+export DBHOST="${DBHOST:-localhost}"
+export DBNAME="${DBNAME:-postfix}"
+export DBUSER="${DBUSER:-postfix}"
+
+if [ -z "$DBPASS" ]; then
+  echo "MySQL database password must be set !"
+  exit 1
+fi
+
 # SSL certificates
 CERTFILE=/ssl/selfsigned/mailserver.crt
 KEYFILE=/ssl/selfsigned/mailserver.key
