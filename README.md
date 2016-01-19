@@ -36,7 +36,7 @@ docker build -t hardware/mailserver
 
 ```
 docker run -d \
-  -e DBHOST=localhost \
+  -e DBHOST=mysql \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
@@ -50,7 +50,7 @@ docker run -d \
 
 ### Environment variables
 
-- **DBHOST** = MySQL instance ip/hostname (*optional*, default: localhost)
+- **DBHOST** = MySQL instance ip/hostname (*optional*, default: mysql)
 - **DBUSER** = MYSQL database username (*optional*, default: postfix)
 - **DBNAME** = MYSQL database name (*optional*, default: postfix)
 - **DBPASS** = MYSQL database (**required**)
@@ -64,6 +64,8 @@ mail:
   image: hardware/mailserver
   domainname: domain.tld
   hostname: mail
+  links:
+    - mysql:mysql
   ports:
     - "25:25"
     - "143:143"
@@ -71,7 +73,7 @@ mail:
     - "993:993"
     - "4190:4190"
   environment:
-    - DBHOST=localhost
+    - DBHOST=mysql
     - DBUSER=postfix
     - DBNAME=postfix
     - DBPASS=xxxxxxx

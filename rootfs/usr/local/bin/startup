@@ -3,7 +3,7 @@
 # ENV
 export FQDN="$(hostname --fqdn)"
 export DOMAIN="$(hostname --domain)"
-export DBHOST="${DBHOST:-localhost}"
+export DBHOST="${DBHOST:-mysql}"
 export DBNAME="${DBNAME:-postfix}"
 export DBUSER="${DBUSER:-postfix}"
 
