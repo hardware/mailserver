@@ -36,6 +36,7 @@ docker build -t hardware/mailserver
 
 ```
 docker run -d \
+  -p 25:25 -p 143:143 -p 587:587 -p 993:993 -p 4190:4190 \
   -e DBHOST=mysql \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
