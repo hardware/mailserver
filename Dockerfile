@@ -1,8 +1,6 @@
 FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
-ENV DEBIAN_FRONTEND noninteractive
-
 RUN apt-get update && apt-get install -y \
     postfix postfix-mysql \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
@@ -12,7 +10,7 @@ RUN apt-get update && apt-get install -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-ADD rootfs /
+COPY rootfs /
 RUN chmod +x /usr/local/bin/*
 
 VOLUME /ssl /var/mail /var/lib/dovecot /etc/opendkim/keys
