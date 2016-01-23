@@ -15,6 +15,12 @@ submission inet n       -       -       -       -       smtpd
   -o smtpd_tls_security_level=encrypt
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+smtps     inet  n       -       n       -       -       smtpd
+  -o smtpd_tls_wrappermode=yes
+  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_recipient_restrictions=
+  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+  -o content_filter=amavis:[127.0.0.1]:10024
 pickup    fifo  n       -       -       60      1       pickup
   -o content_filter=
   -o receive_override_options=no_header_body_checks
