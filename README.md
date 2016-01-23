@@ -22,6 +22,7 @@
 
 - **25** : SMTP
 - **143** : IMAP (STARTTLS)
+- **465** : SMTP (SSL/TLS)
 - **587** : SMTP (STARTTLS)
 - **993** : IMAP (SSL/TLS)
 - **4190** : SIEVE (STARTTLS)
@@ -36,12 +37,11 @@ docker build -t hardware/mailserver
 
 ```
 docker run -d \
-  -p 25:25 -p 143:143 -p 587:587 -p 993:993 -p 4190:4190 \
+  -p 25:25 -p 143:143 -p 465:465 -p 587:587 -p 993:993 -p 4190:4190 \
   -e DBHOST=mysql \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
-  -v /docker/ssl:/ssl \
   -v /docker/mail:/var/mail \
   -v /docker/dovecot:/var/lib/dovecot \
   -v /docker/opendkim:/etc/opendkim/keys \
@@ -51,7 +51,9 @@ docker run -d \
 
 ### Environment variables
 
-- **DBHOST** = MySQL instance ip/hostname (*optional*, default: mysql)
+- **VMAILUID** = vmail user id (*optional*, default: 1024)
+- **VMAILGID** = vmail group id (*optional*, default: 1024)
+- **DBHOST** = MySQL instance ip/hostname (*optional*, default: mariadb)
 - **DBUSER** = MYSQL database username (*optional*, default: postfix)
 - **DBNAME** = MYSQL database name (*optional*, default: postfix)
 - **DBPASS** = MYSQL database (**required**)
@@ -66,28 +68,30 @@ mail:
   domainname: domain.tld
   hostname: mail
   links:
-    - mysql:mysql
+    - mariadb:mariadb
   ports:
     - "25:25"
     - "143:143"
+    - "465:465"
     - "587:587"
     - "993:993"
     - "4190:4190"
   environment:
-    - DBHOST=mysql
+    - DBHOST=mariadb
     - DBUSER=postfix
     - DBNAME=postfix
     - DBPASS=xxxxxxx
   volumes:
     - /docker/mail:/var/mail
-    - /docker/ssl:/ssl
     - /docker/dovecot:/var/lib/dovecot
     - /docker/opendkim:/etc/opendkim/keys
 
-mysql:
-  image: mysql:5.7.10
+mariadb:
+  image: mariadb:10.1
   ports:
     - "3306:3306"
+  volumes:
+    - /docker/mysql/db:/var/lib/mysql
   environment:
     - MYSQL_ROOT_PASSWORD=xxxx
     - MYSQL_DATABASE=postfix
@@ -118,6 +122,19 @@ The DKIM public key is available on host here :
 
 `/docker/opendkim/domain.tld/mail.txt`
 
+### Let's encrypt
+
+To use your Let's encrypt certificates, you may add another docker volume in this way :
+
+```
+docker run -d \
+  ...
+  -v /etc/letsencrypt:/etc/letsencrypt \
+  ...
+```
+
+The common name of your ssl certifcate **MUST** must be the same as your server's FQDN.
+
 ### Email client settings :
 
 - IMAP/SMTP username : user@domain.tld
@@ -130,9 +147,7 @@ The DKIM public key is available on host here :
 
 ## Roadmap
 
-- Let's encrypt
 - POP3 optional support (port 110 & 995)
-- SMTPS optional support (port 465)
 
 ## Contribute
 

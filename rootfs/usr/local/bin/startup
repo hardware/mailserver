@@ -1,47 +1,54 @@
 #!/bin/bash
 
 # ENV
-export FQDN="$(hostname --fqdn)"
-export DOMAIN="$(hostname --domain)"
-export DBHOST="${DBHOST:-mysql}"
-export DBNAME="${DBNAME:-postfix}"
-export DBUSER="${DBUSER:-postfix}"
+export FQDN
+export DOMAIN
+FQDN="$(hostname --fqdn)"
+DOMAIN="$(hostname --domain)"
 
 if [ -z "$DBPASS" ]; then
-  echo "MySQL database password must be set !"
+  echo "Mariadb database password must be set !"
   exit 1
 fi
 
 # SSL certificates
-CERTFILE=/ssl/selfsigned/mailserver.crt
-KEYFILE=/ssl/selfsigned/mailserver.key
+LETS_ENCRYPT_LIVE_PATH="/etc/letsencrypt/live/$FQDN"
 
-mkdir -p /ssl/selfsigned/
-mkdir -p /ssl/postfix/
+if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
+  FULLCHAIN="$LETS_ENCRYPT_LIVE_PATH/fullchain.pem"
+  CAFILE="$LETS_ENCRYPT_LIVE_PATH/chain.pem"
+  CERTFILE="$LETS_ENCRYPT_LIVE_PATH/cert.pem"
+  KEYFILE="$LETS_ENCRYPT_LIVE_PATH/privkey.pem"
+else
+  CERTFILE=/var/mail/ssl/selfsigned/cert.pem
+  KEYFILE=/var/mail/ssl/selfsigned/privkey.pem
 
-if [ ! -e $CERTFILE ] || [ ! -e $KEYFILE ]; then
-  openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
-    -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=admin@${DOMAIN}" \
-    -keyout $KEYFILE \
-    -out $CERTFILE
+  if [ ! -e $CERTFILE ] || [ ! -e $KEYFILE ]; then
+    mkdir -p /var/mail/ssl/selfsigned/
+    openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
+      -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=admin@${DOMAIN}" \
+      -keyout $KEYFILE \
+      -out $CERTFILE
+  fi
 fi
 
-# DH Parameters
-if [ ! -e "/ssl/postfix/dh2048.pem" ] || [ ! -e "/ssl/postfix/dh512.pem" ]; then
-  openssl dhparam -out /ssl/postfix/dh2048.pem 2048
-  openssl dhparam -out /ssl/postfix/dh512.pem 512
+# Diffie-Hellman parameters
+if [ ! -e "/var/mail/ssl/dhparams/dh2048.pem" ] || [ ! -e "/var/mail/ssl/dhparams/dh512.pem" ]; then
+  mkdir -p /var/mail/ssl/dhparams/
+  openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
+  openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
 fi
 
+# Folder and permissions
 mkdir -p /var/mail/vhosts/"${DOMAIN}"
-groupadd -g 5000 vmail
-useradd -g vmail -u 5000 vmail -d /var/mail
+groupadd -g "$VMAILGID" vmail
+useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
 chown -R vmail:vmail /var/mail
 chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
 
 # Sieve
 mkdir /var/mail/sieve
-touch /var/mail/sieve/default.sieve && chown -R vmail:vmail /var/mail/sieve
 cat > /var/mail/sieve/default.sieve <<EOF
 require ["fileinto"];
 
@@ -51,14 +58,20 @@ if header :contains "Subject" "*****SPAM*****" {
 
 }
 EOF
-
+chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
 # Postfix
+if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
+  sed -i "s|<CAFILE>|${CAFILE}|g" /etc/postfix/main.cf
+else
+  sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' main.cf
+fi
+
 sed -i -e "s/<FQDN>/${FQDN}/g" \
        -e "s/<DOMAIN>/${DOMAIN}/g" \
-       -e "s/<UID>/5000/g" \
-       -e "s/<GID>/5000/g" \
+       -e "s/<UID>/$VMAILUID/g" \
+       -e "s/<GID>/$VMAILGID/g" \
        -e "s|<CERTFILE>|${CERTFILE}|g" \
        -e "s|<KEYFILE>|${KEYFILE}|g" /etc/postfix/main.cf
 
@@ -68,16 +81,21 @@ sed -i -e "s/<DBHOST>/${DBHOST}/g" \
        -e "s/<DBPASS>/${DBPASS}/g" /etc/postfix/mysql/*.cf
 
 # Dovecot
-sed -i -e "s/<UID>/5000/g" \
-       -e "s/<GID>/5000/g" /etc/dovecot/conf.d/10-mail.conf
+sed -i -e "s/<UID>/$VMAILUID/g" \
+       -e "s/<GID>/$VMAILGID/g" /etc/dovecot/conf.d/10-mail.conf
 
 sed -i -e "s/<DBHOST>/${DBHOST}/g" \
        -e "s/<DBNAME>/${DBNAME}/g" \
        -e "s/<DBUSER>/${DBUSER}/g" \
        -e "s/<DBPASS>/${DBPASS}/g" /etc/dovecot/dovecot-sql.conf.ext
 
-sed -i -e "s|<CERTFILE>|${CERTFILE}|g" \
-       -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
+if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
+  sed -i -e "s|<FULLCHAIN>|${FULLCHAIN}|g" \
+         -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
+else
+  sed -i -e "s|<FULLCHAIN>|${CERTFILE}|g" \
+         -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
+fi
 
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/dovecot/conf.d/20-lmtp.conf
 

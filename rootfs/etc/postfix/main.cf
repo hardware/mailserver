@@ -32,7 +32,7 @@ alias_database = hash:/etc/aliases
 # Smtp ( OUTGOING / Client )
 smtp_tls_loglevel            = 1
 smtp_tls_security_level      = may
-# smtp_tls_CAfile            = <CAFILE>
+smtp_tls_CAfile              = <CAFILE>
 smtp_tls_protocols           = !SSLv2, !SSLv3
 smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtp_tls_mandatory_ciphers   = high
@@ -50,11 +50,11 @@ smtpd_tls_protocols           = !SSLv2, !SSLv3
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers   = medium
 
-# smtpd_tls_CAfile            = $smtp_tls_CAfile
+smtpd_tls_CAfile              = $smtp_tls_CAfile
 smtpd_tls_cert_file           = <CERTFILE>
 smtpd_tls_key_file            = <KEYFILE>
-smtpd_tls_dh1024_param_file   = /ssl/postfix/dh2048.pem
-smtpd_tls_dh512_param_file    = /ssl/postfix/dh512.pem
+smtpd_tls_dh1024_param_file   = /var/mail/ssl/dhparams/dh2048.pem
+smtpd_tls_dh512_param_file    = /var/mail/ssl/dhparams/dh512.pem
 
 tls_preempt_cipherlist = yes
 tls_random_source      = dev:/dev/urandom
