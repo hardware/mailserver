@@ -27,10 +27,12 @@
 - **993** : IMAP (SSL/TLS)
 - **4190** : SIEVE (STARTTLS)
 
-### Build
+### Install
 
 ```
-docker build -t hardware/mailserver
+docker pull hardware/mailserver
+sudo groupadd -g 1024 vmail
+sudo useradd -g vmail -u 1024 vmail -d /docker/mail
 ```
 
 ### How to use
