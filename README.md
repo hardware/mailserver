@@ -1,5 +1,9 @@
 # hardware/mailserver
 
+[![](https://badge.imagelayers.io/hardware/mailserver:latest.svg)](https://imagelayers.io/?images=hardware/mailserver:latest 'Get your own badge on imagelayers.io')
+
+![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
+
 ### Requirement
 
 - Docker 1.0 or higher
