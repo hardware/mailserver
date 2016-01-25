@@ -103,6 +103,7 @@ sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/dovecot/conf.d/20-lmtp.conf
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/KeyTable
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/SigningTable
 sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/TrustedHosts
+sed -i "s/<FQDN>/${FQDN}/g" /etc/opendkim/opendkim.conf
 
 # OpenDMARC
 sed -i "s/<FQDN>/${FQDN}/g" /etc/opendmarc/opendmarc.conf

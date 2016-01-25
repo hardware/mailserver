@@ -2,9 +2,11 @@
 
 trap "{ echo Stopping opendmarc; kill -9 $(pidof /usr/sbin/opendmarc); sleep 3; exit 0; }" EXIT
 
+# Create chroot dir and set permissions
 chown -R opendmarc:opendmarc /etc/opendmarc
 mkdir /var/spool/postfix/opendmarc
 chown opendmarc: /var/spool/postfix/opendmarc
 usermod -aG opendmarc postfix
 
+# Start OpenDMARC
 /usr/sbin/opendmarc -c /etc/opendmarc/opendmarc.conf -u opendmarc -P /var/run/opendmarc/opendmarc.pid -f -l

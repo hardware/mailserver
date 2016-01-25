@@ -8,7 +8,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     postfix postfix-mysql \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
     opendkim opendkim-tools opendmarc \
-    amavisd-new spamassassin spamc clamav-milter \
+    amavisd-new amavisd-milter spamassassin spamc clamav-milter \
     supervisor openssl rsyslog \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

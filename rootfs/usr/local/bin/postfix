@@ -8,6 +8,9 @@ cp -f /etc/hosts /var/spool/postfix/etc/hosts
 cp -f /etc/localtime /var/spool/postfix/etc/localtime
 cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
+# Build header checks hash table
+/usr/sbin/postmap /etc/postfix/header_checks
+
 # Start Postfix
 /usr/sbin/postfix -c /etc/postfix start
 

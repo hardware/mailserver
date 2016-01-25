@@ -1,10 +1,14 @@
 #!/bin/bash
 
 if [ -d "/var/run/amavis" ] && [ -f "/var/run/amavis/amavisd.pid" ]; then
-  rm /var/run/amavis/amavisd.pid
+  rm -f /var/run/amavis/amavisd.pid
 fi
 
+# Fix permissions
 usermod -aG amavis clamav
 
-supervisorctl start amavisd
+# Start amavisd and amavisd-milter
+supervisorctl start amavisd && sleep 5
+supervisorctl start amavisd-milter
+
 sleep infinity
