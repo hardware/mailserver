@@ -19,7 +19,9 @@
 - Spamassassin 3.4.0
 - ClamAV 0.98.7
 - Amavisd-new 2.10.1
+- Amavisd-milter 1.5.0
 - Supervisor 3.0r1
+- Rsyslog 8.4.2
 - ManageSieve server
 
 ### Ports
@@ -139,7 +141,7 @@ docker run -d \
   ...
 ```
 
-The common name of your ssl certifcate **MUST** must be the same as your server's FQDN.
+The common name of your ssl certifcate **MUST** be the same as your server's FQDN.
 
 ### Email client settings :
 
