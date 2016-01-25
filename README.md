@@ -8,7 +8,7 @@
 
 - Docker 1.0 or higher
 - MySQL
-- Postfixadmin (optional)
+- [Postfixadmin](https://github.com/hardware/postfixadmin) (optional)
 
 ### Components
 
@@ -93,6 +93,21 @@ mail:
     - /docker/mail:/var/mail
     - /docker/dovecot:/var/lib/dovecot
     - /docker/opendkim:/etc/opendkim/keys
+
+postfixadmin:
+  image: hardware/postfixadmin
+  container_name: postfixadmin
+  domainname: domain.tld
+  hostname: mail
+  links:
+    - mariadb:mariadb
+  ports:
+    - "80:80"
+  environment:
+    - DBHOST=mariadb
+    - DBUSER=postfix
+    - DBNAME=postfix
+    - DBPASS=xxxxxxx
 
 mariadb:
   image: mariadb:10.1
