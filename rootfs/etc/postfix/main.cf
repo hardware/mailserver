@@ -2,7 +2,7 @@
 ## GENERALS SETTINGS ##
 #######################
 
-smtpd_banner         = $myhostname ESMTP $mail_name (Debian/GNU)
+smtpd_banner         = $myhostname ESMTP $mail_name (Hardware/mailserver)
 biff                 = no
 append_dot_mydomain  = no
 readme_directory     = no

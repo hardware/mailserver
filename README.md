@@ -57,6 +57,64 @@ docker run -d \
   hardware/mailserver
 ```
 
+At first launch, the container takes few minutes to generate SSL certificates (if needed), Diffie-Hellman parameters, DKIM keypair and update clamav database, all of this takes some time, be patient...
+
+You can check startup logs with this command :
+
+```
+docker logs -f mailserver
+```
+
+Once it's over (5/10 minutes approximately), you can check with `openssl s_client` :
+
+#### SMTP - 25 port (MTA <-> MTA)
+```
+telnet mail.domain.tld 25
+...
+Connected to mail.domain.tld.
+Escape character is '^]'.
+220 mail.domain.tld ESMTP Postfix (Debian/GNU)
+ehlo localhost
+250-mail.domain.tld
+250-PIPELINING
+250-SIZE 502400000
+250-ETRN
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250 DSN
+...
+quit
+```
+
+#### IMAP SSL/TLS - 993 port (IMAPS)
+```
+openssl s_client -connect mail.domain.tld:993 -tlsextdebug
+...
+OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=LOGIN] Dovecot ready.
+```
+
+#### IMAP STARTTLS - 143 port (IMAP)
+```
+openssl s_client -connect mail.domain.tld:143 -starttls imap -tlsextdebug
+...
+OK Pre-login capabilities listed, post-login capabilities have more.
+```
+
+#### SMTP STARTTLS - 587 port (Submission)
+```
+openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
+...
+250 DSN
+```
+
+#### SMTP SSL/TLS - 465 port (SMTPS)
+```
+openssl s_client -connect mail.domain.tld:465 -tlsextdebug
+...
+220 mail.domain.tld ESMTP Postfix (Debian/GNU)
+```
+
 ### Environment variables
 
 - **VMAILUID** = vmail user id (*optional*, default: 1024)
@@ -71,8 +129,9 @@ docker run -d \
 #### Docker-compose.yml
 
 ```
-mail:
+mailserver:
   image: hardware/mailserver
+  container_name: mailserver
   domainname: domain.tld
   hostname: mail
   links:
@@ -111,6 +170,7 @@ postfixadmin:
 
 mariadb:
   image: mariadb:10.1
+  container_name: mariadb
   ports:
     - "3306:3306"
   volumes:
@@ -145,6 +205,8 @@ The DKIM public key is available on host here :
 
 `/docker/opendkim/domain.tld/mail.txt`
 
+Test your configuration with this website : https://www.mail-tester.com/
+
 ### Let's encrypt
 
 To use your Let's encrypt certificates, you may add another docker volume in this way :
@@ -157,6 +219,33 @@ docker run -d \
 ```
 
 The common name of your ssl certifcate **MUST** be the same as your server's FQDN.
+If you do not use let's encrypt , a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/var/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
+
+### Admin password lost ?
+
+If you have lost your postfixadmin main account password, you can generate a new one like this :
+
+Get salted-hash :
+```
+doveadm pw -s SHA512-CRYPT -p YOUR_NEW_PASSWORD | sed 's/{SHA512-CRYPT}//'
+```
+
+And edit database :
+```
+docker exec -it mondedie-mariadb bash
+
+# mysql -u root -p
+
+mysql> use postfix;
+mysql> UPDATE admin SET password = 'HASH' WHERE username = 'user@domain.tld';
+
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> quit
+
+exit
+```
 
 ### Email client settings :
 
@@ -170,7 +259,11 @@ The common name of your ssl certifcate **MUST** be the same as your server's FQD
 
 ## Roadmap
 
+- Rainloop additional image
 - POP3 optional support (port 110 & 995)
+- Greylist
+- Multi-domains support
+- Quota support
 
 ## Contribute
 
