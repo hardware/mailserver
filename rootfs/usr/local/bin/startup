@@ -65,7 +65,7 @@ sievec /var/mail/sieve/default.sieve
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i "s|<CAFILE>|${CAFILE}|g" /etc/postfix/main.cf
 else
-  sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' main.cf
+  sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
 fi
 
 sed -i -e "s/<FQDN>/${FQDN}/g" \
