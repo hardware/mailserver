@@ -61,9 +61,10 @@ EOF
 chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
-# Logging hardlink
-touch /var/log/mail.log && mkdir /var/log/mail
-ln /var/log/mail.log /var/log/mail/mail.log
+# Logging
+mkdir /var/log/mail && touch /var/log/mail/mail.log
+rm /var/log/mail.log
+ln -s /var/log/mail/mail.log /var/log/mail.log
 
 # Postfix
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
