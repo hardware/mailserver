@@ -61,6 +61,11 @@ EOF
 chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
+# Logging
+mkdir /var/log/mail && touch /var/log/mail/mail.log
+rm /var/log/mail.log
+ln -s /var/log/mail/mail.log /var/log/mail.log
+
 # Postfix
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i "s|<CAFILE>|${CAFILE}|g" /etc/postfix/main.cf
