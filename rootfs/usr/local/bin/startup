@@ -48,7 +48,7 @@ chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
 
 # Sieve
-mkdir /var/mail/sieve
+mkdir /var/mail/sieve &> /dev/null
 cat > /var/mail/sieve/default.sieve <<EOF
 require ["fileinto"];
 
@@ -62,8 +62,9 @@ chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
 # Logging
-mkdir /var/log/mail && touch /var/log/mail/mail.log
-rm /var/log/mail.log
+mkdir /var/log/mail &> /dev/null
+rm /var/log/mail.log &> /dev/null
+touch /var/log/mail/mail.log
 ln -s /var/log/mail/mail.log /var/log/mail.log
 
 # Postfix
