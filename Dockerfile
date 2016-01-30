@@ -16,7 +16,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 COPY rootfs /
 RUN chmod +x /usr/local/bin/*
 
-VOLUME /var/mail /var/lib/dovecot /etc/opendkim/keys /etc/letsencrypt
+VOLUME /var/mail /var/lib/dovecot /etc/opendkim/keys /etc/letsencrypt /var/log/mail
 EXPOSE 25 143 465 587 993 4190
 
 CMD ["/usr/local/bin/startup"]
