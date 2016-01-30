@@ -67,6 +67,12 @@ rm /var/log/mail.log &> /dev/null
 touch /var/log/mail/mail.log
 ln -s /var/log/mail/mail.log /var/log/mail.log
 
+# Dovecot mountpoints ignoring
+doveadm mount add /var/lib/dovecot ignore
+doveadm mount add /etc/opendkim/keys ignore
+doveadm mount add /etc/letsencrypt ignore
+doveadm mount add /var/log/mail ignore
+
 # Postfix
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i "s|<CAFILE>|${CAFILE}|g" /etc/postfix/main.cf
