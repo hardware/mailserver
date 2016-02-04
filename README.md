@@ -171,8 +171,6 @@ postfixadmin:
 mariadb:
   image: mariadb:10.1
   container_name: mariadb
-  ports:
-    - "3306:3306"
   volumes:
     - /docker/mysql/db:/var/lib/mysql
   environment:
