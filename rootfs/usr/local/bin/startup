@@ -54,7 +54,7 @@ require ["fileinto"];
 
 if header :contains "Subject" "*****SPAM*****" {
 
-    fileinto "Junk";
+    fileinto "Spam";
 
 }
 EOF
@@ -66,6 +66,12 @@ mkdir /var/log/mail &> /dev/null
 rm /var/log/mail.log &> /dev/null
 touch /var/log/mail/mail.log
 ln -s /var/log/mail/mail.log /var/log/mail.log
+
+# Dovecot mountpoints ignoring
+doveadm mount add /var/lib/dovecot ignore
+doveadm mount add /etc/opendkim/keys ignore
+doveadm mount add /etc/letsencrypt ignore
+doveadm mount add /var/log/mail ignore
 
 # Postfix
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
@@ -122,6 +128,9 @@ sed -i "s/<FQDN>/${FQDN}/g" /etc/amavis/conf.d/05-node_id
 
 # Mailname
 sed -i "s/<FQDN>/${FQDN}/g" /etc/mailname
+
+# Supervisor socket
+touch /dev/shm/supervisor.sock
 
 # RUN !
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
