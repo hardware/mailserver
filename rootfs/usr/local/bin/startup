@@ -129,5 +129,8 @@ sed -i "s/<FQDN>/${FQDN}/g" /etc/amavis/conf.d/05-node_id
 # Mailname
 sed -i "s/<FQDN>/${FQDN}/g" /etc/mailname
 
+# Supervisor socket
+touch /dev/shm/supervisor.sock
+
 # RUN !
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
