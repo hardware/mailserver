@@ -12,7 +12,7 @@ usermod -aG opendkim postfix
 if [ ! -e "/etc/opendkim/keys/${DOMAIN}/mail.private" ]; then
   mkdir -p /etc/opendkim/keys/"${DOMAIN}"
   cd /etc/opendkim/keys/"${DOMAIN}"
-  opendkim-genkey -s mail -d "${DOMAIN}" -b 1024
+  opendkim-genkey -s mail -d "${DOMAIN}" -b "${OPENDKIM_KEY_LENGTH}"
   chown opendkim:opendkim mail.private
   chmod 400 mail.private mail.txt
 fi

@@ -1,10 +1,14 @@
 FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
-ENV DBHOST=mariadb DBUSER=postfix DBNAME=postfix VMAILUID=1024 VMAILGID=1024
+ENV DBHOST=mariadb \
+    DBUSER=postfix \
+    DBNAME=postfix \
+    VMAILUID=1024 \
+    VMAILGID=1024 \
+    OPENDKIM_KEY_LENGTH=2048
 
-RUN export DEBIAN_FRONTEND=noninteractive \
-  && apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     postfix postfix-mysql \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
     opendkim opendkim-tools opendmarc \

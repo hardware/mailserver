@@ -119,6 +119,7 @@ openssl s_client -connect mail.domain.tld:465 -tlsextdebug
 
 - **VMAILUID** = vmail user id (*optional*, default: 1024)
 - **VMAILGID** = vmail group id (*optional*, default: 1024)
+- **OPENDKIM_KEY_LENGTH** = Size of your DKIM RSA key pair (*optional*, default: 2048)
 - **DBHOST** = MySQL instance ip/hostname (*optional*, default: mariadb)
 - **DBUSER** = MYSQL database username (*optional*, default: postfix)
 - **DBNAME** = MYSQL database name (*optional*, default: postfix)
