@@ -1,6 +1,6 @@
 rewrite_header Subject *****SPAM*****
 report_safe 0
-whitelist_from *@<DOMAIN>
+whitelist_from *@{{ DOMAIN }}
 
 add_header all Report _REPORT_
 add_header spam Flag _YESNOCAPS_

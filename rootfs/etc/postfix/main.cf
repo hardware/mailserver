@@ -2,7 +2,7 @@
 ## GENERALS SETTINGS ##
 #######################
 
-smtpd_banner         = $myhostname ESMTP $mail_name (Hardware/mailserver)
+smtpd_banner         = $myhostname ESMTP $mail_name
 biff                 = no
 append_dot_mydomain  = no
 readme_directory     = no
@@ -16,8 +16,8 @@ mailbox_size_limit   = 1024000000
 inet_interfaces = all
 inet_protocols = ipv4
 
-myhostname    = <FQDN>
-myorigin      = <FQDN>
+myhostname    = {{ FQDN }}
+myorigin      = {{ FQDN }}
 mydestination = localhost localhost.$mydomain
 mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 relayhost     =
@@ -35,7 +35,7 @@ header_checks = regexp:/etc/postfix/header_checks
 # Smtp ( OUTGOING / Client )
 smtp_tls_loglevel            = 1
 smtp_tls_security_level      = may
-smtp_tls_CAfile              = <CAFILE>
+smtp_tls_CAfile              = {{ CAFILE }}
 smtp_tls_protocols           = !SSLv2, !SSLv3
 smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtp_tls_mandatory_ciphers   = high
@@ -54,8 +54,8 @@ smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers   = medium
 
 smtpd_tls_CAfile              = $smtp_tls_CAfile
-smtpd_tls_cert_file           = <CERTFILE>
-smtpd_tls_key_file            = <KEYFILE>
+smtpd_tls_cert_file           = {{ CERTFILE }}
+smtpd_tls_key_file            = {{ KEYFILE }}
 smtpd_tls_dh1024_param_file   = /var/mail/ssl/dhparams/dh2048.pem
 smtpd_tls_dh512_param_file    = /var/mail/ssl/dhparams/dh512.pem
 
@@ -86,9 +86,9 @@ broken_sasl_auth_clients = yes
 ## VIRTUALS MAPS PARAMETERS ##
 ##############################
 
-virtual_uid_maps        = static:<UID>
-virtual_gid_maps        = static:<GID>
-virtual_minimum_uid     = <UID>
+virtual_uid_maps        = static:{{ VMAILUID }}
+virtual_gid_maps        = static:{{ VMAILGID }}
+virtual_minimum_uid     = {{ VMAILUID }}
 virtual_mailbox_base    = /var/mail
 virtual_transport       = lmtp:unix:private/dovecot-lmtp
 virtual_mailbox_domains = mysql:/etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
@@ -102,10 +102,10 @@ virtual_alias_maps      = mysql:/etc/postfix/mysql/mysql-virtual-alias-maps.cf
 # notify_classes = bounce, delay, resource, software
 notify_classes = resource, software
 
-error_notice_recipient     = admin@<DOMAIN>
-# delay_notice_recipient   = admin@<DOMAIN>
-# bounce_notice_recipient  = admin@<DOMAIN>
-# 2bounce_notice_recipient = admin@<DOMAIN>
+error_notice_recipient     = admin@{{ DOMAIN }}
+# delay_notice_recipient   = admin@{{ DOMAIN }}
+# bounce_notice_recipient  = admin@{{ DOMAIN }}
+# 2bounce_notice_recipient = admin@{{ DOMAIN }}
 
 ##################
 ## RESTRICTIONS ##
@@ -146,5 +146,5 @@ receive_override_options = no_address_mappings
 
 milter_protocol       = 6
 milter_default_action = accept
-smtpd_milters         = unix:/opendkim/opendkim.sock, unix:/opendmarc/opendmarc.sock
-non_smtpd_milters     = unix:/opendkim/opendkim.sock
+smtpd_milters         = inet:localhost:12301,inet:localhost:54321
+non_smtpd_milters     = $smtpd_milters

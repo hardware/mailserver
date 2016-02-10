@@ -8,6 +8,6 @@ chomp($myhostname = `hostname --fqdn`);
 # To manually set $myhostname, edit the following line with the correct Fully
 # Qualified Domain Name (FQDN) and remove the # at the beginning of the line.
 #
-$myhostname = "<FQDN>";
+$myhostname = "{{ FQDN }}";
 
 1;  # ensure a defined return
