@@ -1,25 +1,65 @@
 #!/bin/bash
 
+trap "{ echo Stopping mailserver; supervisorctl stop all; exit 0; }" EXIT
+
+
 # ENV
 export FQDN
 export DOMAIN
-FQDN="$(hostname --fqdn)"
-DOMAIN="$(hostname --domain)"
+export FULLCHAIN
+export CAFILE
+export CERTFILE
+export KEYFILE
+FQDN=$(hostname --fqdn)
+DOMAIN=$(hostname --domain)
+DBHOST=${DBHOST:-mariadb}
+DBUSER=${DBUSER:-postfix}
+DBNAME=${DBNAME:-postfix}
+VMAILUID=${VMAILUID:-1024}
+VMAILGID=${VMAILGID:-1024}
+OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
+ADD_DOMAINS=${ADD_DOMAINS:-}
 
-if [ -z "$DBPASS" ]; then
+if [ -z $DBPASS ]; then
   echo "Mariadb database password must be set !"
   exit 1
 fi
 
 # SSL certificates
-LETS_ENCRYPT_LIVE_PATH="/etc/letsencrypt/live/$FQDN"
+LETS_ENCRYPT_LIVE_PATH=/etc/letsencrypt/live/$FQDN
 
-if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
-  FULLCHAIN="$LETS_ENCRYPT_LIVE_PATH/fullchain.pem"
-  CAFILE="$LETS_ENCRYPT_LIVE_PATH/chain.pem"
-  CERTFILE="$LETS_ENCRYPT_LIVE_PATH/cert.pem"
-  KEYFILE="$LETS_ENCRYPT_LIVE_PATH/privkey.pem"
+if [ -d $LETS_ENCRYPT_LIVE_PATH ]; then
+  FULLCHAIN=$LETS_ENCRYPT_LIVE_PATH/fullchain.pem
+  CAFILE=$LETS_ENCRYPT_LIVE_PATH/chain.pem
+  CERTFILE=$LETS_ENCRYPT_LIVE_PATH/cert.pem
+  KEYFILE=$LETS_ENCRYPT_LIVE_PATH/privkey.pem
+
+  # When using https://github.com/JrCs/docker-nginx-proxy-letsencrypt
+  # and https://github.com/jwilder/nginx-proxy there is only key.pem and fullchain.pem
+  # so we look for key.pem and extract cert.pem and chain.pem
+  if [ ! -e $KEYFILE ]; then
+    KEYFILE=$LETS_ENCRYPT_LIVE_PATH/key.pem
+  fi
+
+  if [ ! -e $KEYFILE ]; then
+    echo "No keyfile found in $LETS_ENCRYPT_LIVE_PATH !"
+    exit 1
+  fi
+
+  if [ ! -e $CAFILE ] || [ ! -e $CERTFILE ]; then
+    if [ ! -e $FULLCHAIN ]; then
+      echo "No fullchain found in $LETS_ENCRYPT_LIVE_PATH !"
+      exit
+    fi
+
+    awk -v path=$LETS_ENCRYPT_LIVE_PATH 'BEGIN {c=0;} /BEGIN CERT/{c++} { print > path"/cert" c ".pem"}' < $FULLCHAIN
+    mv $LETS_ENCRYPT_LIVE_PATH/cert1.pem $CERTFILE
+    mv $LETS_ENCRYPT_LIVE_PATH/cert2.pem $CAFILE
+  fi
+
 else
+  FULLCHAIN=/var/mail/ssl/selfsigned/cert.pem
+  CAFILE=
   CERTFILE=/var/mail/ssl/selfsigned/cert.pem
   KEYFILE=/var/mail/ssl/selfsigned/privkey.pem
 
@@ -33,104 +73,117 @@ else
 fi
 
 # Diffie-Hellman parameters
-if [ ! -e "/var/mail/ssl/dhparams/dh2048.pem" ] || [ ! -e "/var/mail/ssl/dhparams/dh512.pem" ]; then
+if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/dh512.pem ]; then
   mkdir -p /var/mail/ssl/dhparams/
   openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
   openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
 fi
 
-# Folder and permissions
-mkdir -p /var/mail/vhosts/"${DOMAIN}"
-groupadd -g "$VMAILGID" vmail
-useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
+# Set defaults
+:>/etc/spamassassin/local.cf
+:>/etc/opendkim/SigningTable
+:>/etc/opendkim/KeyTable
+cat > /etc/opendkim/TrustedHosts <<EOF
+127.0.0.1
+localhost
+::1
+EOF
+
+# Add domains from ENV DOMAIN and ADD_DOMAINS
+domains=(${DOMAIN})
+domains+=(${ADD_DOMAINS//,/ })
+
+for domain in ${domains[@]}; do
+
+  # Generate OpenDKIM public key if it doesn't exist
+  if [ ! -e /etc/opendkim/keys/$domain/mail.private ]; then
+    mkdir -p /etc/opendkim/keys/$domain
+    opendkim-genkey \
+      --selector=mail \
+      --domain=$domain \
+      --bits=$OPENDKIM_KEY_LENGTH \
+      --directory=/etc/opendkim/keys/$domain
+
+    echo "creating keys for domain $domain and adding it to whitelists"
+  else
+    echo "found keys for domain $domain - skip creation"
+  fi
+
+  # Add vhost
+  mkdir -p /var/mail/vhosts/$domain
+
+  # Whitelist domain in spamassassin
+  echo "whitelist_from *@$domain" >> /etc/spamassassin/local.cf
+
+  chown opendkim:opendkim /etc/opendkim/keys/$domain/mail.private
+  chmod 400 /etc/opendkim/keys/$domain/mail.private /etc/opendkim/keys/$domain/mail.txt
+
+  echo "mail._domainkey.$domain $domain:mail:/etc/opendkim/keys/$domain/mail.private" >> /etc/opendkim/KeyTable
+  echo "*@$domain mail._domainkey.$domain" >> /etc/opendkim/SigningTable
+  echo "*.$domain" >> /etc/opendkim/TrustedHosts
+
+done
+
+if [ ! -d $LETS_ENCRYPT_LIVE_PATH ]; then
+  sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
+fi
+
+# Replace {{ ENV }} vars
+_envtpl() {
+  mv $1 $1".tpl" # envtpl requires files to have .tpl extension
+  envtpl $1".tpl"
+}
+
+_envtpl /etc/postfix/main.cf
+_envtpl /etc/postfix/mysql/mysql-virtual-alias-maps.cf
+_envtpl /etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
+_envtpl /etc/postfix/mysql/mysql-virtual-mailbox-maps.cf
+_envtpl /etc/dovecot/conf.d/10-mail.conf
+_envtpl /etc/dovecot/dovecot-sql.conf.ext
+_envtpl /etc/dovecot/conf.d/10-ssl.conf
+_envtpl /etc/dovecot/conf.d/20-lmtp.conf
+_envtpl /etc/opendkim/opendkim.conf
+_envtpl /etc/opendmarc/opendmarc.conf
+_envtpl /etc/amavis/conf.d/05-node_id
+_envtpl /etc/mailname
+
+# Folders and permissions
+groupadd -g $VMAILGID vmail
+useradd -g vmail -u $VMAILUID vmail -d /var/mail
 chown -R vmail:vmail /var/mail
 chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
+mkdir -p /var/run/dovecot
+chown -R dovecot:dovecot /var/run/dovecot
 
 # Sieve
-mkdir /var/mail/sieve &> /dev/null
-cat > /var/mail/sieve/default.sieve <<EOF
-require ["fileinto"];
+mkdir -p /var/mail/sieve
 
+if [ ! -e /var/mail/sieve/default.sieve ]; then
+  cat > /var/mail/sieve/default.sieve <<EOF
+require ["fileinto", "mailbox"];
 if header :contains "Subject" "*****SPAM*****" {
-
-    fileinto "Spam";
-
+  fileinto :create "Junk"; stop;
 }
 EOF
+fi
+
 chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
-
-# Logging
-mkdir /var/log/mail &> /dev/null
-rm /var/log/mail.log &> /dev/null
-touch /var/log/mail/mail.log
-ln -s /var/log/mail/mail.log /var/log/mail.log
 
 # Dovecot mountpoints ignoring
 doveadm mount add /var/lib/dovecot ignore
 doveadm mount add /etc/opendkim/keys ignore
 doveadm mount add /etc/letsencrypt ignore
-doveadm mount add /var/log/mail ignore
-
-# Postfix
-if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
-  sed -i "s|<CAFILE>|${CAFILE}|g" /etc/postfix/main.cf
-else
-  sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
-fi
-
-sed -i -e "s/<FQDN>/${FQDN}/g" \
-       -e "s/<DOMAIN>/${DOMAIN}/g" \
-       -e "s/<UID>/$VMAILUID/g" \
-       -e "s/<GID>/$VMAILGID/g" \
-       -e "s|<CERTFILE>|${CERTFILE}|g" \
-       -e "s|<KEYFILE>|${KEYFILE}|g" /etc/postfix/main.cf
-
-sed -i -e "s/<DBHOST>/${DBHOST}/g" \
-       -e "s/<DBNAME>/${DBNAME}/g" \
-       -e "s/<DBUSER>/${DBUSER}/g" \
-       -e "s/<DBPASS>/${DBPASS}/g" /etc/postfix/mysql/*.cf
-
-# Dovecot
-sed -i -e "s/<UID>/$VMAILUID/g" \
-       -e "s/<GID>/$VMAILGID/g" /etc/dovecot/conf.d/10-mail.conf
-
-sed -i -e "s/<DBHOST>/${DBHOST}/g" \
-       -e "s/<DBNAME>/${DBNAME}/g" \
-       -e "s/<DBUSER>/${DBUSER}/g" \
-       -e "s/<DBPASS>/${DBPASS}/g" /etc/dovecot/dovecot-sql.conf.ext
-
-if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
-  sed -i -e "s|<FULLCHAIN>|${FULLCHAIN}|g" \
-         -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
-else
-  sed -i -e "s|<FULLCHAIN>|${CERTFILE}|g" \
-         -e "s|<KEYFILE>|${KEYFILE}|g" /etc/dovecot/conf.d/10-ssl.conf
-fi
-
-sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/dovecot/conf.d/20-lmtp.conf
-
-# OpenDKIM
-sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/KeyTable
-sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/SigningTable
-sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/opendkim/TrustedHosts
-sed -i "s/<FQDN>/${FQDN}/g" /etc/opendkim/opendkim.conf
-
-# OpenDMARC
-sed -i "s/<FQDN>/${FQDN}/g" /etc/opendmarc/opendmarc.conf
-
-# Spamassassin
-sed -i "s/<DOMAIN>/${DOMAIN}/g" /etc/spamassassin/local.cf
-
-# Amavis
-sed -i "s/<FQDN>/${FQDN}/g" /etc/amavis/conf.d/05-node_id
-
-# Mailname
-sed -i "s/<FQDN>/${FQDN}/g" /etc/mailname
 
 # Supervisor socket
 touch /dev/shm/supervisor.sock
+
+# Wait until mysql is ready
+until mysql --host=$DBHOST --user=$DBUSER --password=$DBPASS --execute="USE $DBNAME;" &>/dev/null; do
+  echo "waiting for mysql to start..."
+  sleep 2
+done
 
 # RUN !
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

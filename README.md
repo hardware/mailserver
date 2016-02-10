@@ -50,8 +50,8 @@ docker run -d \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
+  -e ADD_DOMAINS=domain.tld,another-domain.tld \
   -v /docker/mail:/var/mail \
-  -v /docker/dovecot:/var/lib/dovecot \
   -v /docker/opendkim:/etc/opendkim/keys \
   -h mail.domain.tld \
   hardware/mailserver
@@ -124,6 +124,7 @@ openssl s_client -connect mail.domain.tld:465 -tlsextdebug
 - **DBUSER** = MYSQL database username (*optional*, default: postfix)
 - **DBNAME** = MYSQL database name (*optional*, default: postfix)
 - **DBPASS** = MYSQL database (**required**)
+- **ADD_DOMAINS** = add additional domains to the mailserver (needed for dkim keys etc.)
 
 ### Docker-compose
 

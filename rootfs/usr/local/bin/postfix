@@ -11,6 +11,10 @@ cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 # Build header checks hash table
 /usr/sbin/postmap /etc/postfix/header_checks
 
+chmod 0644 /etc/postfix/header_checks
+chmod 0644 /etc/postfix/main.cf
+chmod 0644 /etc/postfix/master.cf
+
 # Start Postfix
 /usr/sbin/postfix -c /etc/postfix start
 
