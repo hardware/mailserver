@@ -2,20 +2,7 @@
 
 trap "{ echo Stopping opendkim; kill -9 $(pidof /usr/sbin/opendkim); sleep 3; exit 0; }" EXIT
 
-# Create chroot dir and set permissions
 chown -R opendkim:opendkim /etc/opendkim
-mkdir /var/spool/postfix/opendkim
-chown opendkim: /var/spool/postfix/opendkim
-usermod -aG opendkim postfix
-
-# Generate OpenDKIM public key if it doesn't exist
-if [ ! -e "/etc/opendkim/keys/${DOMAIN}/mail.private" ]; then
-  mkdir -p /etc/opendkim/keys/"${DOMAIN}"
-  cd /etc/opendkim/keys/"${DOMAIN}"
-  opendkim-genkey -s mail -d "${DOMAIN}" -b "${OPENDKIM_KEY_LENGTH}"
-  chown opendkim:opendkim mail.private
-  chmod 400 mail.private mail.txt
-fi
 
 # Start OpenDKIM
 /usr/sbin/opendkim -f -x /etc/opendkim/opendkim.conf
