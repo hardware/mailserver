@@ -7,7 +7,7 @@
 ### Requirement
 
 - Docker 1.0 or higher
-- MySQL
+- MariaDB
 - [Postfixadmin](https://github.com/hardware/postfixadmin) (optional)
 
 ### Components
@@ -45,17 +45,18 @@ sudo useradd -g vmail -u 1024 vmail -d /docker/mail
 
 ```
 docker run -d \
+  --name mailserver \
   -p 25:25 -p 143:143 -p 465:465 -p 587:587 -p 993:993 -p 4190:4190 \
-  -e DBHOST=mysql \
+  -e DBHOST=mariadb \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
   -e ADD_DOMAINS=domain.tld,another-domain.tld \
   -v /docker/mail:/var/mail \
   -v /docker/dovecot:/var/lib/dovecot \
-  -v /docker/opendkim:/etc/opendkim \
-  -v /docker/spamassassin:/etc/spamassassin \
+  -v /docker/opendkim:/etc/opendkim/keys \
   -h mail.domain.tld \
+  --link mariadb:mariadb \
   hardware/mailserver
 ```
 
@@ -122,11 +123,11 @@ openssl s_client -connect mail.domain.tld:465 -tlsextdebug
 - **VMAILUID** = vmail user id (*optional*, default: 1024)
 - **VMAILGID** = vmail group id (*optional*, default: 1024)
 - **OPENDKIM_KEY_LENGTH** = Size of your DKIM RSA key pair (*optional*, default: 2048)
-- **DBHOST** = MySQL instance ip/hostname (*optional*, default: mariadb)
-- **DBUSER** = MYSQL database username (*optional*, default: postfix)
-- **DBNAME** = MYSQL database name (*optional*, default: postfix)
-- **DBPASS** = MYSQL database (**required**)
-- **ADD_DOMAINS** = add additional domains to the mailserver (needed for dkim keys etc.)
+- **DBHOST** = MariaDB instance ip/hostname (*optional*, default: mariadb)
+- **DBUSER** = MariaDB database username (*optional*, default: postfix)
+- **DBNAME** = MariaDB database name (*optional*, default: postfix)
+- **DBPASS** = MariaDB database (**required**)
+- **ADD_DOMAINS** = add additional domains to the mailserver (needed for dkim keys etc.) (*optional*, default: null)
 
 ### Docker-compose
 
@@ -164,13 +165,23 @@ postfixadmin:
   hostname: mail
   links:
     - mariadb:mariadb
-  ports:
-    - "80:80"
   environment:
     - DBHOST=mariadb
     - DBUSER=postfix
     - DBNAME=postfix
     - DBPASS=xxxxxxx
+
+rainloop:
+  image: wonderfall/rainloop
+  container_name: rainloop
+  links:
+    - mailserver:mailserver
+    - mariadb:mariadb
+  environment:
+    - GID=991
+    - UID=991
+  volumes:
+    - /docker/rainloop:/rainloop/data
 
 mariadb:
   image: mariadb:10.1
@@ -261,10 +272,6 @@ exit
 
 ## Roadmap
 
-- Rainloop additional image
-- POP3 optional support (port 110 & 995)
-- Greylist
-- Multi-domains support
 - Quota support
 
 ## Contribute

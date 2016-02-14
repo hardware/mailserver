@@ -2,12 +2,11 @@ FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    mysql-client curl python-pip \
     postfix postfix-mysql \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
     opendkim opendkim-tools opendmarc \
     amavisd-new amavisd-milter spamassassin spamc clamav clamav-milter \
-    supervisor openssl rsyslog \
+    supervisor openssl rsyslog python-pip \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && pip install envtpl
