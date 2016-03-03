@@ -15,8 +15,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  && dpkg -i /tmp/tini_$TINI_VER.deb \
  && apt-get purge -y \
     wget \
-    ca-certificates \
- && apt-get autoremove --purge -y \
  && apt-get clean \
  && rm -rf /tmp/* /var/lib/apt/lists/*
 
