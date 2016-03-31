@@ -51,7 +51,7 @@ docker run -d \
   -e DBUSER=postfix \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
-  -e ADD_DOMAINS=domain.tld,another-domain.tld \
+  -e ADD_DOMAINS=domain2.tld,another-domain.tld \
   -v /docker/mail:/var/mail \
   -v /docker/dovecot:/var/lib/dovecot \
   -v /docker/opendkim:/etc/opendkim/keys \
