@@ -87,7 +87,6 @@ if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/d
 fi
 
 # Set defaults
-:>/etc/spamassassin/local.cf
 :>/etc/opendkim/SigningTable
 :>/etc/opendkim/KeyTable
 cat > /etc/opendkim/TrustedHosts <<EOF
@@ -120,7 +119,7 @@ for domain in "${domains[@]}"; do
   mkdir -p /var/mail/vhosts/"$domain"
 
   # Whitelist domain in spamassassin
-  echo "whitelist_from *@$domain" >> /etc/spamassassin/local.cf
+  echo "whitelist_auth *@$domain" >> /etc/spamassassin/local.cf
 
   chown opendkim:opendkim /etc/opendkim/keys/"$domain"/mail.private
   chmod 400 /etc/opendkim/keys/"$domain"/mail.private /etc/opendkim/keys/"$domain"/mail.txt
@@ -145,6 +144,7 @@ _envtpl /etc/postfix/main.cf
 _envtpl /etc/postfix/mysql/mysql-virtual-alias-maps.cf
 _envtpl /etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
 _envtpl /etc/postfix/mysql/mysql-virtual-mailbox-maps.cf
+_envtpl /etc/postfix/mysql/mysql-sender-login-maps.cf
 _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/conf.d/10-ssl.conf

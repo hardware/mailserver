@@ -80,6 +80,7 @@ smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
 smtpd_sasl_local_domain         = $mydomain
 smtpd_sasl_authenticated_header = yes
 
+smtpd_sender_login_maps  = mysql:/etc/postfix/mysql/mysql-sender-login-maps.cf
 broken_sasl_auth_clients = yes
 
 ##############################
@@ -135,7 +136,8 @@ smtpd_client_restrictions =
 
 smtpd_sender_restrictions =
      reject_non_fqdn_sender,
-     reject_unknown_sender_domain
+     reject_unknown_sender_domain,
+     reject_sender_login_mismatch
 
 #############
 ## MILTERS ##
