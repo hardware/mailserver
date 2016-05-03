@@ -4,7 +4,7 @@ MAINTAINER Hardware <contact@meshup.net>
 ENV TINI_VER=0.9.0
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    postfix postfix-mysql \
+    postfix postfix-mysql sasl2-bin libsasl2-2 libsasl2-modules \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
     opendkim opendkim-tools opendmarc \
     amavisd-new amavisd-milter spamassassin spamc clamav clamav-milter \
