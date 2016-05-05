@@ -15,7 +15,9 @@ usermod -aG amavis clamav
 supervisorctl start amavisd && sleep 5
 supervisorctl start amavisd-milter
 
-# Start SpamAssassin
-supervisorctl start spamassassin
+if [ "$DISABLE_SPAMASSASSIN" = false ]; then
+  # Start SpamAssassin
+  supervisorctl start spamassassin
+fi
 
 sleep infinity
