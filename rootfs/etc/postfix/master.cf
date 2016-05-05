@@ -23,7 +23,6 @@ submission inet n       -       -       -       -       smtpd
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_reject_unlisted_recipient=no
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-  -o content_filter=amavis:[127.0.0.1]:10024
 
 pickup    fifo  n       -       -       60      1       pickup
   -o content_filter=

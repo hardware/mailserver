@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$DISABLE_CLAMAV" = true ] && [ "$DISABLE_SPAMASSASSIN" = true ]; then
+  exit 0
+fi
+
 if [ -d "/var/run/amavis" ] && [ -f "/var/run/amavis/amavisd.pid" ]; then
   rm -f /var/run/amavis/amavisd.pid
 fi
@@ -10,5 +14,8 @@ usermod -aG amavis clamav
 # Start amavisd and amavisd-milter
 supervisorctl start amavisd && sleep 5
 supervisorctl start amavisd-milter
+
+# Start SpamAssassin
+supervisorctl start spamassassin
 
 sleep infinity

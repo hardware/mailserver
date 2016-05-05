@@ -126,6 +126,10 @@ openssl s_client -connect mail.domain.tld:465 -tlsextdebug
 - **DBNAME** = MariaDB database name (*optional*, default: postfix)
 - **DBPASS** = MariaDB database (**required**)
 - **ADD_DOMAINS** = add additional domains to the mailserver (needed for dkim keys etc.) (*optional*, default: null)
+- **DISABLE_CLAMAV** = Disable virus scanning (*optional*, default: false)
+- **DISABLE_SPAMASSASSIN** = Disable SPAM checking (*optional*, default: false)
+
+If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
 
 ### Docker-compose
 

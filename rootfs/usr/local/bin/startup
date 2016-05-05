@@ -23,7 +23,8 @@ VMAILGID=${VMAILGID:-1024}
 DBHOST=${DBHOST:-mariadb}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
-
+DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
+DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 
@@ -56,7 +57,7 @@ if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   if [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
     if [ ! -e "$FULLCHAIN" ]; then
       echo "No fullchain found in $LETS_ENCRYPT_LIVE_PATH !"
-      exit
+      exit 1
     fi
 
     awk -v path="$LETS_ENCRYPT_LIVE_PATH" 'BEGIN {c=0;} /BEGIN CERT/{c++} { print > path"/cert" c ".pem"}' < "$FULLCHAIN"
@@ -153,6 +154,24 @@ _envtpl /etc/opendkim/opendkim.conf
 _envtpl /etc/opendmarc/opendmarc.conf
 _envtpl /etc/amavis/conf.d/05-node_id
 _envtpl /etc/mailname
+
+# Disable virus check if asked
+if [ "$DISABLE_CLAMAV" = true ]; then
+  echo "[INFO] ClamAV is disabled, service will not start."
+  sed -i '/bypass_virus_checks_maps/,+1 s/^/#/' /etc/amavis/conf.d/15-content_filter_mode
+fi
+
+# Disable spam check if asked
+if [ "$DISABLE_SPAMASSASSIN" = true ]; then
+  echo "[INFO] SpamAssassin is disabled, service will not start."
+  sed -i '/bypass_spam_checks_maps/,+1 s/^/#/' /etc/amavis/conf.d/15-content_filter_mode
+fi
+
+# Disable Amavis if ClamAV and SpamAssassin are both disabled
+if [ "$DISABLE_CLAMAV" = true ] && [ "$DISABLE_SPAMASSASSIN" = true ]; then
+  echo "[INFO] ClamAV and SpamAssassin are both disabled, Amavis will not start."
+  sed -i '/content_filter/,+1 s/^/#/' /etc/postfix/main.cf
+fi
 
 # Folders and permissions
 groupadd -g "$VMAILGID" vmail
