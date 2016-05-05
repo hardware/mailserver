@@ -1,7 +1,5 @@
 # hardware/mailserver
 
-[![](https://badge.imagelayers.io/hardware/mailserver:latest.svg)](https://imagelayers.io/?images=hardware/mailserver:latest 'Get your own badge on imagelayers.io')
-
 ![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
 
 ### Requirement
@@ -38,7 +36,7 @@
 ```
 docker pull hardware/mailserver
 sudo groupadd -g 1024 vmail
-sudo useradd -g vmail -u 1024 vmail -d /docker/mail
+sudo useradd -g vmail -u 1024 vmail -d /mnt/docker/mail
 ```
 
 ### How to use
@@ -52,9 +50,9 @@ docker run -d \
   -e DBNAME=postfix \
   -e DBPASS=xxxxxxx \
   -e ADD_DOMAINS=domain2.tld,another-domain.tld \
-  -v /docker/mail:/var/mail \
-  -v /docker/dovecot:/var/lib/dovecot \
-  -v /docker/opendkim:/etc/opendkim/keys \
+  -v /mnt/docker/mail:/var/mail \
+  -v /mnt/docker/dovecot:/var/lib/dovecot \
+  -v /mnt/docker/opendkim:/etc/opendkim/keys \
   -h mail.domain.tld \
   --link mariadb:mariadb \
   hardware/mailserver
@@ -154,9 +152,9 @@ mailserver:
     - DBNAME=postfix
     - DBPASS=xxxxxxx
   volumes:
-    - /docker/mail:/var/mail
-    - /docker/dovecot:/var/lib/dovecot
-    - /docker/opendkim:/etc/opendkim/keys
+    - /mnt/docker/mail:/var/mail
+    - /mnt/docker/dovecot:/var/lib/dovecot
+    - /mnt/docker/opendkim:/etc/opendkim/keys
 
 postfixadmin:
   image: hardware/postfixadmin
@@ -172,7 +170,7 @@ postfixadmin:
     - DBPASS=xxxxxxx
 
 rainloop:
-  image: wonderfall/rainloop
+  image: hardware/rainloop
   container_name: rainloop
   links:
     - mailserver:mailserver
@@ -181,13 +179,28 @@ rainloop:
     - GID=991
     - UID=991
   volumes:
-    - /docker/rainloop:/rainloop/data
+    - /mnt/docker/rainloop:/rainloop/data
+
+nginx:
+  image: wonderfall/reverse
+  container_name: nginx
+  links:
+    - postfixadmin:postfixadmin
+    - rainloop:rainloop
+  ports:
+    - "80:8000"
+    - "443:4430"
+  volumes:
+    - /mnt/docker/nginx/sites-enabled:/sites-enabled
+    - /mnt/docker/nginx/conf:/conf.d
+    - /mnt/docker/nginx/log:/var/log/nginx
+    - /mnt/docker/nginx/certs:/certs
 
 mariadb:
   image: mariadb:10.1
   container_name: mariadb
   volumes:
-    - /docker/mysql/db:/var/lib/mysql
+    - /mnt/docker/mysql/db:/var/lib/mysql
   environment:
     - MYSQL_ROOT_PASSWORD=xxxx
     - MYSQL_DATABASE=postfix
@@ -200,6 +213,20 @@ mariadb:
 ```
 docker-compose up -d
 ```
+
+### Additional configuration
+
+#### Reverse proxy example :
+
+https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+
+#### Postfixadmin initial configuration :
+
+https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
+
+#### Rainloop initial configuration :
+
+https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
 
 ### DNS records
 
@@ -216,7 +243,7 @@ _dmarc              IN                TXT                  "v=DMARC1; p=reject; 
 
 The DKIM public key is available on host here :
 
-`/docker/opendkim/domain.tld/mail.txt`
+`/mnt/docker/opendkim/domain.tld/mail.txt`
 
 Test your configuration with this website : https://www.mail-tester.com/
 
@@ -231,34 +258,10 @@ docker run -d \
   ...
 ```
 
-The common name of your ssl certifcate **MUST** be the same as your server's FQDN.
-If you do not use let's encrypt , a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/var/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
+The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for exemple, let's encrypt live subfolder name must be egual to **domainname** & **hostname** values of docker-compose file).
 
-### Admin password lost ?
 
-If you have lost your postfixadmin main account password, you can generate a new one like this :
-
-Get salted-hash :
-```
-doveadm pw -s SHA512-CRYPT -p YOUR_NEW_PASSWORD | sed 's/{SHA512-CRYPT}//'
-```
-
-And edit database :
-```
-docker exec -it mondedie-mariadb bash
-
-# mysql -u root -p
-
-mysql> use postfix;
-mysql> UPDATE admin SET password = 'HASH' WHERE username = 'user@domain.tld';
-
-Query OK, 1 row affected (0.00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-mysql> quit
-
-exit
-```
+If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
 ### Email client settings :
 
