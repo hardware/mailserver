@@ -6,6 +6,7 @@ smtpd_banner         = $myhostname ESMTP $mail_name
 biff                 = no
 append_dot_mydomain  = no
 readme_directory     = no
+allow_percent_hack   = no
 delay_warning_time   = 4h
 mailbox_command      = procmail -a "$EXTENSION"
 recipient_delimiter  = +
@@ -14,13 +15,12 @@ message_size_limit   = 502400000
 mailbox_size_limit   = 1024000000
 
 inet_interfaces = all
-inet_protocols = ipv4
+inet_protocols = all
 
 myhostname    = {{ FQDN }}
 myorigin      = {{ FQDN }}
 mydestination = localhost localhost.$mydomain
 mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
-relayhost     =
 
 alias_maps     = hash:/etc/aliases
 alias_database = hash:/etc/aliases
@@ -29,19 +29,16 @@ alias_database = hash:/etc/aliases
 ## TLS PARAMETERS ##
 ####################
 
-# Smtp ( OUTGOING / Client )
+# Smtp ( OUTGOING )
 smtp_tls_loglevel            = 1
 smtp_tls_security_level      = may
 smtp_tls_CAfile              = {{ CAFILE }}
 smtp_tls_protocols           = !SSLv2, !SSLv3
 smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
-smtp_tls_mandatory_ciphers   = high
-smtp_tls_exclude_ciphers     = aNULL, eNULL, EXPORT, DES, 3DES, RC2, RC4, MD5, PSK, SRP, DSS, AECDH, ADH
+smtp_tls_mandatory_ciphers   = medium
 smtp_tls_note_starttls_offer = yes
 
-# ---------------------------------------------------------------------------------------------------
-
-# Smtpd ( INCOMING / Server )
+# Smtpd ( INCOMING )
 smtpd_tls_loglevel            = 1
 smtpd_tls_auth_only           = yes
 smtpd_tls_security_level      = may
@@ -49,7 +46,7 @@ smtpd_tls_received_header     = yes
 smtpd_tls_protocols           = !SSLv2, !SSLv3
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers   = medium
-
+smtpd_tls_exclude_ciphers     = aNULL,eNULL,EXPORT,DES,3DES,RC2,RC4,MD5,PSK,SRP,DSS,AECDH,ADH
 smtpd_tls_CAfile              = $smtp_tls_CAfile
 smtpd_tls_cert_file           = {{ CERTFILE }}
 smtpd_tls_key_file            = {{ KEYFILE }}
@@ -62,8 +59,6 @@ tls_random_source      = dev:/dev/urandom
 smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 lmtp_tls_session_cache_database  = btree:${data_directory}/lmtp_scache
-
-# ----------------------------------------------------------------------
 
 #####################
 ## SASL PARAMETERS ##
@@ -109,39 +104,86 @@ error_notice_recipient     = admin@{{ DOMAIN }}
 ## RESTRICTIONS ##
 ##################
 
-smtpd_recipient_restrictions =
-     permit_mynetworks,
-     permit_sasl_authenticated,
-     reject_non_fqdn_recipient,
-     reject_unauth_destination,
-     reject_unknown_recipient_domain,
-     reject_rbl_client zen.spamhaus.org
+##
+# Access restrictions for mail relay control that the Postfix SMTP server applies
+# in the context of the RCPT TO command, before smtpd_recipient_restrictions
+##
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_unauth_destination : No one else, reject all others relaying requests
+
+smtpd_relay_restrictions=
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+##
+# Restrictions that the Postfix SMTP server applies in the context
+# of a client MAIL FROM command
+##
+
+# * reject_non_fqdn_sender : Reject when the MAIL FROM address is not in fully-qualified domain form
+# * reject_unknown_sender_domain : Reject when the MAIL FROM domain has no DNS MX, no DNS A record or a malformed MX record
+# * reject_sender_login_mismatch : Reject when the client is not (SASL) logged in as that MAIL FROM address owner
+# * reject_rhsbl_sender : Reject when the MAIL FROM domain is blacklisted in dbl.spamhaus.org
+
+smtpd_sender_restrictions=
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain,
+    reject_sender_login_mismatch,
+    reject_rhsbl_sender dbl.spamhaus.org
+
+##
+# Restrictions that the Postfix SMTP server applies in the context
+# of a client RCPT TO command, after smtpd_relay_restrictions
+##
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_unknown_recipient_domain : Reject when the RCPT TO domain has no DNS MX or no DNS A record or a malformed MX record
+# * reject_non_fqdn_recipient : Reject when the RCPT TO address is not in fully-qualified domain form
+# * reject_unlisted_recipient : Reject when the RCPT TO address is not listed in the list of valid recipients for its domain
+# * reject_rbl_client : Reject connections from IP addresses blacklisted in zen.spamhaus.org
+
+smtpd_recipient_restrictions=
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unknown_recipient_domain,
+    reject_non_fqdn_recipient,
+    reject_unlisted_recipient,
+    reject_rbl_client zen.spamhaus.org
+
+##
+# Restrictions that the Postfix SMTP server applies in the context of a client HELO command
+##
+
+# Fully enforce helo restriction
+# without "smtpd_helo_required = yes", a client can simply skip
+# smtpd_helo_restrictions by not sending HELO or EHLO
+smtpd_helo_required = yes
+
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * permit_sasl_authenticated : Permit the request when the client is successfully authenticated
+# * reject_invalid_helo_hostname : Reject the request when the HELO or EHLO hostname is malformed
+# * reject_non_fqdn_helo_hostname : Reject the request when the HELO or EHLO hostname is not in fully-qualified domain
 
 smtpd_helo_restrictions =
-     permit_mynetworks,
-     permit_sasl_authenticated,
-     reject_invalid_helo_hostname,
-     reject_non_fqdn_helo_hostname
-     # reject_unknown_helo_hostname
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_invalid_helo_hostname,
+    reject_non_fqdn_helo_hostname
 
-smtpd_client_restrictions =
-     permit_mynetworks,
-     permit_inet_interfaces,
-     permit_sasl_authenticated
-     # reject_plaintext_session,
-     # reject_unauth_pipelining
-
-smtpd_sender_restrictions =
-     reject_non_fqdn_sender,
-     reject_unknown_sender_domain,
-     reject_sender_login_mismatch
-
-#############
-## MILTERS ##
-#############
+############
+## AMAVIS ##
+############
 
 content_filter = amavis:[127.0.0.1]:10024
 receive_override_options = no_address_mappings
+
+##########################
+## MILTERS (DKIM/DMARC) ##
+##########################
 
 milter_protocol       = 6
 milter_default_action = accept

@@ -12,17 +12,15 @@ smtp      inet  n       -       -       -       -       smtpd
 
 submission inet n       -       -       -       -       smtpd
   -o syslog_name=postfix/submission
-  -o smtpd_tls_dh1024_param_file=/var/mail/ssl/dhparams/dh2048.pem
   -o smtpd_tls_security_level=encrypt
-  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_tls_ciphers=high
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=authclean
 
 465       inet  n       -       -       -       -       smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=yes
-  -o smtpd_sasl_auth_enable=yes
-  -o smtpd_reject_unlisted_recipient=no
+  -o smtpd_tls_ciphers=high
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=authclean
 
