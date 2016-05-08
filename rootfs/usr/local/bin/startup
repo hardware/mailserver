@@ -154,7 +154,15 @@ _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/opendkim/opendkim.conf
 _envtpl /etc/opendmarc/opendmarc.conf
 _envtpl /etc/amavis/conf.d/05-node_id
+_envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/mailname
+
+# Set Amavis maximun number of child processes (2 Childs/Core)
+MAX_SERVERS=$((`nproc` * 2))
+
+sed -i "s/AMAVIS_MAX_SERVERS/${MAX_SERVERS}/" \
+  /etc/amavis/conf.d/50-user \
+  /etc/postfix/master.cf
 
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then

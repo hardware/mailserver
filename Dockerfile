@@ -9,6 +9,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     opendkim opendkim-tools opendmarc \
     amavisd-new amavisd-milter spamassassin spamc clamav clamav-milter \
     supervisor openssl rsyslog python-pip \
+    pigz pxz pbzip2 \
     wget ca-certificates \
  && pip install envtpl \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb -P /tmp \
