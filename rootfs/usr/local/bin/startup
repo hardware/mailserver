@@ -157,12 +157,27 @@ _envtpl /etc/amavis/conf.d/05-node_id
 _envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/mailname
 
+# AMAVIS TUNING
+# ---------------
 # Set Amavis maximun number of child processes (2 Childs/Core)
-MAX_SERVERS=$((`nproc` * 2))
+AMAVIS_MAX_PROCESS=$((`nproc` * 2))
 
-sed -i "s/AMAVIS_MAX_SERVERS/${MAX_SERVERS}/" \
+sed -i "s/AMAVIS_MAX_SERVERS/${AMAVIS_MAX_PROCESS}/" \
   /etc/amavis/conf.d/50-user \
   /etc/postfix/master.cf
+
+# DOVECOT TUNING
+# ---------------
+# process_min_avail = number of CPU cores, so that all of them will be used
+DOVECOT_MIN_PROCESS=$(nproc)
+
+# NbMaxUsers = ( 500 * nbCores ) / 5
+# So on a two-core server that's 1000 processes/200 users
+# with ~5 open connections per user
+DOVECOT_MAX_PROCESS=$((`nproc` * 500))
+
+sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
+       -e "s/DOVECOT_MAX_PROCESS/${DOVECOT_MAX_PROCESS}/" /etc/dovecot/conf.d/10-master.conf
 
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
