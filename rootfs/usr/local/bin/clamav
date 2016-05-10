@@ -14,5 +14,3 @@ mkdir -p /var/lib/clamav && chown -R clamav:clamav /var/lib/clamav
 # Start freshclam and clamd
 supervisorctl start freshclam
 supervisorctl start clamd
-
-sleep infinity

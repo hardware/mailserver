@@ -1,8 +1,5 @@
 #!/bin/bash
 
-trap "{ echo Stopping mailserver; supervisorctl stop all; exit 0; }" EXIT
-
-
 # ENV
 export FQDN
 export DOMAIN
@@ -205,6 +202,8 @@ chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
 mkdir -p /var/run/dovecot
 chown -R dovecot:dovecot /var/run/dovecot
+chown -R opendkim:opendkim /etc/opendkim
+chown -R opendmarc:opendmarc /etc/opendmarc
 
 # Sieve
 mkdir -p /var/mail/sieve
@@ -230,4 +229,4 @@ doveadm mount add /etc/letsencrypt ignore
 touch /dev/shm/supervisor.sock
 
 # RUN !
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

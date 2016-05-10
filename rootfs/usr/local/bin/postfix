@@ -1,6 +1,8 @@
 #!/bin/bash
 
-trap "{ echo Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
+# Perform nice termination of Postfix, releasing resources
+# and saving state
+trap "{ /usr/sbin/postfix stop; exit 0; }" EXIT
 
 # Add etc files to Postfix chroot jail
 cp -f /etc/services /var/spool/postfix/etc/services
@@ -11,6 +13,7 @@ cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 # Build header checks hash table
 /usr/sbin/postmap /etc/postfix/header_checks
 
+# Fix permissions
 chmod 0644 /etc/postfix/header_checks
 chmod 0644 /etc/postfix/main.cf
 chmod 0644 /etc/postfix/master.cf

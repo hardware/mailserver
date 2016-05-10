@@ -19,5 +19,3 @@ if [ "$DISABLE_SPAMASSASSIN" = false ]; then
   # Start SpamAssassin
   supervisorctl start spamassassin
 fi
-
-sleep infinity
