@@ -15,6 +15,7 @@
 - OpenDKIM 2.9.2
 - OpenDMARC 1.3.0
 - Spamassassin 3.4.0
+- Postgrey 1.35
 - ClamAV 0.98.7
 - Amavisd-new 2.10.1
 - Amavisd-milter 1.5.0
@@ -128,6 +129,7 @@ openssl s_client -connect mail.domain.tld:465 -tlsextdebug
 - **ADD_DOMAINS** = add additional domains to the mailserver (needed for dkim keys etc.) (*optional*, default: null)
 - **DISABLE_CLAMAV** = Disable virus scanning (*optional*, default: false)
 - **DISABLE_SPAMASSASSIN** = Disable SPAM checking (*optional*, default: false)
+- **ENABLE_POSTGREY** = Enable Postgrey greylisting policy server (*optional*, default: false)
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
 

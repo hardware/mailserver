@@ -22,6 +22,7 @@ DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
+ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 
@@ -192,6 +193,12 @@ fi
 if [ "$DISABLE_CLAMAV" = true ] && [ "$DISABLE_SPAMASSASSIN" = true ]; then
   echo "[INFO] ClamAV and SpamAssassin are both disabled, Amavis will not start."
   sed -i '/content_filter/,+1 s/^/#/' /etc/postfix/main.cf
+fi
+
+# Enable Postgrey if asked
+if [ "$ENABLE_POSTGREY" = true ]; then
+  echo "[INFO] Postgrey is enabled, greylisting policy server will start."
+  sed -i '/permit_dnswl_client/,+1 s/^\(.*\)#/   /' /etc/postfix/main.cf
 fi
 
 # Folders and permissions

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ "$ENABLE_POSTGREY" = false ]; then
+  exit 0
+fi
+
+# Create directories and set permissions
+mkdir -p /var/mail/postgrey && chown -R postgrey:postgrey /var/mail/postgrey
+chmod 700 /var/mail/postgrey
+
+# Start postgrey
+supervisorctl start postgrey
