@@ -12,6 +12,9 @@ export CAFILE
 export CERTFILE
 export KEYFILE
 export FULLCHAIN
+export DISABLE_CLAMAV
+export DISABLE_SPAMASSASSIN
+export ENABLE_POSTGREY
 
 FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
@@ -195,10 +198,11 @@ if [ "$DISABLE_CLAMAV" = true ] && [ "$DISABLE_SPAMASSASSIN" = true ]; then
   sed -i '/content_filter/,+1 s/^/#/' /etc/postfix/main.cf
 fi
 
-# Enable Postgrey if asked
-if [ "$ENABLE_POSTGREY" = true ]; then
+# Disable Postgrey
+if [ "$ENABLE_POSTGREY" = false ]; then
+  sed -i '/permit_dnswl_client/,+1 s/^/#/' /etc/postfix/main.cf
+else
   echo "[INFO] Postgrey is enabled, greylisting policy server will start."
-  sed -i '/permit_dnswl_client/,+1 s/^\(.*\)#/   /' /etc/postfix/main.cf
 fi
 
 # Folders and permissions

@@ -154,8 +154,8 @@ smtpd_recipient_restrictions=
     reject_non_fqdn_recipient,
     reject_unlisted_recipient,
     reject_rbl_client zen.spamhaus.org,
-    # permit_dnswl_client list.dnswl.org,
-    # check_policy_service inet:127.0.0.1:10023
+    permit_dnswl_client list.dnswl.org,
+    check_policy_service inet:127.0.0.1:10023
 
 ##
 # Restrictions that the Postfix SMTP server applies in the context of a client HELO command
