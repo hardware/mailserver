@@ -158,6 +158,18 @@ _envtpl /etc/amavis/conf.d/05-node_id
 _envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/mailname
 
+# Override Postfix configuration
+if [ -f /var/mail/postfix/custom.conf ]; then
+  while read line; do
+    echo "[INFO] Override : ${line}"
+    postconf -e "$line"
+  done < /var/mail/postfix/custom.conf
+  echo "[INFO] Custom Postfix configuration file loaded"
+else
+  echo "[INFO] No extra postfix settings loaded because optional custom \
+        configuration file (/var/mail/postfix/custom.conf) is not provided."
+fi
+
 # AMAVIS TUNING
 # ---------------
 # Set Amavis maximun number of child processes (2 Childs/Core)

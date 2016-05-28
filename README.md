@@ -153,6 +153,36 @@ mailserver:
   ...
 ```
 
+### Override postfix configuration
+
+Postfix default configuration can be overrided providing a custom configuration file at postfix format. This can be
+used to also add configuration that are not in out default configuration. [Postfix documentation](http://www.postfix.org/documentation.html) remains the best place
+to find configuration options.
+
+Each line in the provided file will be loaded into Postfix. Create a new file here `/mnt/docker/mail/postfix/custom.conf`
+and add your custom options inside.
+
+Example :
+
+```
+# /mnt/docker/mail/postfix/custom.conf
+
+smtpd_banner = $myhostname ESMTP MyGreatMailServer
+inet_protocols = ipv4
+delay_notice_recipient = admin@domain.tld
+delay_warning_time = 2h
+```
+
+```
+docker logs -f mailserver
+
+[INFO] Override : smtpd_banner = $myhostname ESMTP MyGreatMailServer
+[INFO] Override : inet_protocols = ipv4
+[INFO] Override : delay_notice_recipient = postmaster@domain.tld
+[INFO] Override : delay_warning_time = 2h
+[INFO] Custom Postfix configuration file loaded
+```
+
 ### Email client settings :
 
 - IMAP/SMTP username : user@domain.tld
