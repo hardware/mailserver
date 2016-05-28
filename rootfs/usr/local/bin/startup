@@ -30,7 +30,7 @@ OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 
 if [ -z "$DBPASS" ]; then
-  echo "Mariadb database password must be set !"
+  echo "[ERROR] Mariadb database password must be set !"
   exit 1
 fi
 
@@ -38,6 +38,10 @@ fi
 LETS_ENCRYPT_LIVE_PATH=/etc/letsencrypt/live/"$FQDN"
 
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
+
+  echo "[INFO] Let's encrypt live directory found"
+  echo "[INFO] Using $LETS_ENCRYPT_LIVE_PATH folder"
+
   FULLCHAIN="$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
   CAFILE="$LETS_ENCRYPT_LIVE_PATH"/chain.pem
   CERTFILE="$LETS_ENCRYPT_LIVE_PATH"/cert.pem
@@ -51,13 +55,13 @@ if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   fi
 
   if [ ! -e "$KEYFILE" ]; then
-    echo "No keyfile found in $LETS_ENCRYPT_LIVE_PATH !"
+    echo "[ERROR] No keyfile found in $LETS_ENCRYPT_LIVE_PATH !"
     exit 1
   fi
 
   if [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
     if [ ! -e "$FULLCHAIN" ]; then
-      echo "No fullchain found in $LETS_ENCRYPT_LIVE_PATH !"
+      echo "[ERROR] No fullchain found in $LETS_ENCRYPT_LIVE_PATH !"
       exit 1
     fi
 
@@ -67,12 +71,17 @@ if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   fi
 
 else
+
+  echo "[INFO] No Let's encrypt live directory found"
+  echo "[INFO] Using /var/mail/ssl/selfsigned/ folder"
+
   FULLCHAIN=/var/mail/ssl/selfsigned/cert.pem
   CAFILE=
   CERTFILE=/var/mail/ssl/selfsigned/cert.pem
   KEYFILE=/var/mail/ssl/selfsigned/privkey.pem
 
   if [ ! -e "$CERTFILE" ] || [ ! -e "$KEYFILE" ]; then
+    echo "[INFO] No SSL certificates found, generating new selfsigned certificate"
     mkdir -p /var/mail/ssl/selfsigned/
     openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
       -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=admin@${DOMAIN}" \
@@ -83,6 +92,7 @@ fi
 
 # Diffie-Hellman parameters
 if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/dh512.pem ]; then
+  echo "[INFO] Diffie-Hellman parameters not found, generating new DH params"
   mkdir -p /var/mail/ssl/dhparams/
   openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
   openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
@@ -112,9 +122,9 @@ for domain in "${domains[@]}"; do
       --bits="$OPENDKIM_KEY_LENGTH" \
       --directory=/etc/opendkim/keys/"$domain"
 
-    echo "creating keys for domain $domain and adding it to whitelists"
+    echo "[INFO] Creating DKIM keys for domain $domain"
   else
-    echo "found keys for domain $domain - skip creation"
+    echo "[INFO] Found DKIM key pair for domain $domain - skip creation"
   fi
 
   # Add vhost
@@ -166,8 +176,7 @@ if [ -f /var/mail/postfix/custom.conf ]; then
   done < /var/mail/postfix/custom.conf
   echo "[INFO] Custom Postfix configuration file loaded"
 else
-  echo "[INFO] No extra postfix settings loaded because optional custom \
-        configuration file (/var/mail/postfix/custom.conf) is not provided."
+  echo "[INFO] No extra postfix settings loaded because optional custom configuration file (/var/mail/postfix/custom.conf) is not provided."
 fi
 
 # AMAVIS TUNING

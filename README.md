@@ -114,6 +114,54 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
 
+### Files/Folders tree
+
+```
+/mnt/docker
+└──opendkim
+   ├──domain.tld
+   |    mail.private
+   |    mail.txt
+└──mail
+   ├──postfix
+   │     custom.conf
+   ├──postgrey
+   │     postgrey.db
+   │     ...
+   ├──sieve
+   │     default.sieve
+   │     default.svbin
+   ├──ssl
+   |  ├──dhparams
+   │  |     dh512.pem
+   │  |     dh2048.pem
+   |  ├──live (Let's Encrypt or other CA)
+   |  |  ├──mail.domain.tld
+   |  |  |     privkey.pem
+   |  |  |     cert.pem
+   |  |  |     chain.pem
+   |  |  |     fullchain.pem
+   |  ├──selfsigned (Auto-generated if no certificate found)
+   │  |     cert.pem
+   │  |     privkey.pem
+   ├──vhosts
+   |  ├──domain.tld
+   |  |  ├──user
+   |  |  |     .dovecot.sieve -> sieve/rainloop.user.sieve
+   |  |  |     .dovecot.svbin
+   |  |  |  ├──mail
+   |  |  |  |  ├──.Archive
+   |  |  |  |  ├──.Drafts
+   |  |  |  |  ├──.Sent
+   |  |  |  |  ├──.Spam
+   |  |  |  |  ├──.Trash
+   |  |  |  |  ├──cur
+   |  |  |  |  ├──new
+   |  |  |  |     ...
+   |  |  |  ├──sieve
+   |  |  |  |     rainloop.user.sieve (if using rainloop webmail)
+```
+
 ### Let's encrypt
 
 To use your Let's encrypt certificates, you may add another docker volume like this :
