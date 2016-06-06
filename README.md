@@ -204,7 +204,7 @@ mailserver:
 ### Override postfix configuration
 
 Postfix default configuration can be overrided providing a custom configuration file at postfix format. This can be
-used to also add configuration that are not in out default configuration. [Postfix documentation](http://www.postfix.org/documentation.html) remains the best place
+used to also add configuration that are not in default configuration. [Postfix documentation](http://www.postfix.org/documentation.html) remains the best place
 to find configuration options.
 
 Each line in the provided file will be loaded into Postfix. Create a new file here `/mnt/docker/mail/postfix/custom.conf`
