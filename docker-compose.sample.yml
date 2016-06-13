@@ -41,7 +41,7 @@ rainloop:
 
 # Web server
 nginx:
-  image: wonderfall/boring-nginx
+  image: wonderfall/nginx
   container_name: nginx
   links:
     - postfixadmin:postfixadmin
