@@ -25,6 +25,7 @@ postfixadmin:
   domainname: domain.tld
   hostname: mail
   links:
+    - mailserver:mailserver
     - mariadb:mariadb
   environment:
     - DBPASS=xxxxxxx
