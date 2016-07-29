@@ -11,7 +11,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-
     libsys-syslog-perl libmail-spf-perl libhttp-message-perl altermime \
     supervisor openssl rsyslog python-pip \
     pigz pxz pbzip2 \
-    wget ca-certificates \
+    wget ca-certificates dnsutils \
  && pip install envtpl \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb -P /tmp \
  && dpkg -i /tmp/tini_$TINI_VER.deb \
