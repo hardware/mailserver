@@ -60,6 +60,7 @@ nginx:
 mariadb:
   image: mariadb:10.1
   container_name: mariadb
+  # Info : These variables are ignored when the volume already exists (databases created before).
   environment:
     - MYSQL_ROOT_PASSWORD=xxxxxxx
     - MYSQL_DATABASE=postfix
