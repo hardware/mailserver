@@ -1,10 +1,12 @@
 mailserver:
   image: hardware/mailserver
   container_name: mailserver
-  domainname: domain.tld
+  domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
   hostname: mail
   links:
     - mariadb:mariadb
+  # extra_hosts:                        - Required for external database (on other server or for local database on host)
+  #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
   ports:
     - "25:25"     # SMTP                - Required
     - "143:143"   # IMAP       STARTTLS - For webmails/desktop clients

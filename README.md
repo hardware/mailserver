@@ -100,17 +100,19 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 
 ### Environment variables
 
-- **VMAILUID** = vmail user id (*optional*, default: 1024)
-- **VMAILGID** = vmail group id (*optional*, default: 1024)
-- **OPENDKIM_KEY_LENGTH** = Size of your DKIM RSA key pair (*optional*, default: 2048)
-- **DBHOST** = MariaDB instance ip/hostname (*optional*, default: mariadb)
-- **DBUSER** = MariaDB database username (*optional*, default: postfix)
-- **DBNAME** = MariaDB database name (*optional*, default: postfix)
-- **DBPASS** = MariaDB database password (**required**)
-- **ADD_DOMAINS** = Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) (*optional*, default: null)
-- **DISABLE_CLAMAV** = Disable virus scanning (*optional*, default: false)
-- **DISABLE_SPAMASSASSIN** = Disable SPAM checking (*optional*, default: false)
-- **ENABLE_POSTGREY** = Enable Postgrey greylisting policy server (*optional*, default: false)
+| Variable | Description | Type | Default value |
+| -------- | ----------- | ---- | ------------- |
+| **VMAILUID** | vmail user id | *optional* | 1024
+| **VMAILGID** | vmail group id | *optional* | 1024
+| **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 2048
+| **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
+| **DBUSER** | MariaDB database username | *optional* | postfix
+| **DBNAME** | MariaDB database name | *optional* | postfix
+| **DBPASS** | MariaDB database password | **required** | null
+| **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
+| **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
+| **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
+| **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
 
