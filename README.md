@@ -112,6 +112,7 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
+| **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 

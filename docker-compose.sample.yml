@@ -22,6 +22,7 @@ mailserver:
   # - ENABLE_POSTGREY=true      # Enable greylisting policy server
   # - DISABLE_CLAMAV=true       # Disable virus scanning
   # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
+  # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
   volumes:
     - /mnt/docker/mail:/var/mail
     - /mnt/docker/opendkim:/etc/opendkim/keys

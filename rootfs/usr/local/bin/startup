@@ -14,6 +14,7 @@ export KEYFILE
 export FULLCHAIN
 export DISABLE_CLAMAV
 export DISABLE_SPAMASSASSIN
+export DISABLE_SIEVE
 export ENABLE_POSTGREY
 export ENABLE_POP3
 
@@ -26,6 +27,7 @@ DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
+DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
@@ -243,6 +245,12 @@ if [ "$ENABLE_POSTGREY" = false ]; then
   sed -i '/permit_dnswl_client/,+1 s/^/#/' /etc/postfix/main.cf
 else
   echo "[INFO] Postgrey is enabled, greylisting policy server will start."
+fi
+
+# Enable ManageSieve protocol
+if [ "$DISABLE_SIEVE" = false ]; then
+  echo "[INFO] ManageSieve protocol is enabled."
+  sed -i '/^protocols/s/$/ sieve/' /etc/dovecot/dovecot.conf
 fi
 
 # Enable POP3 protocol
