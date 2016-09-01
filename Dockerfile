@@ -5,7 +5,7 @@ ENV TINI_VER=0.9.0
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends  \
     postfix postfix-mysql postfix-pcre postgrey \
-    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved \
+    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
     opendkim opendkim-tools opendmarc \
     amavisd-new amavisd-milter spamassassin clamav-daemon clamav-milter \
     libsys-syslog-perl libmail-spf-perl libhttp-message-perl altermime \

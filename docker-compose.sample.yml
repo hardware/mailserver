@@ -9,13 +9,19 @@ mailserver:
   #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
   ports:
     - "25:25"     # SMTP                - Required
-    - "143:143"   # IMAP       STARTTLS - For webmails/desktop clients
-    - "465:465"   # SMTPS      SSL/TLS  - Enabled for compatibility reason, otherwise disabled
-    - "587:587"   # Submission STARTTLS - For webmails/desktop clients
-    - "993:993"   # IMAPS      SSL/TLS  - For webmails/desktop clients
-    - "4190:4190" # SIEVE      STARTTLS - Optional, but recommended for mail filtering
+  # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
+    - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
+  # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+    - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
+    - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+  # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+    - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
   environment:
     - DBPASS=xxxxxxx
+  # - ENABLE_POP3=true          # Enable POP3 protocol
+  # - ENABLE_POSTGREY=true      # Enable greylisting policy server
+  # - DISABLE_CLAMAV=true       # Disable virus scanning
+  # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
   volumes:
     - /mnt/docker/mail:/var/mail
     - /mnt/docker/opendkim:/etc/opendkim/keys

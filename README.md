@@ -113,6 +113,7 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
 | **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
+| **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
 

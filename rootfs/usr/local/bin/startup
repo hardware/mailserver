@@ -15,6 +15,7 @@ export FULLCHAIN
 export DISABLE_CLAMAV
 export DISABLE_SPAMASSASSIN
 export ENABLE_POSTGREY
+export ENABLE_POP3
 
 FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
@@ -26,6 +27,7 @@ DBUSER=${DBUSER:-postfix}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
 ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
+ENABLE_POP3=${ENABLE_POP3:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 
@@ -241,6 +243,12 @@ if [ "$ENABLE_POSTGREY" = false ]; then
   sed -i '/permit_dnswl_client/,+1 s/^/#/' /etc/postfix/main.cf
 else
   echo "[INFO] Postgrey is enabled, greylisting policy server will start."
+fi
+
+# Enable POP3 protocol
+if [ "$ENABLE_POP3" = true ]; then
+  echo "[INFO] POP3 protocol is enabled."
+  sed -i '/^protocols/s/$/ pop3/' /etc/dovecot/dovecot.conf
 fi
 
 # Folders and permissions
