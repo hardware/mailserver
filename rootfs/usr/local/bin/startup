@@ -143,6 +143,7 @@ for domain in "${domains[@]}"; do
   echo "mail._domainkey.$domain $domain:mail:/etc/opendkim/keys/$domain/mail.private" >> /etc/opendkim/KeyTable
   echo "*@$domain mail._domainkey.$domain" >> /etc/opendkim/SigningTable
   echo "*.$domain" >> /etc/opendkim/TrustedHosts
+  echo "$domain" >> /etc/opendmarc/IgnoreDomains
 
 done
 
