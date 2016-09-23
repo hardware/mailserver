@@ -1,2 +1,0 @@
-30 02 * * * root /usr/bin/sa-learn --ham /var/mail/vhosts/*/*/mail/cur/*
-40 02 * * * root /usr/bin/sa-learn --spam /var/mail/vhosts/*/*/mail/.Spam/cur/*
