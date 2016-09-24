@@ -1,3 +1,5 @@
+:warning: **24/09/2016** : Postfixadmin and Rainloop reverse proxy ports have changed, it's now **8888**. Please, update your nginx vhost files before pulling the latest images from dockerhub. For more information : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+
 # hardware/mailserver
 
 ![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
