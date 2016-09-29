@@ -24,9 +24,11 @@
 #### 1 - Get latest image
 
 ```
+# Pull from hub.docker.com :
 docker pull hardware/mailserver
-sudo groupadd -g 1024 vmail
-sudo useradd -g vmail -u 1024 vmail -d /mnt/docker/mail
+
+# or build it manually :
+docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#master
 ```
 
 #### 2 - Get latest docker-compose.yml
