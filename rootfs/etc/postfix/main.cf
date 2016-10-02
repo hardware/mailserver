@@ -25,6 +25,19 @@ mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 alias_maps     = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 
+###################
+## RATE LIMITING ##
+###################
+
+# Allow to avoid 421 error when send bulk mail
+default_destination_rate_delay = 1s
+default_destination_recipient_limit = 10
+
+# concurrency_limit has no effect when rate_delay is turned on.
+# It specifies a delay BETWEEN deliveries, meaning the deliveries
+# cannot be in parallel.
+# default_destination_concurrency_limit=2
+
 ####################
 ## TLS PARAMETERS ##
 ####################
