@@ -24,8 +24,10 @@ mailserver:
   # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
   # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
   volumes:
-    - /mnt/docker/mail:/var/mail
-    - /mnt/docker/opendkim:/etc/opendkim/keys
+    - /mnt/docker/mail/mail:/var/mail
+    - /mnt/docker/mail/opendkim:/etc/opendkim/keys
+  # - /mnt/docker/nginx/certs:/etc/letsencrypt
+
 
 # Control panel
 postfixadmin:

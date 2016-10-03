@@ -69,7 +69,7 @@ _dmarc              IN                TXT                  "v=DMARC1; p=reject; 
 
 The DKIM public key is available on host here :
 
-`/mnt/docker/opendkim/domain.tld/mail.txt`
+`/mnt/docker/mail/opendkim/domain.tld/mail.txt`
 
 Test your configuration with this website : https://www.mail-tester.com/
 
@@ -126,10 +126,6 @@ If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Ama
 
 ```
 /mnt/docker
-└──opendkim
-   ├──domain.tld
-   |    mail.private
-   |    mail.txt
 └──mail
    ├──postfix
    │     custom.conf
@@ -139,74 +135,101 @@ If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Ama
    ├──sieve
    │     default.sieve
    │     default.svbin
+   ├──opendkim
+   │  ├──domain.tld
+   │  │     mail.private
+   │  │     mail.txt
    ├──ssl
-   |  ├──dhparams
-   │  |     dh512.pem
-   │  |     dh2048.pem
-   |  ├──live (Let's Encrypt or other CA)
-   |  |  ├──mail.domain.tld
-   |  |  |     privkey.pem
-   |  |  |     cert.pem
-   |  |  |     chain.pem
-   |  |  |     fullchain.pem
-   |  ├──selfsigned (Auto-generated if no certificate found)
-   │  |     cert.pem
-   │  |     privkey.pem
+   │  ├──dhparams
+   │  │     dh512.pem
+   │  │     dh2048.pem
+   │  ├──live (Let's Encrypt or other CA)
+   │  │  ├──mail.domain.tld
+   │  │  │     privkey.pem
+   │  │  │     cert.pem
+   │  │  │     chain.pem
+   │  │  │     fullchain.pem
+   │  ├──selfsigned (Auto-generated if no certificate found)
+   │  │     cert.pem
+   │  │     privkey.pem
    ├──vhosts
-   |  ├──domain.tld
-   |  |  ├──user
-   |  |  |     .dovecot.sieve -> sieve/rainloop.user.sieve
-   |  |  |     .dovecot.svbin
-   |  |  |  ├──mail
-   |  |  |  |  ├──.Archive
-   |  |  |  |  ├──.Drafts
-   |  |  |  |  ├──.Sent
-   |  |  |  |  ├──.Spam
-   |  |  |  |  ├──.Trash
-   |  |  |  |  ├──cur
-   |  |  |  |  ├──new
-   |  |  |  |     ...
-   |  |  |  ├──sieve
-   |  |  |  |     rainloop.user.sieve (if using rainloop webmail)
+   │  ├──domain.tld
+   │  │  ├──user
+   │  │  │     .dovecot.sieve -> sieve/rainloop.user.sieve
+   │  │  │     .dovecot.svbin
+   │  │  │  ├──mail
+   │  │  │  │  ├──.Archive
+   │  │  │  │  ├──.Drafts
+   │  │  │  │  ├──.Sent
+   │  │  │  │  ├──.Spam
+   │  │  │  │  ├──.Trash
+   │  │  │  │  ├──cur
+   │  │  │  │  ├──new
+   │  │  │  │     ...
+   │  │  │  ├──sieve
+   │  │  │  │     rainloop.user.sieve (if using rainloop webmail)
 ```
 
-### Let's encrypt
+### Let's Encrypt certificate authority
 
-To use your Let's encrypt certificates, you may add another docker volume like this :
+To use Let's Encrypt certificates, setup your `docker-compose.yml` file like this :
 
 ```
 mailserver:
   image: hardware/mailserver
   volumes:
-    /etc/letsencrypt:/etc/letsencrypt
-  ...
+    - /mnt/docker/nginx/certs:/etc/letsencrypt
+    ...
+
+nginx: wonderfall/nginx
+  volumes:
+    - /mnt/docker/nginx/certs:/certs
+    ...
 ```
 
-- The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for exemple, let's encrypt live subfolder name must be egual to **domainname** & **hostname** values of docker-compose file).
+Then generate Let's Encrypt certificates with [xataz/letsencrypt](https://github.com/xataz/dockerfiles/tree/master/letsencrypt), you can use other tools like [lego](https://github.com/xenolf/lego) if you want.
+
+```
+docker-compose stop nginx
+
+docker run -it --rm \
+  -v /mnt/docker/nginx/certs:/etc/letsencrypt \
+  -p 80:80 -p 443:443 \
+  xataz/letsencrypt \
+    certonly --standalone \
+    --rsa-key-size 4096 \
+    --agree-tos \
+    -m contact@domain.tld \
+    -d mail.domain.tld \ # <--- Mail FQDN is the first domain name, very important !
+    -d webmail.domain.tld \
+    -d postfixadmin.domain.tld
+
+docker-compose up -d
+```
+
+- :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for exemple, let's encrypt live subfolder name must be egual to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
 
 - If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
-- If you use another CA (other than Let's Encrypt) :
+### Another certificate authority (other than Let's Encrypt)
 
-```
-mkdir -p /mnt/docker/ssl/live/mail.domain.tld
-```
+Put your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
 
-Required files in this folder :
+:warning: **Required files in this folder :**
 
 - **privkey.pem** : Private key for the certificate
 - **cert.pem** : Server certificate only
 - **chain.pem** : Root and intermediate certificates only, excluding server certificate
 - **fullchain.pem** : All certificates, including server certificate. This is concatenation of cert.pem and chain.pem
 
-And then mount the volume like this :
+Then mount the volume like this :
 
 ```
 mailserver:
   image: hardware/mailserver
   volumes:
-    /mnt/docker/ssl:/etc/letsencrypt
-  ...
+    - /mnt/docker/nginx/certs:/etc/letsencrypt
+    ...
 ```
 
 ### Override postfix configuration
