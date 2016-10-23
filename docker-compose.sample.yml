@@ -52,8 +52,9 @@ rainloop:
     - /mnt/docker/rainloop:/rainloop/data
 
 # Web server
+# Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
 nginx:
-  image: wonderfall/nginx
+  image: wonderfall/boring-nginx
   container_name: nginx
   links:
     - postfixadmin:postfixadmin
