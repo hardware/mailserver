@@ -138,13 +138,13 @@ smtpd_relay_restrictions=
 
 # * reject_non_fqdn_sender : Reject when the MAIL FROM address is not in fully-qualified domain form
 # * reject_unknown_sender_domain : Reject when the MAIL FROM domain has no DNS MX, no DNS A record or a malformed MX record
-# * reject_sender_login_mismatch : Reject when the client is not (SASL) logged in as that MAIL FROM address owner
+# * reject_authenticated_sender_login_mismatch: Reject when the client is not (SASL) logged in as that MAIL FROM address owner for authenticated clients only
 # * reject_rhsbl_sender : Reject when the MAIL FROM domain is blacklisted in dbl.spamhaus.org
 
 smtpd_sender_restrictions=
     reject_non_fqdn_sender,
     reject_unknown_sender_domain,
-    reject_sender_login_mismatch,
+    reject_authenticated_sender_login_mismatch,
     reject_rhsbl_sender dbl.spamhaus.org
 
 ##
