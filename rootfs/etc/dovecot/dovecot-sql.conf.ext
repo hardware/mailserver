@@ -1,4 +1,5 @@
 driver = mysql
 connect = host={{ DBHOST }} dbname={{ DBNAME }} user={{ DBUSER }} password={{ DBPASS }}
 default_pass_scheme = SHA512-CRYPT
-password_query = SELECT password FROM mailbox WHERE username = '%u'
+iterate_query = SELECT username AS user FROM mailbox
+password_query = SELECT password FROM mailbox WHERE username = '%u' AND active = 1
