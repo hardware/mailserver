@@ -2,4 +2,5 @@ driver = mysql
 connect = host={{ DBHOST }} dbname={{ DBNAME }} user={{ DBUSER }} password={{ DBPASS }}
 default_pass_scheme = SHA512-CRYPT
 iterate_query = SELECT username AS user FROM mailbox
-password_query = SELECT password FROM mailbox WHERE username = '%u' AND active = 1
+password_query = SELECT password, CONCAT('*:storage=',quota,'B') AS userdb_quota_rule FROM mailbox WHERE username = '%u' AND active = 1
+user_query = SELECT CONCAT('*:storage=',quota,'B') AS quota_rule FROM mailbox WHERE username = '%u' AND active = 1
