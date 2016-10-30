@@ -159,10 +159,14 @@ _envtpl() {
 
 _envtpl /etc/postfix/main.cf
 _envtpl /etc/postfix/header_checks
-_envtpl /etc/postfix/mysql/mysql-virtual-alias-maps.cf
-_envtpl /etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
-_envtpl /etc/postfix/mysql/mysql-virtual-mailbox-maps.cf
-_envtpl /etc/postfix/mysql/mysql-sender-login-maps.cf
+_envtpl /etc/postfix/sql/sender-login-maps.cf
+_envtpl /etc/postfix/sql/virtual-mailbox-domains.cf
+_envtpl /etc/postfix/sql/virtual-mailbox-maps.cf
+_envtpl /etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
+_envtpl /etc/postfix/sql/virtual-alias-maps.cf
+_envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
+_envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
+_envtpl /etc/postfix/sql/virtual-mailbox-limit-maps.cf
 _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
