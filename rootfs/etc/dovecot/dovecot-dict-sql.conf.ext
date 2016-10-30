@@ -1,0 +1,15 @@
+connect = host={{ DBHOST }} dbname={{ DBNAME }} user={{ DBUSER }} password={{ DBPASS }}
+
+map {
+  pattern = priv/quota/storage
+  table = quota2
+  username_field = username
+  value_field = bytes
+}
+
+map {
+  pattern = priv/quota/messages
+  table = quota2
+  username_field = username
+  value_field = messages
+}
