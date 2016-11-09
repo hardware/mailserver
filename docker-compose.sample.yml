@@ -1,82 +1,83 @@
-mailserver:
-  image: hardware/mailserver
-  container_name: mailserver
-  domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
-  hostname: mail
-  links:
-    - mariadb:mariadb
-  # extra_hosts:                        - Required for external database (on other server or for local database on host)
-  #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
-  ports:
-    - "25:25"     # SMTP                - Required
-  # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
-    - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
-  # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
-    - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
-    - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
-  # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
-    - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
-  environment:
-    - DBPASS=xxxxxxx
-  # - ENABLE_POP3=true          # Enable POP3 protocol
-  # - ENABLE_POSTGREY=true      # Enable greylisting policy server
-  # - DISABLE_CLAMAV=true       # Disable virus scanning
-  # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
-  # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
-  volumes:
-    - /mnt/docker/mail/mail:/var/mail
-    - /mnt/docker/mail/opendkim:/etc/opendkim/keys
-  # - /mnt/docker/nginx/certs:/etc/letsencrypt
+version: '2'
+services:
+  mailserver:
+    image: hardware/mailserver
+    domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
+    hostname: mail
+    # extra_hosts:                        - Required for external database (on other server or for local database on host)
+    #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
+    ports:
+      - "25:25"     # SMTP                - Required
+    # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
+      - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
+    # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+      - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
+      - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+    # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+      - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+    environment:
+      - DBPASS=xxxxxxx
+    # - ENABLE_POP3=true          # Enable POP3 protocol
+    # - ENABLE_POSTGREY=true      # Enable greylisting policy server
+    # - DISABLE_CLAMAV=true       # Disable virus scanning
+    # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
+    # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
+    volumes:
+      - /mnt/docker/mail/mail:/var/mail
+      - /mnt/docker/mail/opendkim:/etc/opendkim/keys
+    # - /mnt/docker/nginx/certs:/etc/letsencrypt
+    depends_on:
+      - mariadb
 
 
-# Control panel
-postfixadmin:
-  image: hardware/postfixadmin
-  container_name: postfixadmin
-  domainname: domain.tld
-  hostname: mail
-  links:
-    - mailserver:mailserver
-    - mariadb:mariadb
-  environment:
-    - DBPASS=xxxxxxx
+  # Control panel
+  postfixadmin:
+    image: hardware/postfixadmin
+    container_name: postfixadmin
+    domainname: domain.tld
+    hostname: mail
+    environment:
+      - DBPASS=xxxxxxx
+    depends_on:
+      - mailserver
+      - mariadb
 
-# Webmail
-rainloop:
-  image: hardware/rainloop
-  container_name: rainloop
-  links:
-    - mailserver:mailserver
-    - mariadb:mariadb
-  volumes:
-    - /mnt/docker/rainloop:/rainloop/data
+  # Webmail
+  rainloop:
+    image: hardware/rainloop
+    container_name: rainloop
+    volumes:
+      - /mnt/docker/rainloop:/rainloop/data
+    depends_on:
+      - mailserver
+      - mariadb
 
-# Web server
-# Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
-nginx:
-  image: wonderfall/boring-nginx
-  container_name: nginx
-  links:
-    - postfixadmin:postfixadmin
-    - rainloop:rainloop
-  ports:
-    - "80:8000"
-    - "443:4430"
-  volumes:
-    - /mnt/docker/nginx/sites-enabled:/sites-enabled
-    - /mnt/docker/nginx/conf:/conf.d
-    - /mnt/docker/nginx/log:/var/log/nginx
-    - /mnt/docker/nginx/certs:/certs
+  # Web server
+  # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+  nginx:
+    image: wonderfall/boring-nginx
+    container_name: nginx
+    ports:
+      - "80:8000"
+      - "443:4430"
+    volumes:
+      - /mnt/docker/nginx/sites-enabled:/sites-enabled
+      - /mnt/docker/nginx/conf:/conf.d
+      - /mnt/docker/nginx/log:/var/log/nginx
+      - /mnt/docker/nginx/certs:/certs
+    depends_on:
+      - postfixadmin
+      - rainloop
 
-# Database
-mariadb:
-  image: mariadb:10.1
-  container_name: mariadb
-  # Info : These variables are ignored when the volume already exists (databases created before).
-  environment:
-    - MYSQL_ROOT_PASSWORD=xxxxxxx
-    - MYSQL_DATABASE=postfix
-    - MYSQL_USER=postfix
-    - MYSQL_PASSWORD=xxxxxxx
-  volumes:
-    - /mnt/docker/mysql/db:/var/lib/mysql
+  # Database
+  mariadb:
+    image: mariadb:10.1
+    container_name: mariadb
+    # Info : These variables are ignored when the volume already exists (databases created before).
+    environment:
+      - MYSQL_ROOT_PASSWORD=xxxxxxx
+      - MYSQL_DATABASE=postfix
+      - MYSQL_USER=postfix
+      - MYSQL_PASSWORD=xxxxxxx
+    volumes:
+      - /mnt/docker/mysql/db:/var/lib/mysql
