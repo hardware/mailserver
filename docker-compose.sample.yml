@@ -2,8 +2,10 @@ version: '2'
 services:
   mailserver:
     image: hardware/mailserver
+    container_name: mailserver
     domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
     hostname: mail
+    # restart: always
     # extra_hosts:                        - Required for external database (on other server or for local database on host)
     #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
     ports:
@@ -36,6 +38,7 @@ services:
     container_name: postfixadmin
     domainname: domain.tld
     hostname: mail
+    # restart: always
     environment:
       - DBPASS=xxxxxxx
     depends_on:
@@ -46,6 +49,7 @@ services:
   rainloop:
     image: hardware/rainloop
     container_name: rainloop
+    # restart: always
     volumes:
       - /mnt/docker/rainloop:/rainloop/data
     depends_on:
@@ -57,6 +61,7 @@ services:
   nginx:
     image: wonderfall/boring-nginx
     container_name: nginx
+    # restart: always
     ports:
       - "80:8000"
       - "443:4430"
@@ -73,6 +78,7 @@ services:
   mariadb:
     image: mariadb:10.1
     container_name: mariadb
+    # restart: always
     # Info : These variables are ignored when the volume already exists (databases created before).
     environment:
       - MYSQL_ROOT_PASSWORD=xxxxxxx
