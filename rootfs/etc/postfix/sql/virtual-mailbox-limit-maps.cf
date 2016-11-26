@@ -1,6 +1,0 @@
-hosts    = {{ DBHOST }}
-user     = {{ DBUSER }}
-password = {{ DBPASS }}
-dbname   = {{ DBNAME }}
-
-query = SELECT quota FROM mailbox WHERE username='%s' AND active = 1

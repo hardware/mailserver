@@ -111,17 +111,6 @@ virtual_alias_maps      = mysql:/etc/postfix/sql/virtual-alias-maps.cf,
                           mysql:/etc/postfix/sql/virtual-alias-domain-maps.cf,
                           mysql:/etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
 
-##############################
-## QUOTA SUPPORT PARAMETERS ##
-##############################
-
-virtual_create_maildirsize     = yes
-virtual_mailbox_extended       = yes
-virtual_mailbox_limit_maps     = mysql:/etc/postfix/sql/virtual-mailbox-limit-maps.cf
-virtual_mailbox_limit_override = yes
-virtual_maildir_limit_message  = "Sorry, the user's maildir has overdrawn his diskspace quota, please try again later."
-virtual_overquota_bounce       = yes
-
 ######################
 ## ERRORS REPORTING ##
 ######################
