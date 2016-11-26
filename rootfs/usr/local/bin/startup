@@ -167,8 +167,9 @@ _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-limit-maps.cf
-_envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
+_envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
+_envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/opendkim/opendkim.conf
@@ -176,6 +177,7 @@ _envtpl /etc/opendmarc/opendmarc.conf
 _envtpl /etc/amavis/conf.d/05-node_id
 _envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/mailname
+_envtpl /usr/local/bin/quota-warning
 
 # Override Postfix configuration
 if [ -f /var/mail/postfix/custom.conf ]; then
@@ -274,6 +276,7 @@ mkdir -p /var/run/dovecot
 chown -R dovecot:dovecot /var/run/dovecot
 chown -R opendkim:opendkim /etc/opendkim
 chown -R opendmarc:opendmarc /etc/opendmarc
+chmod +x /usr/local/bin/*
 
 # Sieve
 mkdir -p /var/mail/sieve

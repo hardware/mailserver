@@ -3,9 +3,9 @@
 PERCENT=$1
 USER=$2
 
-cat << EOF | /usr/local/libexec/dovecot/dovecot-lda -d $USER -o "plugin/quota=maildir:User quota:noenforcing"
+cat << EOF | /usr/lib/dovecot/dovecot-lda -d $USER -o "plugin/quota=dict:User quota::noenforcing:proxy::sqlquota"
 From: postmaster@{{ DOMAIN }}
-Subject: quota warning
+Subject: Mailbox quota warning
 
 Your mailbox is now $PERCENT% full.
 EOF
