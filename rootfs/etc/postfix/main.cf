@@ -25,6 +25,13 @@ mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 alias_maps     = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 
+###############
+## SMTP/UTF8 ##
+###############
+
+smtputf8_enable             = yes
+smtputf8_autodetect_classes = all
+
 ###################
 ## RATE LIMITING ##
 ###################
@@ -85,7 +92,7 @@ smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
 smtpd_sasl_local_domain         = $mydomain
 smtpd_sasl_authenticated_header = yes
 
-smtpd_sender_login_maps  = mysql:/etc/postfix/mysql/mysql-sender-login-maps.cf
+smtpd_sender_login_maps  = mysql:/etc/postfix/sql/sender-login-maps.cf
 broken_sasl_auth_clients = yes
 
 ##############################
@@ -97,9 +104,12 @@ virtual_gid_maps        = static:{{ VMAILGID }}
 virtual_minimum_uid     = {{ VMAILUID }}
 virtual_mailbox_base    = /var/mail
 virtual_transport       = lmtp:unix:private/dovecot-lmtp
-virtual_mailbox_domains = mysql:/etc/postfix/mysql/mysql-virtual-mailbox-domains.cf
-virtual_mailbox_maps    = mysql:/etc/postfix/mysql/mysql-virtual-mailbox-maps.cf
-virtual_alias_maps      = mysql:/etc/postfix/mysql/mysql-virtual-alias-maps.cf
+virtual_mailbox_domains = mysql:/etc/postfix/sql/virtual-mailbox-domains.cf
+virtual_mailbox_maps    = mysql:/etc/postfix/sql/virtual-mailbox-maps.cf,
+                          mysql:/etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
+virtual_alias_maps      = mysql:/etc/postfix/sql/virtual-alias-maps.cf,
+                          mysql:/etc/postfix/sql/virtual-alias-domain-maps.cf,
+                          mysql:/etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
 
 ######################
 ## ERRORS REPORTING ##
