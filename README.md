@@ -179,7 +179,8 @@ mailserver:
     - /mnt/docker/nginx/certs:/etc/letsencrypt
     ...
 
-nginx: wonderfall/nginx
+nginx:
+  image: wonderfall/boring-nginx
   volumes:
     - /mnt/docker/nginx/certs:/certs
     ...
