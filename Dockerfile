@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
-ENV TINI_VER=0.10.0
+ENV TINI_VER=0.13.0
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends  \
     postfix postfix-mysql postfix-pcre postgrey \
@@ -21,7 +21,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-
  && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old /usr/share/doc/* /usr/share/man/* \
  && cp -r /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/
 
-VOLUME /var/mail /var/lib/dovecot /etc/opendkim/keys /etc/letsencrypt
+VOLUME /var/mail /etc/opendkim/keys /etc/letsencrypt
 EXPOSE 25 143 465 587 993 4190
 
 COPY rootfs /
