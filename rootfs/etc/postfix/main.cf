@@ -213,5 +213,7 @@ receive_override_options = no_address_mappings
 
 milter_protocol       = 6
 milter_default_action = accept
-smtpd_milters         = inet:localhost:12301,inet:localhost:54321
-non_smtpd_milters     = $smtpd_milters
+dkim_milter           = inet:localhost:8891
+dmarc_milter          = inet:localhost:8893
+smtpd_milters         = $dkim_milter,$dmarc_milter
+non_smtpd_milters     = $dkim_milter
