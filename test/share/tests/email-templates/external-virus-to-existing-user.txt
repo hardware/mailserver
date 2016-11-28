@@ -1,0 +1,13 @@
+HELO mail.orange.fr
+MAIL FROM: user@orange.fr
+RCPT TO: john.doe@domain.tld
+DATA
+From: Docker Mail Server <user@orange.fr>
+To: Existing Local User <john.doe@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+This is a test mail.
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+
+.
+QUIT

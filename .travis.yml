@@ -1,0 +1,9 @@
+branches:
+  only:
+  - integration-tests
+language: bash
+sudo: required
+services:
+- docker
+script:
+- make all

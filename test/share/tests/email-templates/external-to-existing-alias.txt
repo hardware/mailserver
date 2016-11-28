@@ -1,0 +1,12 @@
+HELO mail.orange.fr
+MAIL FROM: user@orange.fr
+RCPT TO: hostmaster@domain.tld
+DATA
+From: Docker Mail Server <user@orange.fr>
+To: Existing Local User <hostmaster@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+This is a test mail.
+
+.
+QUIT
