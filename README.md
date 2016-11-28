@@ -1,5 +1,7 @@
 # hardware/mailserver
 
+[![Join the chat at https://gitter.im/hardware-mailserver/Lobby](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
 
 ### Components
