@@ -20,7 +20,7 @@ services:
     environment:
       - DBPASS=xxxxxxx
     # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - ENABLE_POSTGREY=true      # Enable greylisting policy server
+    # - GREYLISTING=gross         # Enable gross greylisting policy server
     # - DISABLE_CLAMAV=true       # Disable virus scanning
     # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
     # - DISABLE_SIEVE=true        # Disable ManageSieve protocol

@@ -21,6 +21,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
 - **Postgrey** : greylisting policy server
+- **Gross** : greylisting of suspicious sources
 - **Rainloop** : web based email client
 - **Postfixadmin** : web based administration interface
 - **NSD** : authoritative DNS server with DNSSEC support
@@ -114,12 +115,14 @@ docker logs -f mailserver
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
-| **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
+| **GREYLISTING** | Enable greylisting policy server | *optional* | off
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
+
+The supported values for **GREYLISTING** are `off`, `gross` or `postgrey`. Gross is a more advanced greylisting server which blocks only hosts with a bad DNSBL reputation.
 
 Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 
@@ -133,6 +136,8 @@ Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multi
    ├──postgrey
    │     postgrey.db
    │     ...
+   ├──gross
+   │     grossd.state
    ├──sieve
    │     default.sieve
    │     default.svbin

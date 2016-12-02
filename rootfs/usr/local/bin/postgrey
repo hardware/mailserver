@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$ENABLE_POSTGREY" = false ]; then
+if [ "$GREYLISTING" != "postgrey" ]; then
   exit 0
 fi
 
