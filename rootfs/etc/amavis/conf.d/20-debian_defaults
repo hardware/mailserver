@@ -18,7 +18,7 @@ use strict;
 #   for more details see documentation in /usr/share/doc/amavisd-new
 #   and at http://www.ijs.si/software/amavisd/amavisd-new-docs.html
 
-$recipient_delimiter = '+';
+$recipient_delimiter = '{{ RECIPIENT_DELIMITER | truncate(1, True, '') }}';
 
 $QUARANTINEDIR = "$MYHOME/virusmails";
 $quarantine_subdir_levels = 1; # enable quarantine dir hashing
