@@ -1,5 +1,7 @@
 # hardware/mailserver
 
+[![Join the chat at https://gitter.im/hardware-mailserver/Lobby](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
 
 ### Components
@@ -117,8 +119,11 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
+| **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
+
+Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 
 ### Files/Folders tree
 

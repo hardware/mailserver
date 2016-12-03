@@ -17,6 +17,7 @@ export DISABLE_SPAMASSASSIN
 export DISABLE_SIEVE
 export ENABLE_POSTGREY
 export ENABLE_POP3
+export RECIPIENT_DELIMITER
 
 FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
@@ -32,6 +33,7 @@ ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
+RECIPIENT_DELIMITER=${RECIPIENT_DELIMITER:-"+"}
 
 if [ -z "$DBPASS" ]; then
   echo "[ERROR] Mariadb database password must be set !"
@@ -170,10 +172,12 @@ _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
 _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
+_envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/opendkim/opendkim.conf
 _envtpl /etc/opendmarc/opendmarc.conf
 _envtpl /etc/amavis/conf.d/05-node_id
+_envtpl /etc/amavis/conf.d/20-debian_defaults
 _envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning
