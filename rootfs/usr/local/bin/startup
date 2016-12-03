@@ -17,6 +17,7 @@ export DISABLE_SPAMASSASSIN
 export DISABLE_SIEVE
 export ENABLE_POSTGREY
 export ENABLE_POP3
+export RECIPIENT_DELIMITER
 
 FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
