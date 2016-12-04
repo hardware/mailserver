@@ -2,5 +2,9 @@ language: bash
 sudo: required
 services:
 - docker
+before_install:
+- docker --version
 script:
 - make all
+after_script:
+- docker images

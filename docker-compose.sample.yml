@@ -31,8 +31,10 @@ services:
     depends_on:
       - mariadb
 
-
-  # Control panel
+  # Administration interface
+  # https://github.com/hardware/postfixadmin
+  # http://postfixadmin.sourceforge.net/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
   postfixadmin:
     image: hardware/postfixadmin
     container_name: postfixadmin
@@ -45,7 +47,10 @@ services:
       - mailserver
       - mariadb
 
-  # Webmail
+  # Webmail (Optional)
+  # https://github.com/hardware/rainloop
+  # https://www.rainloop.net/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
   rainloop:
     image: hardware/rainloop
     container_name: rainloop
@@ -56,7 +61,25 @@ services:
       - mailserver
       - mariadb
 
+  # Authoritative DNS server (Optional)
+  # https://github.com/hardware/nsd-dnssec
+  # https://www.nlnetlabs.nl/projects/nsd/
+  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+  nsd:
+    image: hardware/nsd-dnssec
+    container_name: nsd
+    # restart: always
+    ports:
+      - "53:53"
+      - "53:53/udp"
+    volumes:
+      - /mnt/docker/nsd/conf:/etc/nsd
+      - /mnt/docker/nsd/zones:/zones
+      - /mnt/docker/nsd/db:/var/db/nsd
+
   # Web server
+  # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
+  # https://nginx.org/
   # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
   nginx:
     image: wonderfall/boring-nginx
@@ -75,6 +98,8 @@ services:
       - rainloop
 
   # Database
+  # https://github.com/docker-library/mariadb
+  # https://mariadb.org/
   mariadb:
     image: mariadb:10.1
     container_name: mariadb

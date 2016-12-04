@@ -1,23 +1,36 @@
-# hardware/mailserver
+# hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![Gitter](https://img.shields.io/gitter/room/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby) [![DockerHub Stars](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![DockerHub Automated](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![Github License](https://img.shields.io/github/license/hardware/mailserver.svg)](https://github.com/hardware/mailserver/blob/master/LICENSE)
+### Build
 
-![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver)
+[![](https://images.microbadger.com/badges/version/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
 
-### Components
+### Docker image
 
-- Postfix 2.11.3
-- Dovecot 2.2.13
-- OpenDKIM 2.9.2
-- OpenDMARC 1.3.0
-- Spamassassin 3.4.0
-- Postgrey 1.35
-- ClamAV 0.98.7
-- Amavisd-new 2.10.1
-- Amavisd-milter 1.5.0
-- Supervisor 3.0r1
-- Rsyslog 8.4.2
-- ManageSieve server
+[![](https://images.microbadger.com/badges/image/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
+[![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/)
+[![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
+
+
+Simple and full-featured mail server as a set of multiple docker images includes :
+
+- **Postfix** : a full set smtp email server supporting custom rules
+- **Dovecot** : secure imap and pop3 email server
+- **Amavis** : content filter implementing decoding, processing and checking e-mails
+- **Spamassasin** : anti-spam filter
+- **Clamav** : antivirus with automatic updates
+- **OpenDKIM** : implementation of the DKIM (Domain Keys Identified Mail)
+- **OpenDMARC** : implementation of the DMARC (Domain-based Message Authentication, Reporting & Conformance)
+- **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
+- **Postgrey** : greylisting policy server
+- **Rainloop** : web based email client
+- **Postfixadmin** : web based administration interface
+- **NSD** : authoritative DNS server with DNSSEC support
+- **Nginx** : web server with HTTP/2 and TLS 1.3 (DRAFT), statically linked against BoringSSL
+- **SSL** : lets encrypt and self-signed certificates support
+- Supporting multiple virtual domains over MySQL backend
+- Integration tests with Travis CI
+- Automated builds on DockerHub
 
 ### How to use
 
@@ -67,11 +80,16 @@ mail._domainkey     IN                TXT                  "v=DKIM1; k=rsa; p=DK
 _dmarc              IN                TXT                  "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject"
 ```
 
-The DKIM public key is available on host here :
-
+**The DKIM public key is available on host here** :
 `/mnt/docker/mail/opendkim/domain.tld/mail.txt`
 
-Test your configuration with this website : https://www.mail-tester.com/
+See [NSD initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration), if you want to setup your own authoritative dns server with dnssec support :lock:
+
+You can audit your mailserver with the following assessment services :
+
+- https://www.mail-tester.com/
+- https://observatory.mozilla.org/
+- https://www.hardenize.com/
 
 #### 7 - Done, congratulation ! :tada:
 
@@ -256,6 +274,21 @@ docker logs -f mailserver
 - SMTP port : 587
 - IMAP Encryption protocol : SSL/TLS
 - SMTP Encryption protocol : STARTTLS
+
+### Components
+
+- Postfix 2.11.3
+- Dovecot 2.2.13
+- OpenDKIM 2.9.2
+- OpenDMARC 1.3.0
+- Spamassassin 3.4.0
+- Postgrey 1.35
+- ClamAV 0.98.7
+- Amavisd-new 2.10.1
+- Amavisd-milter 1.5.0
+- Supervisor 3.0r1
+- Rsyslog 8.4.2
+- ManageSieve server
 
 ## Roadmap
 
