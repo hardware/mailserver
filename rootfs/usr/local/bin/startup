@@ -160,6 +160,7 @@ _envtpl() {
 }
 
 _envtpl /etc/postfix/main.cf
+_envtpl /etc/postfix/virtual
 _envtpl /etc/postfix/header_checks
 _envtpl /etc/postfix/sql/sender-login-maps.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-domains.cf

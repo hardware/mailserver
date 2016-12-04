@@ -1,29 +1,46 @@
 #
-# files
+# system
 #
 
-@test "checking file: /etc/mailname" {
+@test "checking system: /etc/mailname" {
   run docker exec mailserver_default cat /etc/mailname
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "mail.domain.tld" ]
+  [ "$output" = "mail.domain.tld" ]
 }
 
-@test "checking file: /etc/hostname" {
+@test "checking system: /etc/hostname" {
   run docker exec mailserver_default cat /etc/hostname
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "mail.domain.tld" ]
+  [ "$output" = "mail.domain.tld" ]
 }
 
-@test "checking file: /etc/hosts" {
+@test "checking system: /etc/hosts" {
   run docker exec mailserver_default grep "mail.domain.tld" /etc/hosts
   [ "$status" -eq 0 ]
 }
 
-@test "checking file: all environment variables have been replaced" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /usr/local/bin/quota-warning"
-  [ "$status" -eq 1 ]
+@test "checking system: fqdn" {
+  run docker exec mailserver_default hostname -f
+  [ "$status" -eq 0 ]
+  [ "$output" = "mail.domain.tld" ]
 }
 
+@test "checking system: domain" {
+  run docker exec mailserver_default hostname -d
+  [ "$status" -eq 0 ]
+  [ "$output" = "domain.tld" ]
+}
+
+@test "checking system: hostname" {
+  run docker exec mailserver_default hostname -s
+  [ "$status" -eq 0 ]
+  [ "$output" = "mail" ]
+}
+
+@test "checking system: all environment variables have been replaced" {
+  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /etc/mailname /usr/local/bin/quota-warning"
+  [ "$status" -eq 1 ]
+}
 
 #
 # processes (default configuration)
@@ -129,6 +146,140 @@
 }
 
 #
+# ports
+#
+
+@test "checking port    (25): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 25"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port    (25): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 25"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (110): external port closed    (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 110"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking port   (110): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 110"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (143): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 143"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (143): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 143"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (465): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 465"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (465): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 465"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (587): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 587"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (587): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 587"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (993): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 993"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (993): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 993"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port   (995): external port closed    (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 995"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking port   (995): external port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 995"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (4190): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 4190"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (4190): external port closed    (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 4190"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking port  (8891): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 8891"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (8891): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 8891"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (8893): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 8893"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (8893): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 8893"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port (10023): internal port closed    (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10023"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking port (10023): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10023"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port (10024): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10024"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port (10024): internal port closed    (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10024"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking port (10025): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10025"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port (10025): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10025"
+  [ "$status" -eq 0 ]
+}
+
+#
 # sasl
 #
 
@@ -199,10 +350,10 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking smtp: john.doe should have received 3 mails (external, internal + alias)" {
+@test "checking smtp: john.doe should have received 6 mails (external + internal + subaddress + hostmaster alias + local account alias + postmaster alias virus report)" {
   run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/john.doe/mail/new/ | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 3 ]
+  [ "$output" = 6 ]
 }
 
 @test "checking smtp: john.doe should have received 1 spam (external mail stored in Spam folder by Sieve)" {
@@ -211,6 +362,26 @@
   [ "$output" = 1 ]
 }
 
+@test "checking smtp: rejects mail to unknown user" {
+  run docker exec mailserver_default /bin/sh -c "grep '<ghost@domain.tld>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking smtp: delivers mail to existing account" {
+  run docker exec mailserver_default /bin/sh -c "grep 'postfix/lmtp' /var/log/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 7 ]
+}
+
+@test "checking smtp: delivers mail to existing alias" {
+  run docker exec mailserver_default /bin/sh -c "grep 'to=<john.doe@domain.tld>, orig_to=<hostmaster@domain.tld>' /var/log/mail.log | grep 'status=sent' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+  run docker exec mailserver_default /bin/sh -c "grep 'to=<john.doe@domain.tld>, orig_to=<postmaster@domain.tld>' /var/log/mail.log | grep 'status=sent' | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
 
 #
 # imap
@@ -264,24 +435,22 @@
 # amavis
 #
 
+@test "checking amavis: spam filtered" {
+  run docker exec mailserver_default /bin/sh -c "grep 'Passed SPAM' /var/log/mail.log | grep spam@example.com | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking amavis: virus rejected" {
+  run docker exec mailserver_default /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail.log | grep virus@example.com | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
 @test "checking amavis: 1 spam discarded and 1 virus quarantined" {
   run docker exec mailserver_default /bin/sh -c "find /var/lib/amavis/virusmails -type f | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 2 ]
-}
-
-#
-# sieve
-#
-
-@test "checking managesieve (4190): port listening" {
-  run docker exec mailserver_default /bin/sh -c "nc -vz 127.0.0.1 4190"
-  [ "$status" -eq 0 ]
-}
-
-@test "checking managesieve (4190): port closed" {
-  run docker exec mailserver_reverse /bin/sh -c "nc -vz 127.0.0.1 4190"
-  [ "$status" -eq 1 ]
 }
 
 #
@@ -366,9 +535,94 @@
 # postfix
 #
 
-# @test "checking postfix: main.cf overrides" {
-#  run docker exec mailserver_default /bin/sh -c "postconf -n | grep 'max_idle = 600s'"
-#  [ "$status" -eq 0 ]
-#  run docker exec mailserver_default /bin/sh -c "postconf -n | grep 'readme_directory = /tmp'"
-#  [ "$status" -eq 0 ]
-# }
+@test "checking postfix: main.cf overrides" {
+  run docker exec mailserver_default /bin/sh -c "postconf -h max_idle"
+  [ "$status" -eq 0 ]
+  [ "$output" = "600s" ]
+
+  run docker exec mailserver_default /bin/sh -c "postconf -h readme_directory"
+  [ "$status" -eq 0 ]
+  [ "$output" = "/tmp" ]
+}
+
+@test "checking postfix: headers cleanup" {
+  run docker exec mailserver_default /bin/sh -c "grep 'replace: header Received' /var/log/mail.log | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 1 ]
+}
+
+#
+# ssl
+#
+
+@test "checking ssl: generated default cert works correctly" {
+  run docker exec mailserver_default /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 18 (self signed certificate)'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking ssl: let's encrypt cert works correctly" {
+  run docker exec mailserver_reverse /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 10 (certificate has expired)'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking ssl: default configuration is correct" {
+  run docker exec mailserver_default /bin/sh -c 'grep "/var/mail/ssl/selfsigned" /etc/postfix/main.cf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+  run docker exec mailserver_default /bin/sh -c 'grep "/var/mail/ssl/selfsigned" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+}
+
+@test "checking ssl: let's encrypt configuration is correct" {
+  run docker exec mailserver_reverse /bin/sh -c 'grep "/etc/letsencrypt/live/mail.domain.tld" /etc/postfix/main.cf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 3 ]
+  run docker exec mailserver_reverse /bin/sh -c 'grep "/etc/letsencrypt/live/mail.domain.tld" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+}
+
+#
+# index files
+#
+
+@test "checking hash tables: existing header_checks and virtual index files" {
+  run docker exec mailserver_default [ -f /etc/postfix/header_checks.db ]
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_default [ -f /etc/postfix/virtual.db ]
+  [ "$status" -eq 0 ]
+}
+
+#
+# logs
+#
+
+@test "checking logs: /var/log/mail.log is error free" {
+  run docker exec mailserver_default grep -i ': error:' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_default grep -i 'is not writable' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_default grep -i 'permission denied' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_reverse grep -i ': error:' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_reverse grep -i 'is not writable' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_reverse grep -i 'permission denied' /var/log/mail.log
+  [ "$status" -eq 1 ]
+}
+
+@test "checking logs: /var/log/mail.log no bounced error" {
+  run docker exec mailserver_default grep -i 'status=bounced' /var/log/mail.log
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_reverse grep -i 'status=bounced' /var/log/mail.log
+  [ "$status" -eq 1 ]
+}
+
+@test "checking logs: /var/log/mail.err does not exist" {
+  run docker exec mailserver_default [ -f /var/log/mail.err ]
+  [ "$status" -eq 1 ]
+  run docker exec mailserver_reverse [ -f /var/log/mail.err ]
+  [ "$status" -eq 1 ]
+}

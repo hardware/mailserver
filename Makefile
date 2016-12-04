@@ -14,7 +14,6 @@ init:
 	docker run \
 		-d \
 		--name mariadb \
-		-p 3306:3306 \
 		-e MYSQL_ROOT_PASSWORD=testpasswd \
 		-e MYSQL_DATABASE=postfix \
 		-e MYSQL_USER=postfix \
@@ -33,8 +32,10 @@ init:
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e ADD_DOMAINS=domain2.tld,domain3.tld \
+		-e RECIPIENT_DELIMITER=: \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
+		-v "`pwd`/test/share/postfix":/var/mail/postfix \
 		-h mail.domain.tld \
 		-t $(NAME)
 
@@ -53,6 +54,7 @@ init:
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
+		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
 		-h mail.domain.tld \
 		-t $(NAME)
 
@@ -60,15 +62,17 @@ init:
 	docker exec mailserver_reverse /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 
 	# Wait processes spawned by supervisord (full init can take more than one minute)
-	sleep 80
+	sleep 120
 
 fixtures:
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
+	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress.txt"
+	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-non-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-alias.txt"
+	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-system-account.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-spam-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-virus-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/email-templates/internal-user-to-existing-user.txt"
-	docker exec mailserver_default /bin/sh -c "mkdir -p /var/mail/postfix && echo 'max_idle = 600s\nreadme_directory = /tmp' > /var/mail/postfix/custom.conf"
 
 run:
 	./test/bin/bats test/tests.bats

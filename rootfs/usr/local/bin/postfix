@@ -10,8 +10,9 @@ cp -f /etc/hosts /var/spool/postfix/etc/hosts
 cp -f /etc/localtime /var/spool/postfix/etc/localtime
 cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
-# Build header checks hash table
+# Build header_checks and virtual index files
 /usr/sbin/postmap /etc/postfix/header_checks
+/usr/sbin/postmap /etc/postfix/virtual
 
 # Fix permissions
 chmod 0644 /etc/postfix/header_checks

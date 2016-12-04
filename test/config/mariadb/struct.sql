@@ -68,7 +68,7 @@ CREATE TABLE `alias` (
 
 LOCK TABLES `alias` WRITE;
 /*!40000 ALTER TABLE `alias` DISABLE KEYS */;
-INSERT INTO `alias` VALUES ('hostmaster@domain.tld','john.doe@domain.tld','domain.tld','2016-11-28 08:54:26','2016-11-28 08:58:19',1),('john.doe@domain.tld','john.doe@domain.tld','domain.tld','2016-11-28 08:56:47','2016-11-28 08:56:47',1),('sarah.connor@domain.tld','sarah.connor@domain.tld','domain.tld','2016-11-28 08:57:51','2016-11-28 08:57:51',1);
+INSERT INTO `alias` VALUES ('postmaster@domain.tld','john.doe@domain.tld','domain.tld','2016-11-28 08:54:26','2016-11-28 08:58:19',1),('hostmaster@domain.tld','john.doe@domain.tld','domain.tld','2016-11-28 08:54:26','2016-11-28 08:58:19',1),('john.doe@domain.tld','john.doe@domain.tld','domain.tld','2016-11-28 08:56:47','2016-11-28 08:56:47',1),('sarah.connor@domain.tld','sarah.connor@domain.tld','domain.tld','2016-11-28 08:57:51','2016-11-28 08:57:51',1);
 /*!40000 ALTER TABLE `alias` ENABLE KEYS */;
 UNLOCK TABLES;
 
