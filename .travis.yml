@@ -1,6 +1,3 @@
-branches:
-  only:
-  - integration-tests
 language: bash
 sudo: required
 services:

@@ -1,6 +1,6 @@
 # hardware/mailserver
 
-[![Join the chat at https://gitter.im/hardware-mailserver/Lobby](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![Gitter](https://img.shields.io/gitter/room/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby) [![DockerHub Stars](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![DockerHub Automated](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![Github License](https://img.shields.io/github/license/hardware/mailserver.svg)](https://github.com/hardware/mailserver/blob/master/LICENSE)
 
 ![Mailserver](https://i.imgur.com/7romRth.png "Mailserver")
 
@@ -81,25 +81,6 @@ You can check startup logs with this command :
 
 ```
 docker logs -f mailserver
-```
-
-Once it's over (5/10 minutes approximately), you can check with `telnet` and `openssl s_client` commands :
-
-```
-# SMTP - 25 port (MTA <-> MTA)
-telnet mail.domain.tld 25
-
-# IMAP STARTTLS - 143 port (IMAP)
-openssl s_client -connect mail.domain.tld:143 -starttls imap -tlsextdebug
-
-# SMTP SSL/TLS - 465 port (SMTPS)
-openssl s_client -connect mail.domain.tld:465 -tlsextdebug
-
-# SMTP STARTTLS - 587 port (Submission)
-openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
-
-# IMAP SSL/TLS - 993 port (IMAPS)
-openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 ```
 
 ### Environment variables
@@ -283,25 +264,15 @@ docker logs -f mailserver
 - ClueGetter integration
 - LDAP authentification (need contributors)
 
-## Contribute
+## How to contribute
 
 - Fork this repository
 - Create a new feature branch for a new functionality or bugfix
+- Code...
+- Add integration tests in test/tests.bats
+- Use `make` to build image locally and run tests
+- Document your improvements
 - Commit your changes
 - Push your code and open a new pull request
 - Use [issues](https://github.com/hardware/mailserver/issues) for any questions
 
-## Support
-
-https://github.com/hardware/mailserver/issues
-
-## Contact
-
-- [contact@meshup.net](mailto:contact@meshup.net)
-- [http://twitter.com/hardvvare](http://twitter.com/hardvvare)
-
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Hardware, <contact@meshup.net>
