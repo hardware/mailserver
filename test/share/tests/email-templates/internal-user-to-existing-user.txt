@@ -1,0 +1,13 @@
+HELO mailserver
+AUTH PLAIN AHNhcmFoLmNvbm5vckBkb21haW4udGxkAHRlc3RwYXNzd2QxMg==
+MAIL FROM: sarah.connor@domain.tld
+RCPT TO: john.doe@domain.tld
+DATA
+From: Docker Mail Server <sarah.connor@domain.tld>
+To: Existing Local User <john.doe@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+This is a test mail.
+
+.
+QUIT

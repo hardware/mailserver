@@ -1,0 +1,4 @@
+EHLO mailserver
+AUTH LOGIN c2FyYWguY29ubm9yQGRvbWFpbi50bGQ=
+dGVzdHBhc3N3ZDEy
+QUIT

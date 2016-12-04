@@ -1,0 +1,3 @@
+EHLO mailserver
+AUTH PLAIN AHNhcmFoLmNvbm5vckBkb21haW4udGxkAGJhZHBhc3N3b3Jk
+QUIT
