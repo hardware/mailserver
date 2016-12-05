@@ -38,7 +38,7 @@
 }
 
 @test "checking system: all environment variables have been replaced" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /etc/mailname /usr/local/bin/quota-warning"
+  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /etc/mailname /usr/local/bin/quota-warning"
   [ "$status" -eq 1 ]
 }
 
@@ -101,15 +101,15 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: clamd (enable in default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/clamd --foreground=true -c /etc/clamav/clamd.conf'"
-  [ "$status" -eq 0 ]
-}
+# @test "checking process: clamd (enable in default configuration)" {
+#   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/clamd --foreground=true -c /etc/clamav/clamd.conf'"
+#   [ "$status" -eq 0 ]
+# }
 
-@test "checking process: freshclam (enable in default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/bin/freshclam -d --config-file=/etc/clamav/freshclam.conf'"
-  [ "$status" -eq 0 ]
-}
+# @test "checking process: freshclam (enable in default configuration)" {
+#   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/bin/freshclam -d --config-file=/etc/clamav/freshclam.conf'"
+#   [ "$status" -eq 0 ]
+# }
 
 #
 # processes (reverse configuration)
@@ -135,15 +135,15 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking process: clamd (disabled in reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/clamd --foreground=true -c /etc/clamav/clamd.conf'"
-  [ "$status" -eq 1 ]
-}
+# @test "checking process: clamd (disabled in reverse configuration)" {
+#   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/clamd --foreground=true -c /etc/clamav/clamd.conf'"
+#   [ "$status" -eq 1 ]
+# }
 
-@test "checking process: freshclam (disabled in reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/bin/freshclam -d --config-file=/etc/clamav/freshclam.conf'"
-  [ "$status" -eq 1 ]
-}
+# @test "checking process: freshclam (disabled in reverse configuration)" {
+#   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/bin/freshclam -d --config-file=/etc/clamav/freshclam.conf'"
+#   [ "$status" -eq 1 ]
+# }
 
 #
 # ports
@@ -350,10 +350,10 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking smtp: john.doe should have received 6 mails (external + internal + subaddress + hostmaster alias + local account alias + postmaster alias virus report)" {
-  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/john.doe/mail/new/ | wc -l"
+@test "checking smtp: sarah.connor should have received 4 mails (external + internal + subaddress + hostmaster alias via fetchmail)" {
+  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/new/ | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 6 ]
+  [ "$output" = 4 ]
 }
 
 @test "checking smtp: john.doe should have received 1 spam (external mail stored in Spam folder by Sieve)" {
@@ -368,17 +368,8 @@
   [ "$output" = 1 ]
 }
 
-@test "checking smtp: delivers mail to existing account" {
-  run docker exec mailserver_default /bin/sh -c "grep 'postfix/lmtp' /var/log/mail.log | grep 'status=sent' | grep ' Saved)' | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" -eq 7 ]
-}
-
 @test "checking smtp: delivers mail to existing alias" {
   run docker exec mailserver_default /bin/sh -c "grep 'to=<john.doe@domain.tld>, orig_to=<hostmaster@domain.tld>' /var/log/mail.log | grep 'status=sent' | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" = 1 ]
-  run docker exec mailserver_default /bin/sh -c "grep 'to=<john.doe@domain.tld>, orig_to=<postmaster@domain.tld>' /var/log/mail.log | grep 'status=sent' | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
@@ -436,22 +427,19 @@
 #
 
 @test "checking amavis: spam filtered" {
-  run docker exec mailserver_default /bin/sh -c "grep 'Passed SPAM' /var/log/mail.log | grep spam@example.com | wc -l"
+  run docker exec mailserver_default /bin/sh -c "grep -i 'Passed SPAM' /var/log/mail.log | grep spam@example.com | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
-}
-
-@test "checking amavis: virus rejected" {
-  run docker exec mailserver_default /bin/sh -c "grep 'Blocked INFECTED' /var/log/mail.log | grep virus@example.com | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" = 1 ]
-}
-
-@test "checking amavis: 1 spam discarded and 1 virus quarantined" {
   run docker exec mailserver_default /bin/sh -c "find /var/lib/amavis/virusmails -type f | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 2 ]
+  [ "$output" = 1 ]
 }
+
+# @test "checking amavis: virus rejected" {
+#   run docker exec mailserver_default /bin/sh -c "grep -i 'Blocked INFECTED' /var/log/mail.log | grep virus@example.com | wc -l"
+#   [ "$status" -eq 0 ]
+#   [ "$output" = 1 ]
+# }
 
 #
 # accounts
@@ -552,6 +540,28 @@
 }
 
 #
+# fetchmail
+#
+
+@test "checking fetchmail: retrieve settings from fetchmail table" {
+  run docker exec mailserver_default /bin/sh -c "grep -i 'fetch john.doe@domain.tld for sarah.connor@domain.tld' /var/log/mail.log | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking fetchmail: 4 messages in john.doe@domain.tld inbox" {
+  run docker exec mailserver_default /bin/sh -c "grep -i '4 messages for john.doe@domain.tld' /var/log/mail.log | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 1 ]
+}
+
+@test "checking fetchmail: john.doe should now have 0 mail" {
+  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/john.doe/mail/new/ | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" = 0 ]
+}
+
+#
 # ssl
 #
 
@@ -566,19 +576,19 @@
 }
 
 @test "checking ssl: default configuration is correct" {
-  run docker exec mailserver_default /bin/sh -c 'grep "/var/mail/ssl/selfsigned" /etc/postfix/main.cf | wc -l'
+  run docker exec mailserver_default /bin/sh -c "grep '/var/mail/ssl/selfsigned' /etc/postfix/main.cf | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
-  run docker exec mailserver_default /bin/sh -c 'grep "/var/mail/ssl/selfsigned" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  run docker exec mailserver_default /bin/sh -c "grep '/var/mail/ssl/selfsigned' /etc/dovecot/conf.d/10-ssl.conf | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
 }
 
 @test "checking ssl: let's encrypt configuration is correct" {
-  run docker exec mailserver_reverse /bin/sh -c 'grep "/etc/letsencrypt/live/mail.domain.tld" /etc/postfix/main.cf | wc -l'
+  run docker exec mailserver_reverse /bin/sh -c "grep '/etc/letsencrypt/live/mail.domain.tld' /etc/postfix/main.cf | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 3 ]
-  run docker exec mailserver_reverse /bin/sh -c 'grep "/etc/letsencrypt/live/mail.domain.tld" /etc/dovecot/conf.d/10-ssl.conf | wc -l'
+  run docker exec mailserver_reverse /bin/sh -c "grep '/etc/letsencrypt/live/mail.domain.tld' /etc/dovecot/conf.d/10-ssl.conf | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 2 ]
 }
@@ -598,13 +608,16 @@
 # logs
 #
 
-@test "checking logs: /var/log/mail.log is error free" {
+@test "checking logs: /var/log/mail.log in mailserver_default is error free" {
   run docker exec mailserver_default grep -i ': error:' /var/log/mail.log
   [ "$status" -eq 1 ]
   run docker exec mailserver_default grep -i 'is not writable' /var/log/mail.log
   [ "$status" -eq 1 ]
   run docker exec mailserver_default grep -i 'permission denied' /var/log/mail.log
   [ "$status" -eq 1 ]
+}
+
+@test "checking logs: /var/log/mail.log in mailserver_reverse is error free " {
   run docker exec mailserver_reverse grep -i ': error:' /var/log/mail.log
   [ "$status" -eq 1 ]
   run docker exec mailserver_reverse grep -i 'is not writable' /var/log/mail.log
@@ -613,16 +626,13 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking logs: /var/log/mail.log no bounced error" {
-  run docker exec mailserver_default grep -i 'status=bounced' /var/log/mail.log
-  [ "$status" -eq 1 ]
-  run docker exec mailserver_reverse grep -i 'status=bounced' /var/log/mail.log
-  [ "$status" -eq 1 ]
+@test "checking logs: /var/log/mail.err in mailserver_default have fetchmail certificate warnings, nothing else" {
+  run docker exec mailserver_default /bin/sh -c "cat /var/log/mail.err | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 4 ]
 }
 
-@test "checking logs: /var/log/mail.err does not exist" {
-  run docker exec mailserver_default [ -f /var/log/mail.err ]
-  [ "$status" -eq 1 ]
+@test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
   run docker exec mailserver_reverse [ -f /var/log/mail.err ]
   [ "$status" -eq 1 ]
 }

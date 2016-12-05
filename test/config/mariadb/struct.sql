@@ -226,6 +226,7 @@ CREATE TABLE `fetchmail` (
 
 LOCK TABLES `fetchmail` WRITE;
 /*!40000 ALTER TABLE `fetchmail` DISABLE KEYS */;
+INSERT INTO `fetchmail` VALUES (1,'domain.tld','sarah.connor@domain.tld','127.0.0.1','password','john.doe@domain.tld','dGVzdHBhc3N3ZDEy','',10,1,1,'IMAP',1,0,'','','','','','2016-12-05 11:59:01','2016-12-05 11:58:53','2016-12-05 11:58:53',1);
 /*!40000 ALTER TABLE `fetchmail` ENABLE KEYS */;
 UNLOCK TABLES;
 

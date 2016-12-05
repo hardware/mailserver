@@ -1,15 +1,12 @@
-# hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Build
 
-[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver)
-[![](https://images.microbadger.com/badges/version/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
-[![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/)
-[![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
 
 
 Simple and full-featured mail server as a set of multiple docker images includes :
@@ -22,6 +19,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **OpenDKIM** : implementation of the DKIM (Domain Keys Identified Mail)
 - **OpenDMARC** : implementation of the DMARC (Domain-based Message Authentication, Reporting & Conformance)
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
+- **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
 - **Postgrey** : greylisting policy server
 - **Rainloop** : web based email client
 - **Postfixadmin** : web based administration interface
@@ -83,7 +81,7 @@ _dmarc              IN                TXT                  "v=DMARC1; p=reject; 
 **The DKIM public key is available on host here** :
 `/mnt/docker/mail/opendkim/domain.tld/mail.txt`
 
-See [NSD initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration), if you want to setup your own authoritative dns server with dnssec support :lock:
+See [NSD initial configuration](https://github.com/hardware/mailserver/wiki/NSD-initial-configuration), if you want to setup your own authoritative dns server with dnssec support :lock:
 
 You can audit your mailserver with the following assessment services :
 
@@ -118,6 +116,7 @@ docker logs -f mailserver
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **ENABLE_POSTGREY** | Enable Postgrey greylisting policy server | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
+| **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
@@ -283,6 +282,7 @@ docker logs -f mailserver
 - OpenDMARC 1.3.0
 - Spamassassin 3.4.0
 - Postgrey 1.35
+- Fetchmail 6.3.26
 - ClamAV 0.98.7
 - Amavisd-new 2.10.1
 - Amavisd-milter 1.5.0
@@ -292,7 +292,6 @@ docker logs -f mailserver
 
 ## Roadmap
 
-- Fetchmail implementation
 - Use Rspamd instead of Spamassassin
 - ClueGetter integration
 - LDAP authentification (need contributors)

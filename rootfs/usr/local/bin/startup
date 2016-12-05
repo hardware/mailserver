@@ -17,6 +17,8 @@ export DISABLE_SPAMASSASSIN
 export DISABLE_SIEVE
 export ENABLE_POSTGREY
 export ENABLE_POP3
+export ENABLE_FETCHMAIL
+export TESTING
 export RECIPIENT_DELIMITER
 
 FQDN=$(hostname --fqdn)
@@ -31,6 +33,8 @@ DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
+ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
+TESTING=${TESTING:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 RECIPIENT_DELIMITER=${RECIPIENT_DELIMITER:-"+"}
@@ -90,7 +94,7 @@ else
     echo "[INFO] No SSL certificates found, generating new selfsigned certificate"
     mkdir -p /var/mail/ssl/selfsigned/
     openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
-      -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=admin@${DOMAIN}" \
+      -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=postmaster@${DOMAIN}" \
       -keyout "$KEYFILE" \
       -out "$CERTFILE"
   fi
@@ -169,6 +173,7 @@ _envtpl /etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
+_envtpl /etc/postfixadmin/fetchmail.conf
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
 _envtpl /etc/dovecot/conf.d/10-mail.conf
@@ -258,6 +263,14 @@ else
   echo "[INFO] Postgrey is enabled, greylisting policy server will start."
 fi
 
+# Disable fetchmail forwarding
+if [ "$ENABLE_FETCHMAIL" = false ]; then
+  echo "[INFO] Fetchmail forwarding is disabled."
+  rm -f /etc/cron.d/fetchmail
+else
+  echo "[INFO] Fetchmail forwarding is enabled."
+fi
+
 # Enable ManageSieve protocol
 if [ "$DISABLE_SIEVE" = false ]; then
   echo "[INFO] ManageSieve protocol is enabled."
@@ -270,16 +283,28 @@ if [ "$ENABLE_POP3" = true ]; then
   sed -i '/^protocols/s/$/ pop3/' /etc/dovecot/dovecot.conf
 fi
 
+# Virtual table may cause counting troubles during tests
+# Disable fetchmail cron task during tests
+if [ "$TESTING" = true ]; then
+  echo "[INFO] DOCKER IMAGE UNDER TESTING"
+  sed -i '/etc\/postfix\/virtual/ s/^/#/' /etc/postfix/main.cf
+  rm -f /etc/cron.d/fetchmail
+fi
+
 # Folders and permissions
 groupadd -g "$VMAILGID" vmail
 useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
+
+mkdir /var/run/dovecot
+mkdir /var/run/fetchmail
+
 chown -R vmail:vmail /var/mail
 chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
-mkdir -p /var/run/dovecot
 chown -R dovecot:dovecot /var/run/dovecot
-chown -R opendkim:opendkim /etc/opendkim
-chown -R opendmarc:opendmarc /etc/opendmarc
+chown -R opendkim:opendkim /var/run/opendkim /etc/opendkim
+chown -R opendmarc:opendmarc /var/run/opendmarc /etc/opendmarc
+
 chmod +x /usr/local/bin/*
 
 # Sieve

@@ -35,6 +35,10 @@ RUN BUILD_DEPS=" \
     libsys-syslog-perl \
     libmail-spf-perl \
     libhttp-message-perl \
+    fetchmail \
+    libdbi-perl \
+    libdbd-mysql-perl \
+    liblockfile-simple-perl \
     altermime \
     supervisor \
     openssl \

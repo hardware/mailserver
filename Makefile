@@ -31,8 +31,10 @@ init:
 		-e DBPASS=testpasswd \
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
 		-e ADD_DOMAINS=domain2.tld,domain3.tld \
 		-e RECIPIENT_DELIMITER=: \
+		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix":/var/mail/postfix \
@@ -52,6 +54,7 @@ init:
 		-e ENABLE_POSTGREY=true \
 		-e ENABLE_POP3=true \
 		-e OPENDKIM_KEY_LENGTH=4096 \
+		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
 		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
@@ -61,18 +64,19 @@ init:
 	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 	docker exec mailserver_reverse /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 
-	# Wait processes spawned by supervisord (full init can take more than one minute)
-	sleep 120
-
 fixtures:
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-non-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-alias.txt"
-	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-system-account.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-spam-to-existing-user.txt"
-	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-virus-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/email-templates/internal-user-to-existing-user.txt"
+	sleep 10
+	docker exec mailserver_default /bin/sh -c "/usr/bin/perl /usr/local/bin/fetchmail.pl"
+	sleep 10
+
+	# docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-system-account.txt"
+	# docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-virus-to-existing-user.txt"
 
 run:
 	./test/bin/bats test/tests.bats
