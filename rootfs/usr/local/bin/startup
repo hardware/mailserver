@@ -20,6 +20,7 @@ export ENABLE_POP3
 export ENABLE_FETCHMAIL
 export TESTING
 export RECIPIENT_DELIMITER
+export FETCHMAIL_INTERVAL
 
 FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
@@ -38,6 +39,7 @@ TESTING=${TESTING:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 RECIPIENT_DELIMITER=${RECIPIENT_DELIMITER:-"+"}
+FETCHMAIL_INTERVAL=${FETCHMAIL_INTERVAL:-10}
 
 if [ -z "$DBPASS" ]; then
   echo "[ERROR] Mariadb database password must be set !"
@@ -185,6 +187,7 @@ _envtpl /etc/opendmarc/opendmarc.conf
 _envtpl /etc/amavis/conf.d/05-node_id
 _envtpl /etc/amavis/conf.d/20-debian_defaults
 _envtpl /etc/amavis/conf.d/50-user
+_envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning
 

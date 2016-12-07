@@ -16,8 +16,8 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Amavis** : content filter implementing decoding, processing and checking e-mails
 - **Spamassasin** : anti-spam filter
 - **Clamav** : antivirus with automatic updates
-- **OpenDKIM** : implementation of the DKIM (Domain Keys Identified Mail)
-- **OpenDMARC** : implementation of the DMARC (Domain-based Message Authentication, Reporting & Conformance)
+- **OpenDKIM** : implementation of DKIM (Domain Keys Identified Mail)
+- **OpenDMARC** : implementation of DMARC (Domain-based Message Authentication, Reporting & Conformance)
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
 - **Postgrey** : greylisting policy server
@@ -118,6 +118,7 @@ docker logs -f mailserver
 | **GREYLISTING** | Enable greylisting policy server | *optional* | off
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
+| **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
 If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
@@ -125,6 +126,8 @@ If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Ama
 The supported values for **GREYLISTING** are `off`, `gross` or `postgrey`. Gross is a more advanced greylisting server which blocks only hosts with a bad DNSBL reputation.
 
 Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
+
+**FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
 ### Files/Folders tree
 

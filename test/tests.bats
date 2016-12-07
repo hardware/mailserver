@@ -464,6 +464,11 @@
   [ "$output" = 1 ]
 }
 
+@test "checking amavis: no unchecked mail" {
+  run docker exec mailserver_default /bin/sh -c "grep -i 'Passed UNCHECKED' /var/log/mail.log"
+  [ "$status" -eq 1 ]
+}
+
 # @test "checking amavis: virus rejected" {
 #   run docker exec mailserver_default /bin/sh -c "grep -i 'Blocked INFECTED' /var/log/mail.log | grep virus@example.com | wc -l"
 #   [ "$status" -eq 0 ]
@@ -521,12 +526,6 @@
 
 @test "checking opendkim: internals domains are in /etc/opendkim/SigningTable file" {
   run docker exec mailserver_default /bin/bash -c "egrep 'domain(.*).tld' /etc/opendkim/SigningTable | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" -eq 3 ]
-}
-
-@test "checking opendkim: internals domains are in /etc/opendkim/KeyTable file" {
-  run docker exec mailserver_default /bin/bash -c "egrep 'domain(.*).tld' /etc/opendkim/KeyTable | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 3 ]
 }
