@@ -17,6 +17,7 @@ RUN BUILD_DEPS=" \
     postfix-mysql \
     postfix-pcre \
     postgrey \
+    gross \
     dovecot-core \
     dovecot-imapd \
     dovecot-lmtpd \

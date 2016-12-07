@@ -76,6 +76,11 @@
   [ "$status" -eq 1 ]
 }
 
+@test "checking process: gross (disabled in default configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
+  [ "$status" -eq 1 ]
+}
+
 @test "checking process: spamd (enable in default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/spamd --create-prefs --max-children 5 --helper-home-dir'"
   [ "$status" -eq 0 ]
@@ -120,6 +125,11 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: gross (disabled in reverse configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
+  [ "$status" -eq 1 ]
+}
+
 @test "checking process: spamd (disabled in reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/spamd --create-prefs --max-children 5 --helper-home-dir'"
   [ "$status" -eq 1 ]
@@ -144,6 +154,20 @@
 #   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/bin/freshclam -d --config-file=/etc/clamav/freshclam.conf'"
 #   [ "$status" -eq 1 ]
 # }
+
+#
+# processes (gross configuration)
+#
+
+@test "checking process: postgrey (disabled in gross configuration)" {
+  run docker exec mailserver_with_gross /bin/bash -c "ps aux --forest | grep '[p]ostgrey --delay=120 --inet=127.0.0.1:10023 --dbdir=/var/mail/postgrey'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking process: gross (enabled in gross configuration)" {
+  run docker exec mailserver_with_gross /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
+  [ "$status" -eq 0 ]
+}
 
 #
 # ports
@@ -256,6 +280,11 @@
 
 @test "checking port (10023): internal port listening (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10023"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port (10023): internal port listening (gross configuration)" {
+  run docker exec mailserver_with_gross /bin/sh -c "nc -z 127.0.0.1 10023"
   [ "$status" -eq 0 ]
 }
 

@@ -51,7 +51,7 @@ init:
 		-e DISABLE_CLAMAV=true \
 		-e DISABLE_SPAMASSASSIN=true \
 		-e DISABLE_SIEVE=true \
-		-e ENABLE_POSTGREY=true \
+		-e GREYLISTING=postgrey \
 		-e ENABLE_POP3=true \
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-e TESTING=true \
@@ -61,8 +61,23 @@ init:
 		-h mail.domain.tld \
 		-t $(NAME)
 
+	docker run \
+		-d \
+		--name mailserver_with_gross \
+		--link mariadb:mariadb \
+		-e DBPASS=testpasswd \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
+		-e GREYLISTING=gross \
+		-e TESTING=true \
+		-v "`pwd`/test/share/ssl":/var/mail/ssl \
+		-h mail.domain.tld \
+		-t $(NAME)
+
 	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 	docker exec mailserver_reverse /bin/sh -c "apt-get update && apt-get install -y -q netcat"
+	docker exec mailserver_with_gross /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 
 fixtures:
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
@@ -82,4 +97,4 @@ run:
 	./test/bin/bats test/tests.bats
 
 clean:
-	docker rm -f mariadb mailserver_default mailserver_reverse
+	docker rm -f mariadb mailserver_default mailserver_reverse mailserver_with_gross

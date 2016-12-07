@@ -161,7 +161,7 @@ smtpd_sender_restrictions=
 # * reject_non_fqdn_recipient : Reject when the RCPT TO address is not in fully-qualified domain form
 # * reject_unlisted_recipient : Reject when the RCPT TO address is not listed in the list of valid recipients for its domain
 # * reject_rbl_client : Reject connections from IP addresses blacklisted in zen.spamhaus.org
-# * check_policy_service : Apply greylisting policy with postgrey if RCPT TO domain isn't whitelisted on dnswl.org
+# * check_policy_service : Apply greylisting policy with postgrey/gross if RCPT TO domain isn't whitelisted on dnswl.org
 
 smtpd_recipient_restrictions=
     permit_mynetworks,

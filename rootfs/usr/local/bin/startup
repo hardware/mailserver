@@ -15,7 +15,7 @@ export FULLCHAIN
 export DISABLE_CLAMAV
 export DISABLE_SPAMASSASSIN
 export DISABLE_SIEVE
-export ENABLE_POSTGREY
+export GREYLISTING
 export ENABLE_POP3
 export ENABLE_FETCHMAIL
 export TESTING
@@ -31,7 +31,7 @@ DBUSER=${DBUSER:-postfix}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SPAMASSASSIN=${DISABLE_SPAMASSASSIN:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
-ENABLE_POSTGREY=${ENABLE_POSTGREY:-false}
+GREYLISTING=${GREYLISTING:-off}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
 TESTING=${TESTING:-false}
@@ -256,11 +256,13 @@ if [ "$DISABLE_CLAMAV" = true ] && [ "$DISABLE_SPAMASSASSIN" = true ]; then
   sed -i '/content_filter/,+1 s/^/#/' /etc/postfix/main.cf
 fi
 
-# Disable Postgrey
-if [ "$ENABLE_POSTGREY" = false ]; then
+# Disable Greylisting
+if [ "$GREYLISTING" = off ]; then
   sed -i '/permit_dnswl_client/,+1 s/^/#/' /etc/postfix/main.cf
-else
+elif [ "$GREYLISTING" = postgrey ]; then
   echo "[INFO] Postgrey is enabled, greylisting policy server will start."
+elif [ "$GREYLISTING" = gross ]; then
+  echo "[INFO] Gross is enabled, greylisting policy server will start."
 fi
 
 # Disable fetchmail forwarding
