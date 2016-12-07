@@ -71,9 +71,7 @@ init:
 		-e DISABLE_CLAMAV=true \
 		-e GREYLISTING=gross \
 		-e TESTING=true \
-		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
-		-v "`pwd`/test/share/postfix":/var/mail/postfix \
 		-h mail.domain.tld \
 		-t $(NAME)
 

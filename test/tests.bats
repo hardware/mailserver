@@ -77,7 +77,7 @@
 }
 
 @test "checking process: gross (disabled in default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/grossd.conf -d'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
   [ "$status" -eq 1 ]
 }
 
@@ -126,7 +126,7 @@
 }
 
 @test "checking process: gross (disabled in reverse configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/grossd.conf -d'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
   [ "$status" -eq 1 ]
 }
 
@@ -165,7 +165,7 @@
 }
 
 @test "checking process: gross (enabled in gross configuration)" {
-  run docker exec mailserver_with_gross /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/grossd.conf -d'"
+  run docker exec mailserver_with_gross /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
   [ "$status" -eq 0 ]
 }
 
