@@ -106,6 +106,7 @@ docker logs -f mailserver
 | -------- | ----------- | ---- | ------------- |
 | **VMAILUID** | vmail user id | *optional* | 1024
 | **VMAILGID** | vmail group id | *optional* | 1024
+| **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 2048
 | **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
 | **DBUSER** | MariaDB database username | *optional* | postfix

@@ -5,6 +5,7 @@ export FQDN
 export DOMAIN
 export VMAILUID
 export VMAILGID
+export VMAIL_SUBDIR
 export DBHOST
 export DBNAME
 export DBUSER
@@ -26,6 +27,7 @@ FQDN=$(hostname --fqdn)
 DOMAIN=$(hostname --domain)
 VMAILUID=${VMAILUID:-1024}
 VMAILGID=${VMAILGID:-1024}
+VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
 DBHOST=${DBHOST:-mariadb}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
@@ -165,6 +167,7 @@ _envtpl() {
   envtpl "$1.tpl"
 }
 
+_envtpl /etc/cron.d/spamassassin
 _envtpl /etc/postfix/main.cf
 _envtpl /etc/postfix/virtual
 _envtpl /etc/postfix/header_checks
