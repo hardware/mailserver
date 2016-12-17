@@ -330,11 +330,6 @@ fi
 chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
-# Dovecot mountpoints ignoring
-doveadm mount add /var/lib/dovecot ignore
-doveadm mount add /etc/opendkim/keys ignore
-doveadm mount add /etc/letsencrypt ignore
-
 # Supervisor socket
 touch /dev/shm/supervisor.sock
 
