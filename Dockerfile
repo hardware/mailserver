@@ -1,13 +1,13 @@
 FROM debian:jessie
 MAINTAINER Hardware <contact@meshup.net>
 
-ARG TINI_VER=0.13.0
+ARG TINI_VER=0.13.2
 
 # https://pgp.mit.edu/pks/lookup?search=0x0B588DFF0527A9B7&fingerprint=on&op=index
 # pub  4096R/7001A4E5 2012-07-23 Thomas Orozco <thomas@orozco.fr>
 ARG TINI_GPG_SHORTID="0x0527A9B7"
 ARG TINI_GPG_FINGERPRINT="6380 DC42 8747 F6C3 93FE  ACA5 9A84 159D 7001 A4E5"
-ARG TINI_SHA256_HASH="ea84e1b9438eb1ae8eaefcf85a07f82cc57d8b142fe388f073ab689fbfc4714e"
+ARG TINI_SHA256_HASH="8786eb7300ed5603f0f8045d8dcba67144656609ecedbb117f8bc418f1c15cce"
 
 RUN BUILD_DEPS=" \
     wget" \
