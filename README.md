@@ -14,7 +14,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Postfix** : a full set smtp email server supporting custom rules
 - **Dovecot** : secure imap and pop3 email server
 - **Amavis** : content filter implementing decoding, processing and checking e-mails
-- **Spamassasin** : anti-spam filter
+- **Spamassassin** : anti-spam filter
 - **Clamav** : antivirus with automatic updates
 - **OpenDKIM** : implementation of DKIM (Domain Keys Identified Mail)
 - **OpenDMARC** : implementation of DMARC (Domain-based Message Authentication, Reporting & Conformance)

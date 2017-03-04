@@ -1,13 +1,15 @@
 FROM debian:jessie
-MAINTAINER Hardware <contact@meshup.net>
 
-ARG TINI_VER=0.13.2
+LABEL description "Simple and full-featured mail server using Docker" \
+      maintainer="Hardware <contact@meshup.net>"
+
+ARG TINI_VER=0.14.0
 
 # https://pgp.mit.edu/pks/lookup?search=0x0B588DFF0527A9B7&fingerprint=on&op=index
 # pub  4096R/7001A4E5 2012-07-23 Thomas Orozco <thomas@orozco.fr>
 ARG TINI_GPG_SHORTID="0x0527A9B7"
 ARG TINI_GPG_FINGERPRINT="6380 DC42 8747 F6C3 93FE  ACA5 9A84 159D 7001 A4E5"
-ARG TINI_SHA256_HASH="8786eb7300ed5603f0f8045d8dcba67144656609ecedbb117f8bc418f1c15cce"
+ARG TINI_SHA256_HASH="420e47096487f72e3e48cca85ce379f18f9c6d2c3809ecc4bcf34e2b35f7c490"
 
 RUN BUILD_DEPS=" \
     wget" \
