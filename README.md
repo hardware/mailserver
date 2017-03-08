@@ -135,8 +135,15 @@ Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multi
 ```
 /mnt/docker
 └──mail
+   ├──amavis
+   │     foo (optional)
+   │     bar (optional)
+   ├──dovecot
+   │     01-foo.conf (optional)
+   │     02-bar.conf (optional)
    ├──postfix
-   │     custom.conf
+   │     custom.conf (optional)
+   │     custom_master.conf (optional)
    ├──postgrey
    │     postgrey.db
    │     ...
@@ -272,6 +279,82 @@ docker logs -f mailserver
 [INFO] Override : delay_warning_time = 2h
 [INFO] Custom Postfix configuration file loaded
 ```
+
+If you want to add new lines to postfix's master.cf, simply put them to /mnt/docker/mail/postfix/custom_master.conf.
+They will be added line by line.
+
+Example :
+
+```
+# /mnt/docker/mail/postfix/custom_master.conf
+
+10587   inet  n       -       -       -       -       smtpd -o smtpd_upstream_proxy_protocol=haproxy
+
+```
+
+```
+docker logs -f mailserver
+
+[INFO] Addition: 10587   inet  n       -       -       -       -       smtpd -o smtpd_upstream_proxy_protocol=haproxy
+[INFO] Custom Postfix Master configuration file loaded
+```
+
+### Override dovecot configuration
+
+Dovecot default configuration can be overrided similar to the postfix configuration. This can be
+used to also add configuration that are not in default configuration. [Dovecot documentation](http://wiki2.dovecot.org/) remains the best place
+to find configuration options.
+
+Each file provided will be loaded into Dovecot. Create a new file here `/mnt/docker/mail/dovecot/01-foo.conf`
+and add your custom options inside.
+
+Example :
+
+```
+# /mnt/docker/mail/dovecot/10-ssl.conf
+
+ssl = required
+ssl_cert = </var/mail/ssl/selfsigned/cert.pem
+ssl_key = </var/mail/ssl/selfsigned/privkey.pem
+ssl_protocols = !SSLv3
+ssl_cipher_list = EECDH+AES:EDH+AES+aRSA # PFS only
+ssl_prefer_server_ciphers = yes
+ssl_dh_parameters_length = 4096
+
+```
+
+```
+docker logs -f mailserver
+
+[INFO] Copying custom dovecot file /var/mail/dovecot/10-ssl.conf to /etc/dovecot/conf.d/10-ssl.conf
+[INFO] Custom dovecot configuration file(s) loaded
+```
+
+### Override amavis configuration
+
+Amavis default configuration can be overrided similar to the postfix and dovecot configuration. This can be
+used to also add configuration that are not in default configuration. [Amavis documentation](https://www.ijs.si/software/amavisd/README.postfix.html) remains the best place
+to find configuration options.
+
+Each file provided will be loaded into Amavis. Create a new file here `/mnt/docker/mail/amavis/foo`
+and add your custom options inside.
+
+Example :
+
+```
+# /mnt/docker/mail/amavis/99-permissions
+
+AllowSupplementaryGroups true
+```
+
+```
+docker logs -f mailserver
+
+[INFO] Copying custom amavis file /var/mail/amavis/99-permissions to /etc/amavis/conf.d/99-permissions
+[INFO] Custom amavis configuration file(s) loaded
+
+```
+
 
 ### Email client settings :
 
