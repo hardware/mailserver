@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"
@@ -47,11 +47,14 @@ RUN BUILD_DEPS=" \
     openssl \
     rsyslog \
     python-pip \
+    python-setuptools \
     pigz \
     pxz \
     pbzip2 \
     dnsutils \
     ca-certificates \
+    gnupg \
+    dirmngr \
  && pip install envtpl \
  && cd /tmp \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb \
