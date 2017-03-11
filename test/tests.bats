@@ -126,7 +126,7 @@
 }
 
 @test "checking process: gross (disabled in reverse configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/grossd -f /etc/gross/grossd.conf -d'"
   [ "$status" -eq 1 ]
 }
 
