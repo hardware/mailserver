@@ -67,7 +67,7 @@ if (-e $configfile) {
 }
 
 if($db_type eq "Pg" || $db_type eq "mysql") {
-	$dsn = "DBI:$db_type:database=$db_name;host=$db_host";
+	$dsn = "DBI:$db_type:database=$db_name;host=$db_host;port=$db_port";
 } else {
 	log_and_die "unsupported db_type $db_type";
 }

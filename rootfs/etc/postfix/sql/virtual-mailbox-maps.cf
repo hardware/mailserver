@@ -1,4 +1,4 @@
-hosts    = {{ DBHOST }}
+hosts    = {{ DBHOST }}:{{ DBPORT }}
 user     = {{ DBUSER }}
 password = {{ DBPASS }}
 dbname   = {{ DBNAME }}

@@ -1,4 +1,4 @@
-connect = host={{ DBHOST }} dbname={{ DBNAME }} user={{ DBUSER }} password={{ DBPASS }}
+connect = host={{ DBHOST }} port={{ DBPORT }} dbname={{ DBNAME }} user={{ DBUSER }} password={{ DBPASS }}
 
 map {
   pattern = priv/quota/storage

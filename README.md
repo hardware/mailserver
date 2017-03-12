@@ -109,6 +109,7 @@ docker logs -f mailserver
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 2048
 | **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
+| **DBPORT** | MariaDB instance port | *optional* | 3306
 | **DBUSER** | MariaDB database username | *optional* | postfix
 | **DBNAME** | MariaDB database name | *optional* | postfix
 | **DBPASS** | MariaDB database password | **required** | null
