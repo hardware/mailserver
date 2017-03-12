@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:jessie-slim
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"
@@ -69,8 +69,7 @@ RUN BUILD_DEPS=" \
  && apt-get purge -y ${BUILD_DEPS} \
  && apt-get autoremove -y \
  && apt-get clean \
- && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old /usr/share/doc/* /usr/share/man/* \
- && cp -r /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/
+ && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old
 
 VOLUME /var/mail /etc/opendkim/keys /etc/letsencrypt
 EXPOSE 25 143 465 587 993 4190
