@@ -131,7 +131,7 @@ Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multi
 
 **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
-### Files/Folders tree
+### Files/Folders tree
 
 ```
 /mnt/docker
@@ -219,7 +219,7 @@ docker run -it --rm \
 docker-compose up -d
 ```
 
-- :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for exemple, let's encrypt live subfolder name must be egual to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
+- :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for example, let's encrypt live subfolder name must be equal to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
 
 - If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
