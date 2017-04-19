@@ -65,6 +65,8 @@ init:
 		-d \
 		--name mailserver_with_gross \
 		--link mariadb:mariadb \
+		-e FQDN=mail.domain.tld \
+		-e DOMAIN=domain.tld \
 		-e DBPASS=testpasswd \
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
@@ -72,7 +74,6 @@ init:
 		-e GREYLISTING=gross \
 		-e TESTING=true \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
-		-h mail.domain.tld \
 		-t $(NAME)
 
 	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"

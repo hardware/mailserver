@@ -24,8 +24,8 @@ export TESTING
 export RECIPIENT_DELIMITER
 export FETCHMAIL_INTERVAL
 
-FQDN=$(hostname --fqdn)
-DOMAIN=$(hostname --domain)
+FQDN=${FQDN:-$(hostname --fqdn)}
+DOMAIN=${DOMAIN:-$(hostname --domain)}
 VMAILUID=${VMAILUID:-1024}
 VMAILGID=${VMAILGID:-1024}
 VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
@@ -47,6 +47,16 @@ FETCHMAIL_INTERVAL=${FETCHMAIL_INTERVAL:-10}
 
 if [ -z "$DBPASS" ]; then
   echo "[ERROR] Mariadb database password must be set !"
+  exit 1
+fi
+
+if [ -z "$FQDN" ]; then
+  echo "[ERROR] The fully qualified domain name must be set !"
+  exit 1
+fi
+
+if [ -z "$DOMAIN" ]; then
+  echo "[ERROR] The domain name must be set !"
   exit 1
 fi
 

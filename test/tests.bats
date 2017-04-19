@@ -2,8 +2,14 @@
 # system
 #
 
-@test "checking system: /etc/mailname" {
+@test "checking system: /etc/mailname (docker method)" {
   run docker exec mailserver_default cat /etc/mailname
+  [ "$status" -eq 0 ]
+  [ "$output" = "mail.domain.tld" ]
+}
+
+@test "checking system: /etc/mailname (env method)" {
+  run docker exec mailserver_with_gross cat /etc/mailname
   [ "$status" -eq 0 ]
   [ "$output" = "mail.domain.tld" ]
 }
@@ -565,6 +571,18 @@
   run docker exec mailserver_default /bin/sh -c "grep 'replace: header Received' /var/log/mail.log | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 1 ]
+}
+
+@test "checking postfix: myorigin value (docker method)" {
+  run docker exec mailserver_default postconf -h myorigin
+  [ "$status" -eq 0 ]
+  [ "$output" = "mail.domain.tld" ]
+}
+
+@test "checking postfix: myorigin value (env method)" {
+  run docker exec mailserver_with_gross postconf -h myorigin
+  [ "$status" -eq 0 ]
+  [ "$output" = "mail.domain.tld" ]
 }
 
 #
