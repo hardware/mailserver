@@ -35,6 +35,7 @@ RUN BUILD_DEPS=" \
     spamassassin \
     clamav-daemon \
     clamav-milter \
+    libsasl2-modules \
     libsys-syslog-perl \
     libmail-spf-perl \
     libhttp-message-perl \
