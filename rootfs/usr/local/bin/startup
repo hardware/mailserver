@@ -327,6 +327,11 @@ chown -R opendmarc:opendmarc /var/run/opendmarc /etc/opendmarc
 
 chmod +x /usr/local/bin/*
 
+# Remove Dovecot pid file on startup after an unclean shutdown
+if [ -f "/var/run/dovecot/master.pid" ]; then
+  rm -f /var/run/dovecot/master.pid
+fi
+
 # Sieve
 mkdir -p /var/mail/sieve
 
