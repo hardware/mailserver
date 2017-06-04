@@ -102,6 +102,10 @@ docker logs -f mailserver
 
 ### Environment variables
 
+:warning: Use only ASCII printable characters in environment variables : https://en.wikipedia.org/wiki/ASCII#Printable_characters
+
+Github issue : https://github.com/hardware/mailserver/issues/118
+
 | Variable | Description | Type | Default value |
 | -------- | ----------- | ---- | ------------- |
 | **VMAILUID** | vmail user id | *optional* | 1024
