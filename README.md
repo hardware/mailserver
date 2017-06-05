@@ -2,12 +2,10 @@
 
 ### Build
 
-[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
-
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.1)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta)
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
-
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
@@ -37,10 +35,10 @@ Simple and full-featured mail server as a set of multiple docker images includes
 
 ```
 # Pull from hub.docker.com :
-docker pull hardware/mailserver
+docker pull hardware/mailserver:1.1-beta
 
 # or build it manually :
-docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#master
+docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v1.1
 ```
 
 #### 2 - Get latest docker-compose.yml
@@ -290,18 +288,18 @@ docker logs -f mailserver
 
 ### Components
 
-- Postfix 2.11.3
-- Dovecot 2.2.13
-- OpenDKIM 2.9.2
-- OpenDMARC 1.3.0
-- Spamassassin 3.4.0
-- Postgrey 1.35
+- Postfix 3.1.4
+- Dovecot 2.2.27
+- OpenDKIM 2.11.0
+- OpenDMARC 1.3.2
+- Spamassassin 3.4.1
+- Postgrey 1.36
 - Fetchmail 6.3.26
-- ClamAV 0.98.7
+- ClamAV 0.99.2
 - Amavisd-new 2.10.1
 - Amavisd-milter 1.5.0
-- Supervisor 3.0r1
-- Rsyslog 8.4.2
+- Supervisor 3.3.1
+- Rsyslog 8.24.0
 - ManageSieve server
 
 ## Roadmap

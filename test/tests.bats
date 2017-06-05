@@ -68,7 +68,7 @@
 }
 
 @test "checking process: postfix" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/master -w'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
   [ "$status" -eq 0 ]
 }
 
@@ -675,7 +675,7 @@
 @test "checking logs: /var/log/mail.err in mailserver_default have fetchmail certificate warnings, nothing else" {
   run docker exec mailserver_default /bin/sh -c "cat /var/log/mail.err | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 4 ]
+  [ "$output" -eq 1 ]
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {

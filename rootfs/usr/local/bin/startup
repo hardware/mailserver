@@ -205,6 +205,7 @@ _envtpl /etc/amavis/conf.d/50-user
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning
+_envtpl /usr/local/bin/fetchmail.pl
 
 # Override Postfix configuration
 if [ -f /var/mail/postfix/custom.conf ]; then
