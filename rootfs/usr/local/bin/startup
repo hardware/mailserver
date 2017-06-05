@@ -216,6 +216,29 @@ if [ -f /var/mail/postfix/custom.conf ]; then
 else
   echo "[INFO] No extra postfix settings loaded because optional custom configuration file (/var/mail/postfix/custom.conf) is not provided."
 fi
+if [ -f /var/mail/postfix/custom_master.conf ]; then
+  while read line; do
+    echo "[INFO] Addition: ${line}"
+    grep "$line" /etc/postfix/master.cf >/dev/null || echo -e "\n$line" >>/etc/postfix/master.cf
+  done < /var/mail/postfix/custom_master.conf
+  echo "[INFO] Custom Postfix Master configuration file loaded"
+else
+  echo "[INFO] No extra postfix master settings loaded because optional custom configuration file (/var/mail/postfix/custom_master.conf) is not provided."
+fi
+
+# Additions to dovecot configuration
+for file in $(cd /var/mail/dovecot && ls -1 *.conf); do
+  echo "[INFO] Copying custom dovecot file /var/mail/dovecot/${file} to /etc/dovecot/conf.d/${file}"
+  cp /var/mail/dovecot/${file} /etc/dovecot/conf.d/${file}
+done
+echo "[INFO] Custom dovecot configuration file(s) loaded"
+
+# Additions to amavis configuration
+for file in $(cd /var/mail/amavis && ls -1); do
+  echo "[INFO] Copying custom amavis file /var/mail/amavis/${file} to /etc/amavis/conf.d/${file}"
+  cp /var/mail/amavis/${file} /etc/amavis/conf.d/${file}
+done
+echo "[INFO] Custom amavis configuration file(s) loaded"
 
 # Check database hostname
 grep -q "${DBHOST}" /etc/hosts
