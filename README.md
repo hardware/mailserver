@@ -80,7 +80,7 @@ If you have a firewall, unblock the following ports, according to your needs :
 
 I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server. This docker image is really easy to use.
 
-How to setup : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+**How to setup :** [NSD initial configuration](https://github.com/hardware/mailserver/wiki/NSD-initial-configuration)
 
 #### Mandatory DNS records (A/MX) and reverse PTR :
 
@@ -103,13 +103,13 @@ DKIM, SPF and DMARC are recommended to build a good reputation score.
 | mail._domainkey | IN | TXT | any | "v=DKIM1; k=rsa; p=YOUR DKIM Public Key" |
 | _dmarc | IN | TXT | any | "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject" |
 
-**Note:** The DKIM public key will be available on host here after the container startup :
+**Note:** The DKIM public key will be available on host after the container startup :
 
 ```
 /mnt/docker/mail/opendkim/domain.tld/mail.txt
 ```
 
-These DNS record will raise your trust reputation score and reduce abuse of your domain name. More information here :
+These DNS record will raise your trust reputation score and reduce abuse of your domain name. You can find more information here :
 
 * http://www.openspf.org/
 * http://www.opendkim.org/
@@ -135,13 +135,13 @@ docker pull hardware/mailserver
 docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#master
 ```
 
-For security reasons, you should occasionally update the container.
+For security reasons, you should regularly update the mail setup and docker images.
 
 #### 2 - Get the latest docker-compose.yml
 
-Change your hostname and domain name, and adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
+Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
 
-Run the stack :
+**Run the stack :**
 
 ```
 mv docker-compose.sample.yml docker-compose.yml
@@ -152,29 +152,29 @@ docker-compose -f docker-compose.yml up -d
 
 I recommend you to use [wonderfall/boring-nginx](https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx) as a reverse proxy. Nginx is statically linked against BoringSSL, with embedded Brotli support, TLS 1.3, X25519, HTTP/2 and hardening standards.
 
-More information here : [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
+**More information here :** [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
 
 #### 4 - Postfixadmin installation
 
 PostfixAdmin is a web based interface used to manage mailboxes, virtual domains and aliases.
 
-Docker image : https://github.com/hardware/postfixadmin
-How to setup : [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
+* **Docker image :** https://github.com/hardware/postfixadmin
+* **How to setup :** [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
 
 #### 5 - Rainloop installation (optional)
 
 Rainloop is a simple, modern and fast webmail with Sieve scripts support (filters and vacation message), GPG and a modern user interface.
 
-Docker image : https://github.com/hardware/rainloop
-How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
+* **Docker image :** https://github.com/hardware/rainloop
+* **How to setup :** [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
 
 #### 6 - Done, congratulation ! :tada:
 
 At first launch, the container takes few minutes to generate SSL certificates (if needed), Diffie-Hellman parameters, DKIM keypair and update clamav database, all of this takes some time (2/3 minutes), be patient...
 
-This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. See below for configuration.
+This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.
 
-You can check startup logs with this command :
+You can check the startup logs with this command :
 
 ```
 docker logs -f mailserver
@@ -218,11 +218,11 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 
 This mail setup uses 3 domain names that should be covered by your new certificate :
 
-* mail.domain.tld (mandatory)
-* postfixadmin.domain.tld (recommended)
-* webmail.domain.tld (optional)
+* **mail.domain.tld** (mandatory)
+* **postfixadmin.domain.tld** (recommended)
+* **webmail.domain.tld** (optional)
 
-To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` file like this :
+To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` like this :
 
 ```
 mailserver:
@@ -258,7 +258,7 @@ docker run -it --rm \
 docker-compose up -d
 ```
 
-* Important : When renewing certificates, you **must** restart affected containers.
+* **Important :** When renewing certificates, you must restart affected containers.
 
 * :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for example, let's encrypt live subfolder name must be equal to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
 
@@ -266,14 +266,16 @@ docker-compose up -d
 
 #### Another certificate authority (other than Let's Encrypt)
 
-Put your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
+Place all your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
 
-:warning: **Required files in this folder :**
+**Required files in this folder :**
 
-* **privkey.pem** : Private key for the certificate
-* **cert.pem** : Server certificate only
-* **chain.pem** : Root and intermediate certificates only, excluding server certificate
-* **fullchain.pem** : All certificates, including server certificate. This is concatenation of cert.pem and chain.pem
+| Filename | Description |
+|----------|-------------|
+| privkey.pem | Private key for the certificate |
+| cert.pem | Server certificate only |
+| chain.pem | Root and intermediate certificates only, excluding server certificate |
+| fullchain.pem | All certificates, including server certificate. This is concatenation of cert.pem and chain.pem |
 
 Then mount the volume like this :
 
@@ -284,6 +286,8 @@ mailserver:
     - /mnt/docker/nginx/certs:/etc/letsencrypt
     ...
 ```
+
+You must restart affected containers.
 
 #### Testing
 
