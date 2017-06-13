@@ -385,10 +385,10 @@
   [ "$status" -eq 0 ]
 }
 
-@test "checking smtp: sarah.connor should have received 4 mails (external + internal + subaddress + hostmaster alias via fetchmail)" {
+@test "checking smtp: sarah.connor should have received 3 mails (external + subaddress + hostmaster alias via fetchmail)" {
   run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/new/ | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" = 4 ]
+  [ "$output" = 3 ]
 }
 
 @test "checking smtp: john.doe should have received 1 spam (external mail stored in Spam folder by Sieve)" {
@@ -672,10 +672,10 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking logs: /var/log/mail.err in mailserver_default have fetchmail certificate warnings, nothing else" {
+@test "checking logs: /var/log/mail.err in mailserver_default have fetchmail certificate warnings and login_mismatch error, nothing else" {
   run docker exec mailserver_default /bin/sh -c "cat /var/log/mail.err | wc -l"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 4 ]
+  [ "$output" -eq 7 ]
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
