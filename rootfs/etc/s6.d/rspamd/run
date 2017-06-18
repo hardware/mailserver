@@ -12,6 +12,8 @@ adduser --quiet \
 
 mkdir -p /var/lib/rspamd /var/log/rspamd /run/rspamd
 chown _rspamd: /var/lib/rspamd /var/log/rspamd /run/rspamd
+chmod 750 /var/lib/rspamd
+chmod 750 /var/log/rspamd
 
 PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password ${RSPAMD_PASSWORD})
 sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
