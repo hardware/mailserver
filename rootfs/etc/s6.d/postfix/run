@@ -16,7 +16,7 @@ postmap /etc/postfix/virtual
 # Fix permissions
 chgrp -R postdrop /var/spool/postfix/public
 chgrp -R postdrop /var/spool/postfix/maildrop
-postfix set-permissions
+postfix set-permissions &>/dev/null
 
 # Start Postfix
 postfix -c /etc/postfix start

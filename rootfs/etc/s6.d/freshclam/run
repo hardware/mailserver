@@ -11,4 +11,9 @@ sed -i -e 's/^Foreground .*$/Foreground true/g' \
        -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
        /etc/clamav/freshclam.conf
 
-exec freshclam -d
+# Update virus databases
+freshclam --quiet --config-file=/etc/clamav/freshclam.conf
+
+logger -p mail.info "s6-supervise : spawning freshclam process"
+
+exec freshclam -d >/dev/null

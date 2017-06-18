@@ -32,4 +32,6 @@ sievec /etc/dovecot/sieve/report-spam.sieve
 chown -R vmail:vmail /var/mail/sieve
 chmod +x /etc/dovecot/sieve/*.sh
 
+logger -p mail.info "s6-supervise : spawning dovecot process"
+
 exec dovecot -F

@@ -179,7 +179,7 @@ _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
-_envtpl /usr/local/bin/quota-warning
+_envtpl /usr/local/bin/quota-warning.sh
 _envtpl /usr/local/bin/fetchmail.pl
 
 # Override Postfix configuration

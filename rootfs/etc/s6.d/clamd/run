@@ -5,7 +5,7 @@ if [ "$DISABLE_CLAMAV" = true ]; then
 fi
 
 mkdir -p /var/run/clamav /var/lib/clamav
-chown clamav: /var/run/clamav /var/lib/clamav
+chown clamav:clamav /var/run/clamav /var/lib/clamav
 
 echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
 
@@ -14,4 +14,11 @@ sed -i -e 's/^Foreground .*$/Foreground true/g' \
        -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
        /etc/clamav/clamd.conf
 
-exec clamd
+while [ ! -f /var/lib/clamav/main.cvd ]
+do
+  sleep 5
+done
+
+logger -p mail.info "s6-supervise : spawning clamd process"
+
+exec clamd >/dev/null

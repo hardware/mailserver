@@ -1,4 +1,4 @@
-bind_socket = "localhost:11332";
+bind_socket = "*:11332";
 milter = yes;
 timeout = 120s;
 upstream "local" {

@@ -1,0 +1,3 @@
+worker "log_helper" {
+  count = 1;
+}

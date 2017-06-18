@@ -44,7 +44,7 @@
 }
 
 @test "checking system: all environment variables have been replaced" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /etc/mailname /usr/local/bin/quota-warning"
+  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/opendkim /etc/opendmarc /etc/amavis /etc/mailname /usr/local/bin/quota-warning.sh"
   [ "$status" -eq 1 ]
 }
 
