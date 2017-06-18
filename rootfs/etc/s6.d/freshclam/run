@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "$DISABLE_CLAMAV" = true ]; then
+  exit 0
+fi
+
+echo "DatabaseMirror db.fr.clamav.net" >> /etc/clamav/freshclam.conf
+
+sed -i -e 's/^Foreground .*$/Foreground true/g' \
+       -e 's/^LogSyslog .*$/LogSyslog true/g' \
+       -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
+       /etc/clamav/freshclam.conf
+
+exec freshclam -d

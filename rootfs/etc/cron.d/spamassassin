@@ -1,2 +1,0 @@
-30 02 * * * root /usr/bin/sa-learn --ham /var/mail/vhosts/*/*/{{ VMAIL_SUBDIR }}/cur/* | logger -t sa-learn-ham
-40 02 * * * root /usr/bin/sa-learn --spam /var/mail/vhosts/*/*/{{ VMAIL_SUBDIR }}/.Spam/cur/* | logger -t sa-learn-spam

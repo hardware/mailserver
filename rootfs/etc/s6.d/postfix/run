@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Perform nice termination of Postfix, releasing resources and saving state
+trap "{ postfix stop; exit 0; }" EXIT
+
+# Add etc files to Postfix chroot jail
+cp -f /etc/services /var/spool/postfix/etc/services
+cp -f /etc/hosts /var/spool/postfix/etc/hosts
+cp -f /etc/localtime /var/spool/postfix/etc/localtime
+cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
+
+# Build header_checks and virtual index files
+postmap /etc/postfix/header_checks
+postmap /etc/postfix/virtual
+
+# Fix permissions
+chgrp -R postdrop /var/spool/postfix/public
+chgrp -R postdrop /var/spool/postfix/maildrop
+postfix set-permissions
+
+# Start Postfix
+postfix -c /etc/postfix start
+
+sleep infinity

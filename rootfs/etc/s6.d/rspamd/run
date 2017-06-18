@@ -1,0 +1,19 @@
+#!/bin/bash
+
+adduser --quiet \
+        --system \
+        --group \
+        --home /var/lib/rspamd \
+        --no-create-home \
+        --disabled-login \
+        --gecos "rspamd spam filtering system" \
+        --force-badname \
+        _rspamd
+
+mkdir -p /var/lib/rspamd /var/log/rspamd /run/rspamd
+chown _rspamd: /var/lib/rspamd /var/log/rspamd /run/rspamd
+
+PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password ${RSPAMD_PASSWORD})
+sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
+
+exec rspamd -f -u _rspamd -g _rspamd

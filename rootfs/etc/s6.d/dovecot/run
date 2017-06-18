@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Remove Dovecot pid file on startup after an unclean shutdown
+if [ -f "/var/run/dovecot/master.pid" ]; then
+  rm -f /var/run/dovecot/master.pid
+fi
+
+mkdir -p /var/run/dovecot
+chown -R dovecot:dovecot /var/run/dovecot
+
+# Check permissions of vmail directory.
+# Do not do this every start-up, it may take a very long time. So we use a stat check here.
+if [[ $(stat -c %U /var/mail/) != "vmail" ]] ; then chown -R vmail:vmail /var/mail ; fi
+
+# Sieve
+mkdir -p /var/mail/sieve
+
+# Default rule
+cat > /var/mail/sieve/default.sieve <<EOF
+require ["fileinto"];
+if header :contains "X-Spam-Flag" "YES" {
+  fileinto "Spam";
+}
+EOF
+
+# Compile sieve scripts
+sievec /var/mail/sieve/default.sieve
+sievec /etc/dovecot/sieve/report-ham.sieve
+sievec /etc/dovecot/sieve/report-spam.sieve
+
+# Fix permissions
+chown -R vmail:vmail /var/mail/sieve
+chmod +x /etc/dovecot/sieve/*.sh
+
+exec dovecot -F

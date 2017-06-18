@@ -1,35 +1,36 @@
-version: '2'
+version: '2.1'
+
 services:
   mailserver:
     image: hardware/mailserver
     container_name: mailserver
-    domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: domain.tld                  # Mail server FQDN & reverse = mail.domain.tld.
     hostname: mail
     # restart: always
-    # extra_hosts:                        - Required for external database (on other server or for local database on host)
-    #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
+    # extra_hosts:                          - Required for external database (on other server or for local database on host)
+    #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
     ports:
-      - "25:25"     # SMTP                - Required
-    # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
-      - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
-    # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
-      - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
-      - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
-    # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
-      - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+      - "25:25"       # SMTP                - Required
+    # - "110:110"     # POP3       STARTTLS - Optional - For webmails/desktop clients
+      - "143:143"     # IMAP       STARTTLS - Optional - For webmails/desktop clients
+    # - "465:465"     # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+      - "587:587"     # Submission STARTTLS - Optional - For webmails/desktop clients
+      - "993:993"     # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+    # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+      - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+      - "11334:11334" # HTTP                - Optional - Rspamd WebUI
     environment:
       - DBPASS=xxxxxxx
+      - RSPAMD_PASSWORD=xxxxxxx   # Rspamd WebUI password
     # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - GREYLISTING=gross         # Enable gross greylisting policy server
     # - DISABLE_CLAMAV=true       # Disable virus scanning
-    # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
     # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
     volumes:
       - /mnt/docker/mail:/var/mail
-      - /mnt/docker/mail/opendkim:/etc/opendkim/keys
     # - /mnt/docker/nginx/certs:/etc/letsencrypt
     depends_on:
       - mariadb
+      - redis
 
   # Administration interface
   # https://github.com/hardware/postfixadmin
@@ -112,3 +113,16 @@ services:
       - MYSQL_PASSWORD=xxxxxxx
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
+
+  # Cache Database
+  # https://github.com/docker-library/redis.
+  # https://redis.io/
+  redis:
+    image: redis:3.2-alpine
+    container_name: redis
+    # restart: always
+    command: redis-server --appendonly yes
+    sysctls:
+      - net.core.somaxconn=1024
+    volumes:
+      - /mnt/docker/redis/db/:/data

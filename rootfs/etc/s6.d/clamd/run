@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ "$DISABLE_CLAMAV" = true ]; then
+  exit 0
+fi
+
+mkdir -p /var/run/clamav /var/lib/clamav
+chown clamav: /var/run/clamav /var/lib/clamav
+
+echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
+
+sed -i -e 's/^Foreground .*$/Foreground true/g' \
+       -e 's/^LogSyslog .*$/LogSyslog true/g' \
+       -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
+       /etc/clamav/clamd.conf
+
+exec clamd

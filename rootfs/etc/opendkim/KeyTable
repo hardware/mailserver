@@ -1,1 +1,0 @@
-# mail._domainkey.<DOMAIN> <DOMAIN>:mail:/etc/opendkim/keys/<DOMAIN>/mail.private
