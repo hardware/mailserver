@@ -154,7 +154,7 @@ for domain in "${domains[@]}"; do
 
 done
 
-# Replace {{ ENV }} vars
+# Replace ENV vars
 _envtpl() {
   mv "$1" "$1.tpl" # envtpl requires files to have .tpl extension
   envtpl "$1.tpl"
@@ -254,6 +254,8 @@ fi
 if [ "$TESTING" = true ]; then
   echo "[INFO] DOCKER IMAGE UNDER TESTING"
   sed -i '/etc\/postfix\/virtual/ s/^/#/' /etc/postfix/main.cf
+  sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/dkim_signing.conf
+  sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/arc.conf
   rm -f /etc/cron.d/fetchmail
 fi
 
