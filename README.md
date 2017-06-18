@@ -12,20 +12,15 @@ Simple and full-featured mail server as a set of multiple docker images includes
 
 - **Postfix** : a full set smtp email server supporting custom rules
 - **Dovecot** : secure imap and pop3 email server
-- **Amavis** : content filter implementing decoding, processing and checking e-mails
-- **Spamassassin** : anti-spam filter
+- **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
 - **Clamav** : antivirus with automatic updates
-- **OpenDKIM** : implementation of DKIM (Domain Keys Identified Mail)
-- **OpenDMARC** : implementation of DMARC (Domain-based Message Authentication, Reporting & Conformance)
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
-- **Postgrey** : greylisting policy server
-- **Gross** : greylisting of suspicious sources
 - **Rainloop** : web based email client
 - **Postfixadmin** : web based administration interface
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Nginx** : web server with HTTP/2 and TLS 1.3 (DRAFT), statically linked against BoringSSL
-- **SSL** : lets encrypt and self-signed certificates support
+- **SSL** : lets encrypt, custom and self-signed certificates support
 - Supporting multiple virtual domains over MySQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
@@ -106,7 +101,7 @@ DKIM, SPF and DMARC are recommended to build a good reputation score.
 **Note:** The DKIM public key will be available on host after the container startup :
 
 ```
-/mnt/docker/mail/opendkim/domain.tld/mail.txt
+/mnt/docker/mail/dkim/domain.tld/public.key
 ```
 
 These DNS record will raise your trust reputation score and reduce abuse of your domain name. You can find more information here :
@@ -114,6 +109,7 @@ These DNS record will raise your trust reputation score and reduce abuse of your
 * http://www.openspf.org/
 * http://www.opendkim.org/
 * https://dmarc.org/
+* http://arc-spec.org/
 
 #### Testing
 
@@ -139,7 +135,7 @@ For security reasons, you should regularly update the mail setup and docker imag
 
 #### 2 - Get the latest docker-compose.yml
 
-Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
+Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/v1.1/docker-compose.sample.yml)
 
 **Run the stack :**
 
@@ -199,16 +195,12 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DBPASS** | MariaDB database password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
-| **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
-| **GREYLISTING** | Enable greylisting policy server | *optional* | off
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
-* If **DISABLE_CLAMAV** and **DISABLE_SPAMASSASSIN** are both set to **true**, Amavis is also completely disabled.
-* The supported values for **GREYLISTING** are `off`, `gross` or `postgrey`. Gross is a more advanced greylisting server which blocks only hosts with a bad DNSBL reputation.
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
@@ -309,18 +301,13 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 └──mail
    ├──postfix
    │     custom.conf
-   ├──postgrey
-   │     postgrey.db
-   │     ...
-   ├──gross
-   │     grossd.state
    ├──sieve
    │     default.sieve
    │     default.svbin
-   ├──opendkim
+   ├──dkim
    │  ├──domain.tld
-   │  │     mail.private
-   │  │     mail.txt
+   │  │     private.key
+   │  │     public.key
    ├──ssl
    │  ├──dhparams
    │  │     dh512.pem
@@ -396,21 +383,15 @@ docker logs -f mailserver
 
 - Postfix 3.1.4
 - Dovecot 2.2.27
-- OpenDKIM 2.11.0
-- OpenDMARC 1.3.2
-- Spamassassin 3.4.1
-- Postgrey 1.36
+- Rspamd 1.6.1
 - Fetchmail 6.3.26
 - ClamAV 0.99.2
-- Amavisd-new 2.10.1
-- Amavisd-milter 1.5.0
-- Supervisor 3.3.1
+- s6 2.6.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
 
 ## Roadmap
 
-- Use Rspamd/Rmilter instead of Spamassassin, Amavis, OpenDKIM and OpenDKIM
 - ClueGetter integration
 
 ## How to contribute
