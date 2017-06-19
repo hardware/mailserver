@@ -257,13 +257,13 @@ if [ "$DISABLE_SIGNING" = true ]; then
 fi
 
 # Disable greylisting policy
-if [ "$DISABLE_GREYLISTING" = false ]; then
+if [ "$DISABLE_GREYLISTING" = true ]; then
   echo "[INFO] Greylisting policy is disabled."
   echo "enabled = false;" > /etc/rspamd/local.d/greylisting.conf
 fi
 
 # Disable ratelimiting policy
-if [ "$DISABLE_RATELIMITING" = false ]; then
+if [ "$DISABLE_RATELIMITING" = true ]; then
   echo "[INFO] Ratelimiting policy is disabled."
   echo "enabled = false;" > /etc/rspamd/local.d/ratelimit.conf
 fi
