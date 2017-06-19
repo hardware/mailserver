@@ -4,7 +4,7 @@ services:
   mailserver:
     image: hardware/mailserver
     container_name: mailserver
-    domainname: domain.tld                  # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
     # restart: always
     # extra_hosts:                          - Required for external database (on other server or for local database on host)
@@ -20,11 +20,18 @@ services:
       - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
       - "11334:11334" # HTTP                - Optional - Rspamd WebUI
     environment:
-      - DBPASS=xxxxxxx
-      - RSPAMD_PASSWORD=xxxxxxx   # Rspamd WebUI password
-    # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - DISABLE_CLAMAV=true       # Disable virus scanning
-    # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
+      - DBPASS=xxxxxxx                      # MariaDB database password (required)
+      - RSPAMD_PASSWORD=xxxxxxx             # Rspamd WebUI password (required)
+    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - ENABLE_POP3=true                    # Enable POP3 protocol
+    # - ENABLE_FETCHMAIL=true               # Enable fetchmail forwarding
+    # - DISABLE_CLAMAV=true                 # Disable virus scanning
+    # - DISABLE_SIGNING=true                # Disable DKIM/ARC signing
+    # - DISABLE_GREYLISTING=true            # Disable greylisting policy
+    # - DISABLE_RATELIMITING=true           # Disable ratelimiting policy
+    #
+    # Full list : https://github.com/hardware/mailserver#environment-variables
+    #
     volumes:
       - /mnt/docker/mail:/var/mail
     # - /mnt/docker/nginx/certs:/etc/letsencrypt

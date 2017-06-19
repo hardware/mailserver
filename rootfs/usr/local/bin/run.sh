@@ -15,10 +15,6 @@ export CERTFILE
 export KEYFILE
 export FULLCHAIN
 export DISABLE_CLAMAV
-export DISABLE_SIEVE
-export ENABLE_POP3
-export ENABLE_FETCHMAIL
-export TESTING
 export RECIPIENT_DELIMITER
 export FETCHMAIL_INTERVAL
 
@@ -33,16 +29,24 @@ DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
+DISABLE_SIGNING=${DISABLE_SIGNING:-false}
+DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
+DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
 TESTING=${TESTING:-false}
-OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-2048}
+OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-1024}
 ADD_DOMAINS=${ADD_DOMAINS:-}
 RECIPIENT_DELIMITER=${RECIPIENT_DELIMITER:-"+"}
 FETCHMAIL_INTERVAL=${FETCHMAIL_INTERVAL:-10}
 
 if [ -z "$DBPASS" ]; then
   echo "[ERROR] Mariadb database password must be set !"
+  exit 1
+fi
+
+if [ -z "$RSPAMD_PASSWORD" ]; then
+  echo "[ERROR] Rspamd password must be set !"
   exit 1
 fi
 
@@ -226,7 +230,7 @@ sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
   echo "[INFO] ClamAV is disabled, service will not start."
-  rm -f /etc/rspamd/local.d/antivirus.conf
+  sed -i 's|\(enabled.*=\).*|\1 false;|' /etc/rspamd/local.d/antivirus.conf
 fi
 
 # Disable fetchmail forwarding
@@ -241,6 +245,27 @@ fi
 if [ "$DISABLE_SIEVE" = false ]; then
   echo "[INFO] ManageSieve protocol is enabled."
   sed -i '/^protocols/s/$/ sieve/' /etc/dovecot/dovecot.conf
+else
+  echo "[INFO] ManageSieve protocol is disabled."
+fi
+
+# Disable DKIM/ARC signing
+if [ "$DISABLE_SIGNING" = true ]; then
+  echo "[INFO] DKIM/ARC signing is disabled."
+  echo "enabled = false;" > /etc/rspamd/local.d/arc.conf
+  echo "enabled = false;" > /etc/rspamd/local.d/dkim_signing.conf
+fi
+
+# Disable greylisting policy
+if [ "$DISABLE_GREYLISTING" = false ]; then
+  echo "[INFO] Greylisting policy is disabled."
+  echo "enabled = false;" > /etc/rspamd/local.d/greylisting.conf
+fi
+
+# Disable ratelimiting policy
+if [ "$DISABLE_RATELIMITING" = false ]; then
+  echo "[INFO] Ratelimiting policy is disabled."
+  echo "enabled = false;" > /etc/rspamd/local.d/ratelimit.conf
 fi
 
 # Enable POP3 protocol

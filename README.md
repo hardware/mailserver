@@ -32,7 +32,7 @@ Please check, if your system meets the following minimum system requirements :
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
-| RAM | 500 MiB | 1 GiB |
+| RAM | 1 GiB | 2 GiB |
 | Disk | 5 GiB (without emails) | 5 GiB (without emails) |
 | System | x86_64 | x86_64 |
 
@@ -187,15 +187,19 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **VMAILUID** | vmail user id | *optional* | 1024
 | **VMAILGID** | vmail group id | *optional* | 1024
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
-| **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 2048
+| **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
 | **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
 | **DBPORT** | MariaDB instance port | *optional* | 3306
 | **DBUSER** | MariaDB database username | *optional* | postfix
 | **DBNAME** | MariaDB database name | *optional* | postfix
 | **DBPASS** | MariaDB database password | **required** | null
+| **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
+| **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
+| **DISABLE_GREYLISTING** | Disable greylisting policy | *optional* | false
+| **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
