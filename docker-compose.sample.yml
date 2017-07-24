@@ -30,6 +30,8 @@ services:
     # - /mnt/docker/nginx/certs:/etc/letsencrypt
     depends_on:
       - mariadb
+    links:
+      - mariadb:mariadb
 
   # Administration interface
   # https://github.com/hardware/postfixadmin
@@ -46,6 +48,8 @@ services:
     depends_on:
       - mailserver
       - mariadb
+    links:
+      - mariadb:mariadb
 
   # Webmail (Optional)
   # https://github.com/hardware/rainloop
@@ -60,6 +64,8 @@ services:
     depends_on:
       - mailserver
       - mariadb
+    links:
+      - mariadb:mariadb
 
   # Authoritative DNS server (Optional)
   # https://github.com/hardware/nsd-dnssec
