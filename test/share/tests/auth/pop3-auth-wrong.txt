@@ -1,3 +1,0 @@
-USER sarah.connor@domain.tld
-PASS badpassword
-QUIT

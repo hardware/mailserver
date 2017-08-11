@@ -1,4 +1,4 @@
-FROM hardware/s6-rspamd
+FROM hardware/debian-mail-overlay
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"

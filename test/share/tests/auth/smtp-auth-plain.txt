@@ -1,3 +1,0 @@
-EHLO mailserver
-AUTH PLAIN AHNhcmFoLmNvbm5vckBkb21haW4udGxkAHRlc3RwYXNzd2QxMg==
-QUIT
