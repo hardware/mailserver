@@ -110,5 +110,6 @@ services:
       - MYSQL_DATABASE=postfix
       - MYSQL_USER=postfix
       - MYSQL_PASSWORD=xxxxxxx
+      - TZ=Europe/Paris
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
