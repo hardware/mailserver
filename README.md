@@ -198,6 +198,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DBNAME** | MariaDB database name | *optional* | postfix
 | **DBPASS** | MariaDB database password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
+| **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SPAMASSASSIN** | Disable SPAM checking | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
@@ -211,6 +212,14 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 * The supported values for **GREYLISTING** are `off`, `gross` or `postgrey`. Gross is a more advanced greylisting server which blocks only hosts with a bad DNSBL reputation.
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
+
+### Relaying from other networks
+
+The **RELAY_NETWORKS** is a space separated list of additional IP addresses and subnets (in CIDR notation) which the mailserver relays without authentication. Hostnames are possible, but generally disadvised. IPv6 addresses must be surrounded by square brackets. You can also specify an absolut path to a file with IPs and networks so you can keep it on a mounted volume. Note that the file is not monitored for changes.
+
+You can use this variable to allow other local containers to relay via the mailserver. Typically you would set this to the IP range of the default docker bridge (172.17.0.0/16) or the default network of your compose. If you are unable to determine, you might just add all RFC 1918 addresses `192.168.0.0/16 172.16.0.0/12 10.0.0.0/8` 
+
+:warning: A value like `0.0.0.0/0` will turn your mailserver into an open relay!
 
 ### SSL certificates
 
