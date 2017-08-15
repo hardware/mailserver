@@ -53,6 +53,7 @@ RUN BUILD_DEPS=" \
     pbzip2 \
     dnsutils \
     ca-certificates \
+ && rm -rf /var/spool/postfix && ln -s /var/mail/postfix/spool /var/spool/postfix \
  && pip install envtpl \
  && cd /tmp \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb \
