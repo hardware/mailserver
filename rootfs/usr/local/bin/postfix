@@ -24,7 +24,8 @@ chmod 0644 /etc/postfix/header_checks
 chmod 0644 /etc/postfix/main.cf
 chmod 0644 /etc/postfix/master.cf
 
-# Start Postfix
+# Start Postfix and Dovecot
 /usr/sbin/postfix -c /etc/postfix start
+supervisorctl start dovecot
 
 sleep infinity
