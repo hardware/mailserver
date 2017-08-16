@@ -465,7 +465,7 @@
   run docker exec mailserver_default /bin/sh -c "grep -i 'Passed SPAM' /var/log/mail.log | grep spam@example.com | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
-  run docker exec mailserver_default /bin/sh -c "find /var/lib/amavis/virusmails -type f | wc -l"
+  run docker exec mailserver_default /bin/sh -c "find /var/lib/amavis/virusmails/ -type f | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" = 1 ]
 }
