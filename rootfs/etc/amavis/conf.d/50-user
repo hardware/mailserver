@@ -8,10 +8,6 @@ use strict;
 # the directives you can use in this file
 #
 
-### Move data directories to /var/mail so they're stored in the volume
-$helpers_home = "/var/mail/amavis";
-$QUARANTINEDIR = "$helpers_home/quarantine";
-
 ### Maximun number of child processes
 $max_servers = AMAVIS_MAX_SERVERS;
 

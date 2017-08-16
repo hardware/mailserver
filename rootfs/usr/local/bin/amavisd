@@ -11,10 +11,13 @@ fi
 # Fix permissions
 usermod -aG amavis clamav
 
-# Create data directory
-mkdir -p /var/mail/amavis
-chown amavis:amavis /var/mail/amavis
-chmod 750 /var/mail/amavis
+# Create data directories
+for sub in "" quarantine bayes; do
+    mkdir -p /var/mail/amavis/$sub
+    chown amavis:amavis /var/mail/amavis/$sub
+    chmod 750 /var/mail/amavis/$sub
+done
+chmod 700 /var/mail/amavis/bayes
 
 # Start amavisd and amavisd-milter
 supervisorctl start amavisd && sleep 5
