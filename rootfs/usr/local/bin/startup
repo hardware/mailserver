@@ -320,7 +320,11 @@ useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
 mkdir /var/run/dovecot
 mkdir /var/run/fetchmail
 
-chown -R vmail:vmail /var/mail
+find /var/mail \( \
+    -name postfix -prune -o \
+    -name amavis -prune \
+\) -o -print0 | xargs -0 chown vmail:vmail
+
 chown -R vmail:dovecot /etc/dovecot
 chmod -R o-rwx /etc/dovecot
 chown -R dovecot:dovecot /var/run/dovecot
