@@ -58,6 +58,8 @@ RUN BUILD_DEPS=" \
  && ln -s /var/mail/postfix/spool     /var/spool/postfix \
  && ln -s /var/mail/amavis/bayes      /var/lib/amavis/.spamassassin \
  && ln -s /var/mail/amavis/quarantine /var/lib/amavis/virusmails \
+ && mv /var/lib/clamav /var/mail/clamav \
+ && ln -s /var/mail/clamav /var/lib/clamav \
  && pip install envtpl \
  && cd /tmp \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb \
