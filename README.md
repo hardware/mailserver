@@ -209,7 +209,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 
 The **RELAY_NETWORKS** is a space separated list of additional IP addresses and subnets (in CIDR notation) which the mailserver relays without authentication. Hostnames are possible, but generally disadvised. IPv6 addresses must be surrounded by square brackets. You can also specify an absolut path to a file with IPs and networks so you can keep it on a mounted volume. Note that the file is not monitored for changes.
 
-You can use this variable to allow other local containers to relay via the mailserver. Typically you would set this to the IP range of the default docker bridge (172.17.0.0/16) or the default network of your compose. If you are unable to determine, you might just add all RFC 1918 addresses `192.168.0.0/16 172.16.0.0/12 10.0.0.0/8` 
+You can use this variable to allow other local containers to relay via the mailserver. Typically you would set this to the IP range of the default docker bridge (172.17.0.0/16) or the default network of your compose. If you are unable to determine, you might just add all RFC 1918 addresses `192.168.0.0/16 172.16.0.0/12 10.0.0.0/8`
 
 :warning: A value like `0.0.0.0/0` will turn your mailserver into an open relay!
 
@@ -311,7 +311,16 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 /mnt/docker
 └──mail
    ├──postfix
-   │     custom.conf
+   |     custom.conf
+   |  ├──spool (Postfix queues directory)
+   │  │     defer
+   │  │     flush
+   │  │     hold
+   │  │     maildrop
+   ├──clamav (ClamAV databases directory)
+   │     bytecode.cvd
+   │     daily.cld
+   │     main.cvd
    ├──sieve
    │     default.sieve
    │     default.svbin

@@ -4,8 +4,8 @@ if [ "$DISABLE_CLAMAV" = true ]; then
   exit 0
 fi
 
-mkdir -p /var/run/clamav /var/lib/clamav
-chown clamav:clamav /var/run/clamav /var/lib/clamav
+mkdir -p /var/run/clamav /var/mail/clamav
+chown clamav:clamav /var/run/clamav /var/mail/clamav
 
 echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
 
@@ -14,7 +14,7 @@ sed -i -e 's/^Foreground .*$/Foreground true/g' \
        -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
        /etc/clamav/clamd.conf
 
-while [ ! -f /var/lib/clamav/main.cvd ]
+while [ ! -f /var/mail/clamav/main.cvd ]
 do
   sleep 5
 done

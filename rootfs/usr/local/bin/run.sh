@@ -286,6 +286,12 @@ if [ "$TESTING" = true ]; then
   rm -f /etc/cron.d/fetchmail
 fi
 
+# Move clamav data and postfix queues to /var/mail
+rm -rf /var/spool/postfix
+ln -s /var/mail/postfix/spool /var/spool/postfix
+mv /var/lib/clamav /var/mail/clamav
+ln -s /var/mail/clamav /var/lib/clamav
+
 # Folders and permissions
 groupadd -g "$VMAILGID" vmail
 useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
