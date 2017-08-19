@@ -32,6 +32,15 @@ sievec /etc/dovecot/sieve/report-spam.sieve
 chown -R vmail:vmail /var/mail/sieve
 chmod +x /etc/dovecot/sieve/*.sh
 
+# Avoid file_dotlock_open function exception
+rm -f /var/lib/dovecot/instances
+
+# Wait for Postfix complete startup
+until pids=$(pidof master)
+do
+  sleep 1
+done
+
 logger -p mail.info "s6-supervise : spawning dovecot process"
 
 exec dovecot -F &>/dev/null

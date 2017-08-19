@@ -1,2 +1,6 @@
 #!/bin/sh
+
+# Avoid "Compromised token secret file" error after container restart
+rm -f /var/run/dovecot/auth-token-secret.dat
+
 exit 0

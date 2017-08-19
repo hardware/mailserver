@@ -160,6 +160,11 @@ for domain in "${domains[@]}"; do
 
 done
 
+# Avoid envtpl error if cron file doesn't exist
+if [ ! -f /etc/cron.d/fetchmail ]; then
+  touch /etc/cron.d/fetchmail
+fi
+
 # Replace ENV vars
 _envtpl() {
   mv "$1" "$1.tpl" # envtpl requires files to have .tpl extension
@@ -286,16 +291,14 @@ if [ "$TESTING" = true ]; then
   rm -f /etc/cron.d/fetchmail
 fi
 
-# Move clamav data and postfix queues to /var/mail
-rm -rf /var/spool/postfix
-ln -s /var/mail/postfix/spool /var/spool/postfix
-mv /var/lib/clamav /var/mail/clamav
+# Move clamav databases to /var/mail
+rm -rf /var/lib/clamav
 ln -s /var/mail/clamav /var/lib/clamav
 
 # Folders and permissions
-groupadd -g "$VMAILGID" vmail
-useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
-mkdir /var/run/fetchmail
+groupadd -g "$VMAILGID" vmail &> /dev/null
+useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
+mkdir -p /var/run/fetchmail
 chmod +x /usr/local/bin/*
 
 # RUN !

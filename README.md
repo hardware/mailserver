@@ -312,11 +312,6 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 └──mail
    ├──postfix
    |     custom.conf
-   |  ├──spool (Postfix queues directory)
-   │  │     defer
-   │  │     flush
-   │  │     hold
-   │  │     maildrop
    ├──clamav (ClamAV databases directory)
    │     bytecode.cvd
    │     daily.cld
