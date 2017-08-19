@@ -191,7 +191,6 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DBPASS** | MariaDB database password | **required** | null
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
-| **DISABLE_REDIS** | Disable redis cache storage | *optional* | false
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
@@ -202,7 +201,6 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
-* **DISABLE_REDIS** : disable redis if the mail server is hosted on a low memory (RAM) server but disable redis cache storage is highly discouraged.
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
@@ -214,6 +212,7 @@ This mail setup uses 3 domain names that should be covered by your new certifica
 
 * **mail.domain.tld** (mandatory)
 * **postfixadmin.domain.tld** (recommended)
+* **spam.domain.tld** (recommended)
 * **webmail.domain.tld** (optional)
 
 To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` like this :
@@ -247,7 +246,8 @@ docker run -it --rm \
     -m contact@domain.tld \
     -d mail.domain.tld \ # <--- Mail FQDN is the first domain name, very important !
     -d webmail.domain.tld \
-    -d postfixadmin.domain.tld
+    -d postfixadmin.domain.tld \
+    -d spam.domain.tld
 
 docker-compose up -d
 ```
@@ -391,10 +391,6 @@ docker logs -f mailserver
 - s6 2.6.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
-
-## Roadmap
-
-- ClueGetter integration
 
 ## How to contribute
 

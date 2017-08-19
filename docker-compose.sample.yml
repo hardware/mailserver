@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   mailserver:
-    image: hardware/mailserver
+    image: hardware/mailserver:1.1-beta
     container_name: mailserver
     domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
@@ -132,4 +132,4 @@ services:
     sysctls:
       - net.core.somaxconn=1024
     volumes:
-      - /mnt/docker/redis/db/:/data
+      - /mnt/docker/redis/db:/data

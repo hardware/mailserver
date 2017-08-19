@@ -34,4 +34,4 @@ chmod +x /etc/dovecot/sieve/*.sh
 
 logger -p mail.info "s6-supervise : spawning dovecot process"
 
-exec dovecot -F
+exec dovecot -F >/dev/null
