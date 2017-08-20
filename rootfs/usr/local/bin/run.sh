@@ -150,15 +150,17 @@ domains+=(${ADD_DOMAINS//,/ })
 
 for domain in "${domains[@]}"; do
 
+  mkdir -p /var/mail/vhosts/"$domain"
+  mkdir -p /var/mail/dkim/"$domain"
+
   if [ -f /var/mail/opendkim/"$domain"/mail.private ]; then
     echo "[INFO] Found an old DKIM keys, migrating files to the new location"
-    mkdir -p /var/mail/dkim/"$domain"
     mv /var/mail/opendkim/"$domain"/mail.private /var/mail/dkim/"$domain"/private.key
     mv /var/mail/opendkim/"$domain"/mail.txt /var/mail/dkim/"$domain"/public.key
     rm -rf /var/mail/opendkim/"$domain"
+    rmdir --ignore-fail-on-non-empty /var/mail/opendkim
   elif [ ! -f /var/mail/dkim/"$domain"/private.key ]; then
     echo "[INFO] Creating DKIM keys for domain $domain"
-    mkdir -p /var/mail/dkim/"$domain"
     rspamadm dkim_keygen \
       --selector=mail \
       --domain="$domain" \
@@ -168,9 +170,6 @@ for domain in "${domains[@]}"; do
   else
     echo "[INFO] Found DKIM key pair for domain $domain - skip creation"
   fi
-
-  # Add vhost
-  mkdir -p /var/mail/vhosts/"$domain"
 
 done
 
@@ -315,6 +314,10 @@ groupadd -g "$VMAILGID" vmail &> /dev/null
 useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
 mkdir -p /var/run/fetchmail
 chmod +x /usr/local/bin/*
+
+# Fix old DKIM keys permissions
+chown -R vmail:vmail /var/mail/dkim
+chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
 # RUN !
 exec s6-svscan /etc/s6.d
