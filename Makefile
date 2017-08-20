@@ -37,7 +37,7 @@ init:
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
-		-v "`pwd`/test/share/postfix":/var/mail/postfix \
+		-v "`pwd`/test/share/postfix/custom.conf":/var/mail/postfix/custom.conf \
 		-h mail.domain.tld \
 		-t $(NAME)
 
