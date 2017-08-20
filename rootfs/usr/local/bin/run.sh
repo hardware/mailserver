@@ -237,7 +237,7 @@ sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
   echo "[INFO] ClamAV is disabled, service will not start."
-  sed -i 's|\(enabled.*=\).*|\1 false;|' /etc/rspamd/local.d/antivirus.conf
+  rm -f /etc/rspamd/local.d/antivirus.conf
 fi
 
 # Disable fetchmail forwarding
@@ -281,13 +281,12 @@ if [ "$ENABLE_POP3" = true ]; then
   sed -i '/^protocols/s/$/ pop3/' /etc/dovecot/dovecot.conf
 fi
 
-# Virtual table may cause counting troubles during tests
-# Disable fetchmail cron task during tests
 if [ "$TESTING" = true ]; then
   echo "[INFO] DOCKER IMAGE UNDER TESTING"
   sed -i '/etc\/postfix\/virtual/ s/^/#/' /etc/postfix/main.cf
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/dkim_signing.conf
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/arc.conf
+  sed -i 's|\(ssl_dh_parameters_length.*=\).*|\1 512|' /etc/dovecot/conf.d/10-ssl.conf
   rm -f /etc/cron.d/fetchmail
 fi
 

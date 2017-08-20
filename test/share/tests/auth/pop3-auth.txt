@@ -1,0 +1,4 @@
+USER sarah.connor@domain.tld
+PASS testpasswd12
+LIST
+QUIT

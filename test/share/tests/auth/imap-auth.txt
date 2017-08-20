@@ -1,0 +1,4 @@
+a1 LOGIN sarah.connor@domain.tld testpasswd12
+a2 LIST "" "*"
+a3 EXAMINE INBOX
+a5 LOGOUT

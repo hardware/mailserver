@@ -217,7 +217,7 @@ You can use this variable to allow other local containers to relay via the mails
 
 #### Let's Encrypt certificate authority
 
-This mail setup uses 3 domain names that should be covered by your new certificate :
+This mail setup uses 4 domain names that should be covered by your new certificate :
 
 * **mail.domain.tld** (mandatory)
 * **postfixadmin.domain.tld** (recommended)
@@ -398,7 +398,7 @@ docker logs -f mailserver
 
 - Postfix 3.1.4
 - Dovecot 2.2.27
-- Rspamd 1.6.1
+- Rspamd 1.6.3
 - Fetchmail 6.3.26
 - ClamAV 0.99.2
 - s6 2.6.0.0

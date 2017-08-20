@@ -1,0 +1,2 @@
+a1 LOGIN sarah.connor@domain.tld badpassword
+a5 LOGOUT
