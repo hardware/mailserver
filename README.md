@@ -1,5 +1,9 @@
 ## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+### Build
+
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.1)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta)
+
 ### Docker image
 
 [![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
