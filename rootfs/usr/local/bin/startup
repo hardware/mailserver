@@ -175,6 +175,11 @@ if [ ! -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
 fi
 
+# Avoid envtpl error if cron file doesn't exist
+if [ ! -f /etc/cron.d/fetchmail ]; then
+  touch /etc/cron.d/fetchmail
+fi
+
 # Replace {{ ENV }} vars
 _envtpl() {
   mv "$1" "$1.tpl" # envtpl requires files to have .tpl extension
@@ -314,11 +319,11 @@ if [ "$TESTING" = true ]; then
 fi
 
 # Folders and permissions
-groupadd -g "$VMAILGID" vmail
-useradd -g vmail -u "$VMAILUID" vmail -d /var/mail
+groupadd -g "$VMAILGID" vmail &> /dev/null
+useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
 
-mkdir /var/run/dovecot
-mkdir /var/run/fetchmail
+mkdir -p /var/run/dovecot
+mkdir -p /var/run/fetchmail
 
 find /var/mail \( \
     -name postfix -prune -o \
@@ -356,10 +361,10 @@ sievec /var/mail/sieve/default.sieve
 # Move amavis, clamav data and postfix queues to /var/mail
 rm -rf /var/spool/postfix
 rm -rf /var/lib/amavis/.spamassassin /var/lib/amavis/virusmails
+rm -rf /var/lib/clamav
 ln -s /var/mail/postfix/spool /var/spool/postfix
 ln -s /var/mail/amavis/bayes /var/lib/amavis/.spamassassin
 ln -s /var/mail/amavis/quarantine /var/lib/amavis/virusmails
-mv /var/lib/clamav /var/mail/clamav
 ln -s /var/mail/clamav /var/lib/clamav
 
 # Supervisor socket
