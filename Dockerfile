@@ -53,13 +53,6 @@ RUN BUILD_DEPS=" \
     pbzip2 \
     dnsutils \
     ca-certificates \
- && rm -rf /var/spool/postfix \
- && rm -rf /var/lib/amavis/.spamassassin /var/lib/amavis/virusmails \
- && ln -s /var/mail/postfix/spool     /var/spool/postfix \
- && ln -s /var/mail/amavis/bayes      /var/lib/amavis/.spamassassin \
- && ln -s /var/mail/amavis/quarantine /var/lib/amavis/virusmails \
- && mv /var/lib/clamav /var/mail/clamav \
- && ln -s /var/mail/clamav /var/lib/clamav \
  && pip install envtpl \
  && cd /tmp \
  && wget -q https://github.com/krallin/tini/releases/download/v$TINI_VER/tini_$TINI_VER.deb \

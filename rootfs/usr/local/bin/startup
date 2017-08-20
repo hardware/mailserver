@@ -353,6 +353,15 @@ fi
 chown -R vmail:vmail /var/mail/sieve
 sievec /var/mail/sieve/default.sieve
 
+# Move amavis, clamav data and postfix queues to /var/mail
+rm -rf /var/spool/postfix
+rm -rf /var/lib/amavis/.spamassassin /var/lib/amavis/virusmails
+ln -s /var/mail/postfix/spool /var/spool/postfix
+ln -s /var/mail/amavis/bayes /var/lib/amavis/.spamassassin
+ln -s /var/mail/amavis/quarantine /var/lib/amavis/virusmails
+mv /var/lib/clamav /var/mail/clamav
+ln -s /var/mail/clamav /var/lib/clamav
+
 # Supervisor socket
 touch /dev/shm/supervisor.sock
 
