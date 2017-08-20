@@ -7,8 +7,9 @@ services:
     domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
     # restart: always
-    # extra_hosts:                          - Required for external database (on other server or for local database on host)
+    # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
     #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
+    #  - "redis:xx.xx.xx.xx"                - Replace with IP address of Redis server
     ports:
       - "25:25"       # SMTP                - Required
     # - "110:110"     # POP3       STARTTLS - Optional - For webmails/desktop clients
@@ -122,7 +123,7 @@ services:
       - /mnt/docker/mysql/db:/var/lib/mysql
 
   # Cache Database
-  # https://github.com/docker-library/redis.
+  # https://github.com/docker-library/redis
   # https://redis.io/
   redis:
     image: redis:3.2-alpine

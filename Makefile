@@ -57,6 +57,8 @@ init:
 		-e FQDN=mail.domain.tld \
 		-e DOMAIN=domain.tld \
 		-e DBPASS=testpasswd \
+		-e REDIS_HOST=redis \
+		-e REDIS_PORT=6379 \
 		-e RSPAMD_PASSWORD=testpasswd \
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \

@@ -44,12 +44,12 @@
 }
 
 @test "checking system: all environment variables have been replaced (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/mailname /usr/local/bin"
+  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
   [ "$status" -eq 1 ]
 }
 
 @test "checking system: all environment variables have been replaced (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/mailname /usr/local/bin"
+  run docker exec mailserver_reverse /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
   [ "$status" -eq 1 ]
 }
 

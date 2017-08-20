@@ -193,6 +193,10 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DBUSER** | MariaDB database username | *optional* | postfix
 | **DBNAME** | MariaDB database name | *optional* | postfix
 | **DBPASS** | MariaDB database password | **required** | null
+| **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
+| **REDIS_PORT** | Redis instance port | *optional*  | 6379
+| **REDIS_PASS** | Redis database password | *optional* | null
+| **REDIS_NUMB** | Redis database number | *optional* | 0
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null

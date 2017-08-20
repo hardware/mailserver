@@ -10,6 +10,10 @@ export DBHOST
 export DBPORT
 export DBNAME
 export DBUSER
+export REDIS_HOST
+export REDIS_PORT
+export REDIS_PASS
+export REDIS_NUMB
 export CAFILE
 export CERTFILE
 export KEYFILE
@@ -28,6 +32,10 @@ DBHOST=${DBHOST:-mariadb}
 DBPORT=${DBPORT:-3306}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
+REDIS_HOST=${REDIS_HOST:-redis}
+REDIS_PORT=${REDIS_PORT:-6379}
+REDIS_PASS=${REDIS_PASS:-}
+REDIS_NUMB=${REDIS_NUMB:-0}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 DISABLE_SIGNING=${DISABLE_SIGNING:-false}
@@ -60,6 +68,12 @@ fi
 if [ -z "$DOMAIN" ]; then
   echo "[ERROR] The domain name must be set !"
   exit 1
+fi
+
+# https://github.com/docker-library/redis/issues/53
+if [[ "$REDIS_PORT" =~ [^[:digit:]] ]]
+then
+  REDIS_PORT=6379
 fi
 
 # SSL certificates
@@ -188,6 +202,8 @@ _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
+_envtpl /etc/rspamd/local.d/redis.conf
+_envtpl /etc/rspamd/local.d/statistic.conf
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning.sh
