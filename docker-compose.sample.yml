@@ -19,7 +19,6 @@ services:
       - "993:993"     # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
     # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
       - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
-      - "11334:11334" # HTTP                - Optional - Rspamd WebUI
     environment:
       - DBPASS=xxxxxxx                      # MariaDB database password (required)
       - RSPAMD_PASSWORD=xxxxxxx             # Rspamd WebUI password (required)
@@ -103,6 +102,7 @@ services:
       - /mnt/docker/nginx/log:/var/log/nginx
       - /mnt/docker/nginx/certs:/certs
     depends_on:
+      - mailserver
       - postfixadmin
       - rainloop
 
