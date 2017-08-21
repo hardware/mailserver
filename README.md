@@ -320,10 +320,15 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 └──mail
    ├──postfix
    |     custom.conf
+   ├──dovecot
+   |     instances
+   |     ssl-parameters.dat
    ├──clamav (ClamAV databases directory)
    │     bytecode.cvd
    │     daily.cld
    │     main.cvd
+   ├──rspamd (Rspamd databases directory)
+   │     rspamd.rrd
    ├──sieve
    │     default.sieve
    │     default.svbin

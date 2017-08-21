@@ -305,9 +305,16 @@ if [ "$TESTING" = true ]; then
   rm -f /etc/cron.d/fetchmail
 fi
 
-# Move clamav databases to /var/mail
+# Move clamav databases and dovecot lib directory to /var/mail
+if [ -d "/var/mail/dovecot" ]; then
+  rm -rf /var/lib/dovecot
+else
+  mv /var/lib/dovecot /var/mail/dovecot
+fi
+
 rm -rf /var/lib/clamav
 ln -s /var/mail/clamav /var/lib/clamav
+ln -s /var/mail/dovecot /var/lib/dovecot
 
 # Folders and permissions
 groupadd -g "$VMAILGID" vmail &> /dev/null

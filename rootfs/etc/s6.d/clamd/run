@@ -5,7 +5,7 @@ if [ "$DISABLE_CLAMAV" = true ]; then
 fi
 
 mkdir -p /var/run/clamav /var/mail/clamav
-chown clamav:clamav /var/run/clamav /var/mail/clamav
+chown -R clamav:clamav /var/run/clamav /var/mail/clamav
 
 echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
 

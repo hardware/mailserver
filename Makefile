@@ -1,8 +1,8 @@
 NAME = hardware/mailserver:testing
 
-all: build-no-cache init fixtures run clean
-all-fast: build init fixtures run clean
-no-build: init fixtures run clean
+all: build-no-cache init fixtures run
+all-fast: build init fixtures run
+no-build: init fixtures run
 
 build-no-cache:
 	docker build --no-cache -t $(NAME) .
@@ -11,7 +11,7 @@ build:
 	docker build -t $(NAME) .
 
 init:
-	# -docker rm -f mariadb redis mailserver_default mailserver_reverse
+	-docker rm -f mariadb redis mailserver_default mailserver_reverse
 	sleep 2
 
 	docker run \
@@ -99,6 +99,3 @@ fixtures:
 
 run:
 	./test/bin/bats test/tests.bats
-
-clean:
-	docker rm -f mariadb mailserver_default mailserver_reverse

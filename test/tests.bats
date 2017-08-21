@@ -438,6 +438,11 @@
   [ "$output" = 1 ]
 }
 
+@test "checking rspamd: existing rrd file" {
+  run docker exec mailserver_default [ -f /var/mail/rspamd/rspamd.rrd ]
+  [ "$status" -eq 0 ]
+}
+
 #
 # accounts
 #
@@ -533,6 +538,34 @@
 }
 
 #
+# dovecot
+#
+
+@test "checking dovecot: existing ssl-parameters file" {
+  run docker exec mailserver_default [ -f /var/mail/dovecot/ssl-parameters.dat ]
+  [ "$status" -eq 0 ]
+}
+
+@test "checking dovecot: existing instances file" {
+  run docker exec mailserver_default [ -f /var/mail/dovecot/instances ]
+  [ "$status" -eq 0 ]
+}
+
+@test "checking dovecot: default lib directory is a symlink" {
+  run docker exec mailserver_default [ -L /var/lib/dovecot ]
+  [ "$status" -eq 0 ]
+}
+
+#
+# clamav
+#
+
+@test "checking clamav: default lib directory is a symlink" {
+  run docker exec mailserver_default [ -L /var/lib/clamav ]
+  [ "$status" -eq 0 ]
+}
+
+#
 # fetchmail
 #
 
@@ -619,14 +652,12 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking logs: /var/log/mail.err in mailserver_default may have HTTP IO read error on 11334 port triggered by netcat, nothing else" {
-  run docker exec mailserver_default /bin/sh -c "cat /var/log/mail.err | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" -le 1 ]
+@test "checking logs: /var/log/mail.err in mailserver_default does not exist" {
+  run docker exec mailserver_default [ -f /var/log/mail.err ]
+  [ "$status" -eq 1 ]
 }
 
-@test "checking logs: /var/log/mail.err in mailserver_reverse may have HTTP IO read error on 11334 port triggered by netcat, nothing else" {
-  run docker exec mailserver_reverse /bin/sh -c "cat /var/log/mail.err | wc -l"
-  [ "$status" -eq 0 ]
-  [ "$output" -le 1 ]
+@test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
+  run docker exec mailserver_reverse [ -f /var/log/mail.err ]
+  [ "$status" -eq 1 ]
 }
