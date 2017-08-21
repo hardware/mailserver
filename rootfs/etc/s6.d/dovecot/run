@@ -21,6 +21,9 @@ require ["fileinto"];
 if header :contains "X-Spam-Flag" "YES" {
   fileinto "Spam";
 }
+if header :contains "X-Spam" "Yes" {
+  fileinto "Spam";
+}
 EOF
 
 # Compile sieve scripts
