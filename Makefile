@@ -19,6 +19,7 @@ init:
 		-e MYSQL_USER=postfix \
 		-e MYSQL_PASSWORD=testpasswd \
 		-v "`pwd`/test/config/mariadb":/docker-entrypoint-initdb.d \
+		-v /etc/localtime:/etc/localtime:ro \
 		-t mariadb:10.1
 
 	# Wait until the db fully set up
@@ -38,6 +39,7 @@ init:
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.conf":/var/mail/postfix/custom.conf \
+		-v /etc/localtime:/etc/localtime:ro \
 		-h mail.domain.tld \
 		-t $(NAME)
 

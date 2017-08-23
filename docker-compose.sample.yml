@@ -28,6 +28,7 @@ services:
       - /mnt/docker/mail:/var/mail
       - /mnt/docker/mail/opendkim:/etc/opendkim/keys
     # - /mnt/docker/nginx/certs:/etc/letsencrypt
+    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
     depends_on:
       - mariadb
 
@@ -57,6 +58,7 @@ services:
     # restart: always
     volumes:
       - /mnt/docker/rainloop:/rainloop/data
+    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
     depends_on:
       - mailserver
       - mariadb
@@ -112,3 +114,4 @@ services:
       - MYSQL_PASSWORD=xxxxxxx
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
+    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
