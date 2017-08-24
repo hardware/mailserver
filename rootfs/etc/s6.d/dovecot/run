@@ -18,11 +18,14 @@ mkdir -p /var/mail/sieve
 # Default rule
 cat > /var/mail/sieve/default.sieve <<EOF
 require ["fileinto"];
-if header :contains "X-Spam-Flag" "YES" {
-  fileinto "Spam";
-}
-if header :contains "X-Spam" "Yes" {
-  fileinto "Spam";
+if anyof(
+    header :contains ["X-Spam-Flag"] "YES",
+    header :contains ["X-Spam"] "Yes",
+    header :contains ["Subject"] "*** SPAM ***"
+)
+{
+    fileinto "Spam";
+    stop;
 }
 EOF
 

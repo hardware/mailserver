@@ -1,3 +1,4 @@
 #!/bin/bash
-/usr/bin/curl -s --data-binary @- http://0.0.0.0:11334/learnham < /dev/stdin
-exit 0
+
+# rspamd client reads piped ham message from the standard input
+exec /usr/bin/rspamc learn_ham
