@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
     fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav-daemon \
-    python-pip python-setuptools \
-    rsyslog dnsutils curl \
+    python-pip python-setuptools python-gpgme \
+    rsyslog dnsutils curl sudo \
  && pip install envtpl \
  && apt-get autoremove -y \
  && apt-get clean \

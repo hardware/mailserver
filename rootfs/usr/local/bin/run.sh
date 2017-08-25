@@ -43,6 +43,7 @@ DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
 DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
+ENABLE_ENCRYPTION=${ENABLE_ENCRYPTION:-false}
 TESTING=${TESTING:-false}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-1024}
 ADD_DOMAINS=${ADD_DOMAINS:-}
@@ -263,6 +264,14 @@ else
   echo "[INFO] Fetchmail forwarding is enabled."
 fi
 
+# Disable automatic GPG encryption
+if [ "$ENABLE_ENCRYPTION" = false ]; then
+  echo "[INFO] Automatic GPG encryption is disabled."
+  sed -i '/content_filter/ s/^/#/' /etc/postfix/main.cf
+else
+  echo "[INFO] Automatic GPG encryption is enabled."
+fi
+
 # Enable ManageSieve protocol
 if [ "$DISABLE_SIEVE" = false ]; then
   echo "[INFO] ManageSieve protocol is enabled."
@@ -298,11 +307,20 @@ fi
 
 if [ "$TESTING" = true ]; then
   echo "[INFO] DOCKER IMAGE UNDER TESTING"
+  # Disable postfix virtual table
   sed -i '/etc\/postfix\/virtual/ s/^/#/' /etc/postfix/main.cf
+  # Disable dkim and arc signing locally
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/dkim_signing.conf
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/arc.conf
+  # Speed up dovecot startup with smaller dh params
   sed -i 's|\(ssl_dh_parameters_length.*=\).*|\1 512|' /etc/dovecot/conf.d/10-ssl.conf
+  # Zeyple logs are needed for testing (default: logs are redirected to /dev/null)
+  sed -i 's|\(log_file.*=\).*|\1 /var/log/zeyple.log|' /etc/zeyple/zeyple.conf
+  # Disable fetchmail scheduled Task
   rm -f /etc/cron.d/fetchmail
+else
+  # /var/log/mail.log is not needed in production
+  sed -i '/mail.log/d' /etc/rsyslog/rsyslog.conf
 fi
 
 # Move clamav databases and dovecot lib directory to /var/mail

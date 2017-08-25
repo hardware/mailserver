@@ -11,11 +11,10 @@ sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
 # database.clamav.net is a round robin record that tries to
 # equally balance the traffic between all the database mirrors.
 cat <<EOT >> /etc/clamav/freshclam.conf
-DatabaseMirror database.clamav.net
-DatabaseMirror db.fr.clamav.net
 DatabaseMirror clamav.univ-nantes.fr
 DatabaseMirror switch.clamav.net
 DatabaseMirror clamav.iol.cz
+DatabaseMirror db.fr.clamav.net
 EOT
 
 if [ "$TESTING" = true ]; then

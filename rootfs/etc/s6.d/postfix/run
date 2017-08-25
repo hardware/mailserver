@@ -18,6 +18,48 @@ chgrp -R postdrop /var/spool/postfix/public
 chgrp -R postdrop /var/spool/postfix/maildrop
 postfix set-permissions &>/dev/null
 
+if [ "$ENABLE_ENCRYPTION" = true ]; then
+
+  # Add Zeyple user
+  adduser --quiet \
+          --system \
+          --group \
+          --home /var/mail/zeyple \
+          --no-create-home \
+          --disabled-login \
+          --gecos "zeyple automatic GPG encryption tool" \
+          zeyple
+
+  # Create all files and directories needed by Zeyple
+  mkdir -p /var/mail/zeyple/keys
+  chmod 700 /var/mail/zeyple/keys
+  chmod 744 /usr/local/bin/zeyple.py
+  chown -R zeyple:zeyple /var/mail/zeyple /usr/local/bin/zeyple.py
+
+  if [ "$TESTING" = true ]; then
+
+  touch /var/log/zeyple.log
+  chown zeyple:zeyple /var/log/zeyple.log
+
+# Generating John Doe GPG key
+sudo -u zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
+  %echo Generating John Doe GPG key
+  Key-Type: default
+  Key-Length: 1024
+  Subkey-Type: default
+  Subkey-Length: 1024
+  Name-Real: John Doe
+  Name-Comment: test key
+  Name-Email: john.doe@domain.tld
+  Expire-Date: 0
+  Passphrase: azerty
+  %commit
+  %echo done
+EOF
+
+  fi
+fi
+
 # Start Postfix
 postfix -c /etc/postfix start
 

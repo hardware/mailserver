@@ -41,6 +41,7 @@ init:
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e ADD_DOMAINS=domain2.tld,domain3.tld \
+		-e RECIPIENT_DELIMITER=: \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl":/var/mail/ssl \
@@ -62,7 +63,6 @@ init:
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e VMAIL_SUBDIR=subdir \
-		-e RECIPIENT_DELIMITER=: \
 		-e RELAY_NETWORKS="192.168.0.0/16 172.16.0.0/12 10.0.0.0/8" \
 		-e DISABLE_CLAMAV=true \
 		-e DISABLE_SIEVE=true \
@@ -70,6 +70,7 @@ init:
 		-e DISABLE_GREYLISTING=true \
 		-e DISABLE_RATELIMITING=true \
 		-e ENABLE_POP3=true \
+		-e ENABLE_ENCRYPTION=true \
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
@@ -83,10 +84,10 @@ init:
 fixtures:
 
 	# Wait for clamav virus database update
-	sleep 160
+	sleep 120
 
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
-	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress-with-default-separator.txt"
+	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-non-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-alias.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-spam-to-existing-user.txt"
@@ -94,7 +95,7 @@ fixtures:
 	docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/email-templates/internal-user-to-existing-user.txt"
 
 	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
-	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress.txt"
+	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress-with-default-separator.txt"
 	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-non-existing-user.txt"
 	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-alias.txt"
 	docker exec mailserver_reverse /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-spam-to-existing-user.txt"

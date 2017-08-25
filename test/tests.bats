@@ -274,6 +274,16 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking port (10026): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10026"
+  assert_success
+}
+
+@test "checking port (10026): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10026"
+  assert_success
+}
+
 @test "checking port (11332): external port listening (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 11332"
   assert_success
@@ -646,12 +656,108 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking clamav: 5 Database mirrors" {
+@test "checking clamav: 4 database mirrors" {
   run docker exec mailserver_default /bin/sh -c "grep 'DatabaseMirror' /etc/clamav/freshclam.conf | wc -l"
   assert_success
-  assert_output 5
+  assert_output 4
 }
 
+#
+# zeyple
+#
+
+@test "checking zeyple: 4 messages delivered via zeyple service" {
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'delivered via zeyple service' /var/log/mail.log | wc -l"
+  assert_success
+  assert_output 4
+}
+
+@test "checking zeyple: 'processing outgoing message' 4 times in logs" {
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Processing outgoing message' /var/log/zeyple.log | wc -l"
+  assert_success
+  assert_output 4
+}
+
+@test "checking zeyple: zeyple.py exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /usr/local/bin/zeyple.py ]
+  assert_success
+}
+
+@test "checking zeyple: zeyple.log exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /var/log/zeyple.log ]
+  assert_success
+}
+
+@test "checking zeyple: zeyple.log doesn't exist (default configuration)" {
+  run docker exec mailserver_default [ -f /var/log/zeyple.log ]
+  assert_failure
+}
+
+@test "checking zeyple: pubring.kbx exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/pubring.kbx ]
+  assert_success
+}
+
+@test "checking zeyple: pubring.kbx doesn't exist (default configuration)" {
+  run docker exec mailserver_default [ -f /var/mail/zeyple/keys/pubring.kbx ]
+  assert_failure
+}
+
+@test "checking zeyple: trustdb.gpg exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/trustdb.gpg ]
+  assert_success
+}
+
+@test "checking zeyple: trustdb.gpg doesn't exist (default configuration)" {
+  run docker exec mailserver_default [ -f /var/mail/zeyple/keys/trustdb.gpg ]
+  assert_failure
+}
+
+@test "checking zeyple: content_filter value (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "postconf -h content_filter"
+  assert_success
+  assert_output ""
+}
+
+@test "checking zeyple: content_filter value (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "postconf -h content_filter"
+  assert_success
+  assert_output "zeyple"
+}
+
+@test "checking zeyple: user zeyple doesn't exist (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "id -u zeyple"
+  assert_failure
+}
+
+@test "checking zeyple: user zeyple exist (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "id -u zeyple"
+  assert_success
+}
+
+@test "checking zeyple: retrieve john doe gpg key in public keyring" {
+  run docker exec mailserver_reverse /bin/sh -c "sudo -u zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking zeyple: retrieve john doe gpg key in public keyring (using custom script)" {
+  run docker exec mailserver_reverse /bin/sh -c "encryption.sh --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking zeyple: 3 emails encrypted in john.doe folder" {
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'multipart/encrypted' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+  assert_success
+  assert_output 3
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'BEGIN PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+  assert_success
+  assert_output 3
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'END PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+  assert_success
+  assert_output 3
+}
 
 #
 # ssl

@@ -14,6 +14,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Dovecot** : secure imap and pop3 email server
 - **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
 - **Clamav** : antivirus with automatic updates
+- **Zeyple** : automatic GPG encryption of all your e-mails
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
 - **Rainloop** : web based email client
@@ -213,11 +214,64 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
+| **ENABLE_ENCRYPTION** | Enable automatic GPG encryption | *optional* | false
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
+
+### Automatic GPG encryption of all your e-mails
+
+#### How does it work ?
+
+[Zeyple](https://infertux.com/labs/zeyple/) catches email from the postfix queue, then encrypts it if a corresponding recipient's GPG public key is found. Finally, it puts it back into the queue.
+
+![zeyple](https://i.imgur.com/gGQZL4V.png)
+
+#### Enable automatic GPG encryption
+
+:heavy_exclamation_mark: **Please enable this option carefully and only if you know what you are doing.**
+
+Switch `ENABLE_ENCRYPTION` environment variable to `true`. The public keyring will be saved in `/var/mail/zeyple/keys`.
+Please don't change the default value of `RECIPIENT_DELIMITER` (default = "+"). If encryption is enabled with another delimiter, Zeyple could have an unpredictable behavior.
+
+#### Import your public key
+
+:warning: Make sure to send your public key on a gpg keyserver before to run the following command.
+
+```
+docker exec -ti mailserver encryption.sh import-key YOUR_KEY_ID
+```
+
+#### Import all recipients public keys
+
+This command browses all `/var/mail/vhosts/*` domains directories and users subdirectories to find all the recipients addresses in the mailserver.
+
+```
+docker exec -ti mailserver encryption.sh import-all-keys
+```
+
+#### Specify another gpg keyserver
+
+```
+docker exec -ti mailserver encryption.sh import-key YOUR_KEY_ID hkp://pgp.mit.edu
+docker exec -ti mailserver encryption.sh import-all-keys hkp://keys.gnupg.net
+```
+
+#### Run other GPG options
+
+You can use all options of gpg command line except an already assigned parameter called `--homedir`.
+
+
+```bash
+docker exec -ti mailserver encryption.sh --list-keys
+docker exec -ti mailserver encryption.sh --fingerprint
+docker exec -ti mailserver encryption.sh --refresh-keys
+docker exec -ti mailserver encryption.sh ...
+```
+
+Documentation : https://www.gnupg.org/documentation/manuals/gnupg/Operational-GPG-Commands.html
 
 ### Relaying from other networks
 
@@ -336,6 +390,11 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
    ├──rspamd (Rspamd databases directory)
    │     rspamd.rrd
    |     stats.ucl
+   ├──zeyple
+   │  ├──keys (GPG public keyring)
+   │  │     pubring.kbx
+   │  │     trustdb.gpg
+   │  │     ...
    ├──sieve
    │     default.sieve
    │     default.svbin
