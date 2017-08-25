@@ -83,7 +83,7 @@ init:
 fixtures:
 
 	# Wait for clamav virus database update
-	sleep 100
+	sleep 160
 
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-valid-user-subaddress-with-default-separator.txt"
@@ -104,4 +104,4 @@ fixtures:
 	sleep 10
 
 run:
-	./test/bin/bats test/tests.bats
+	./test/bats/bin/bats test/tests.bats
