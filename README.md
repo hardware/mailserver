@@ -176,6 +176,12 @@ You can check the startup logs with this command :
 docker logs -f mailserver
 ```
 
+### Ansible Playbooks
+
+![logo](https://i.imgur.com/tvTG8pN.png)
+
+If you use Ansible, I recommend you to go to see @ksylvan playbooks here : https://github.com/ksylvan/docker-mail-server
+
 ### Environment variables
 
 :warning: Use only ASCII printable characters in environment variables : https://en.wikipedia.org/wiki/ASCII#Printable_characters
@@ -329,6 +335,7 @@ openssl s_client -connect mail.domain.tld:993 -tlsextdebug
    │     main.cvd
    ├──rspamd (Rspamd databases directory)
    │     rspamd.rrd
+   |     stats.ucl
    ├──sieve
    │     default.sieve
    │     default.svbin
