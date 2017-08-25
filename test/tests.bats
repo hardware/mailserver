@@ -57,40 +57,40 @@
 # processes (default configuration)
 #
 
-@test "checking process: s6      (default configuration)" {
+@test "checking process: s6        (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: rsyslog (default configuration)" {
+@test "checking process: rsyslog   (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: cron    (default configuration)" {
+@test "checking process: cron      (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: postfix (default configuration)" {
+@test "checking process: postfix   (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: dovecot (default configuration)" {
+@test "checking process: dovecot   (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: rspamd  (default configuration)" {
+@test "checking process: rspamd    (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -101,44 +101,58 @@
   [ "$status" -eq 0 ]
 }
 
+@test "checking process: clamd     (default configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[c]lamd'"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking process: freshclam (default configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
+  [ "$status" -eq 0 ]
+}
+
 #
 # processes (reverse configuration)
 #
 
-@test "checking process: s6      (reverse configuration)" {
+@test "checking process: s6        (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: rsyslog (reverse configuration)" {
+@test "checking process: rsyslog   (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: cron    (reverse configuration)" {
+@test "checking process: cron      (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: postfix (reverse configuration)" {
+@test "checking process: postfix   (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: dovecot (reverse configuration)" {
+@test "checking process: dovecot   (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   [ "$status" -eq 0 ]
 }
 
-@test "checking process: rspamd  (reverse configuration)" {
+@test "checking process: rspamd    (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -147,6 +161,20 @@
   [ "$status" -eq 0 ]
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[r]spamd: controller process'"
   [ "$status" -eq 0 ]
+}
+
+@test "checking process: clamd     (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
+  [ "$status" -eq 1 ]
+}
+
+@test "checking process: freshclam (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
+  [ "$status" -eq 1 ]
 }
 
 #
@@ -221,6 +249,16 @@
 @test "checking port   (995): external port listening (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 995"
   [ "$status" -eq 0 ]
+}
+
+@test "checking port  (3310): external port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 3310"
+  [ "$status" -eq 0 ]
+}
+
+@test "checking port  (3310): external port closed    (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 3310"
+  [ "$status" -eq 1 ]
 }
 
 @test "checking port  (4190): external port listening (default configuration)" {
@@ -520,7 +558,7 @@
 }
 
 @test "checking postfix: headers cleanup" {
-  run docker exec mailserver_default /bin/sh -c "grep 'replace: header Received' /var/log/mail.log | wc -l"
+  run docker exec mailserver_default /bin/sh -c "grep -i 'replace: header Received' /var/log/mail.log | wc -l"
   [ "$status" -eq 0 ]
   [ "$output" -eq 1 ]
 }
@@ -535,6 +573,17 @@
   run docker exec mailserver_reverse postconf -h myorigin
   [ "$status" -eq 0 ]
   [ "$output" = "mail.domain.tld" ]
+}
+
+@test "checking postfix: two milter rejects (GTUBE + EICAR)" {
+  run docker exec mailserver_default /bin/sh -c "grep -i 'milter-reject' /var/log/mail.log | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 2 ]
+}
+
+@test "checking postfix: milter-reject - clamav virus found" {
+  run docker exec mailserver_default grep -i 'milter-reject.*clamav: virus found' /var/log/mail.log
+  [ "$status" -eq 0 ]
 }
 
 #
@@ -560,32 +609,46 @@
 # clamav
 #
 
+@test "checking clamav: TCP Bound to 3310 port" {
+  run docker exec mailserver_default grep -i 'TCP: Bound to \[0.0.0.0\]:3310' /var/log/mail.log
+  [ "$status" -eq 0 ]
+}
+
+@test "checking clamav: all databases downloaded" {
+  run docker exec mailserver_default [ -f /var/lib/clamav/main.cvd ]
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_default [ -f /var/lib/clamav/daily.cvd ]
+  [ "$status" -eq 0 ]
+  run docker exec mailserver_default [ -f /var/lib/clamav/bytecode.cvd ]
+  [ "$status" -eq 0 ]
+}
+
+@test "checking clamav: all databases correctly reloaded" {
+  run docker exec mailserver_default grep -i 'clamd\[.*\]: Database correctly reloaded' /var/log/mail.log
+  [ "$status" -eq 0 ]
+}
+
+@test "checking clamav: mirrors.dat exist" {
+  run docker exec mailserver_default [ -f /var/lib/clamav/mirrors.dat ]
+  [ "$status" -eq 0 ]
+}
+
 @test "checking clamav: default lib directory is a symlink" {
   run docker exec mailserver_default [ -L /var/lib/clamav ]
   [ "$status" -eq 0 ]
 }
 
-#
-# fetchmail
-#
+@test "checking clamav: Eicar-Test-Signature FOUND" {
+  run docker exec mailserver_default grep -i 'Eicar-Test-Signature(.*) FOUND' /var/log/mail.log
+  [ "$status" -eq 0 ]
+}
 
-#@test "checking fetchmail: retrieve settings from fetchmail table" {
-#  run docker exec mailserver_default /bin/sh -c "grep -i 'fetch john.doe@domain.tld for sarah.connor@domain.tld' /var/log/mail.log | wc -l"
-#  [ "$status" -eq 0 ]
-#  [ "$output" = 1 ]
-#}
+@test "checking clamav: 5 Database mirrors" {
+  run docker exec mailserver_default /bin/sh -c "grep 'DatabaseMirror' /etc/clamav/freshclam.conf | wc -l"
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 5 ]
+}
 
-#@test "checking fetchmail: 4 messages in john.doe@domain.tld inbox" {
-#  run docker exec mailserver_default /bin/sh -c "grep -i '4 messages for john.doe@domain.tld' /var/log/mail.log | wc -l"
-#  [ "$status" -eq 0 ]
-#  [ "$output" = 1 ]
-#}
-
-#@test "checking fetchmail: john.doe should now have 0 mail" {
-#  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/john.doe/mail/new/ | wc -l"
-#  [ "$status" -eq 0 ]
-#  [ "$output" = 0 ]
-#}
 
 #
 # ssl

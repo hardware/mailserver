@@ -4,17 +4,40 @@ if [ "$DISABLE_CLAMAV" = true ]; then
   exit 0
 fi
 
-grep -q -F 'db.fr.clamav.net' /etc/clamav/freshclam.conf || \
-      echo 'DatabaseMirror db.fr.clamav.net' >> /etc/clamav/freshclam.conf
+# Remove all default mirrors
+sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
 
-sed -i -e 's/^Foreground .*$/Foreground true/g' \
-       -e 's/^LogSyslog .*$/LogSyslog true/g' \
-       -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
-       /etc/clamav/freshclam.conf
+# Add some database mirrors
+# database.clamav.net is a round robin record that tries to
+# equally balance the traffic between all the database mirrors.
+cat <<EOT >> /etc/clamav/freshclam.conf
+DatabaseMirror database.clamav.net
+DatabaseMirror db.fr.clamav.net
+DatabaseMirror clamav.univ-nantes.fr
+DatabaseMirror switch.clamav.net
+DatabaseMirror clamav.iol.cz
+EOT
+
+if [ "$TESTING" = true ]; then
+  # When testing, disable syslog logging to avoid random freshclam databases
+  # download timeouts to be logged in /var/log/mail.err and speed-up clamd
+  # startup with lower attempts value (default 5 attempts)
+  sed -i -e 's/^Foreground .*$/Foreground true/g' \
+         -e 's/^LogSyslog .*$/LogSyslog false/g' \
+         -e 's/^MaxAttempts .*$/MaxAttempts 1/g' \
+         /etc/clamav/freshclam.conf
+else
+  sed -i -e 's/^Foreground .*$/Foreground true/g' \
+         -e 's/^LogSyslog .*$/LogSyslog true/g' \
+         -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
+         -e 's/^MaxAttempts .*$/MaxAttempts 3/g' \
+         -e 's/^Checks .*$/Checks 4/g' \
+         /etc/clamav/freshclam.conf
+fi
 
 # Update virus databases
-freshclam --quiet --config-file=/etc/clamav/freshclam.conf
+freshclam --quiet
 
 logger -p mail.info "s6-supervise : spawning freshclam process"
 
-exec freshclam -d >/dev/null
+exec freshclam -d &>/dev/null

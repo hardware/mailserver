@@ -21,4 +21,4 @@ done
 
 logger -p mail.info "s6-supervise : spawning clamd process"
 
-exec clamd >/dev/null
+exec clamd &>/dev/null
