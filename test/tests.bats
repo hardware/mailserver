@@ -107,7 +107,7 @@ load 'test_helper/bats-assert/load'
 @test "checking process: clamd     (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
   assert_success
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[c]lamd'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
   assert_success
 }
 
@@ -115,6 +115,13 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
+  assert_success
+}
+
+@test "checking process: unbound   (default configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
+  assert_success
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_success
 }
 
@@ -180,6 +187,13 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking process: unbound   (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
+  assert_success
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
+  assert_success
+}
+
 #
 # ports
 #
@@ -191,6 +205,16 @@ load 'test_helper/bats-assert/load'
 
 @test "checking port    (25): external port listening (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 25"
+  assert_success
+}
+
+@test "checking port    (53): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 53"
+  assert_success
+}
+
+@test "checking port    (53): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 53"
   assert_success
 }
 
@@ -272,6 +296,16 @@ load 'test_helper/bats-assert/load'
 @test "checking port  (4190): external port closed    (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 4190"
   assert_failure
+}
+
+@test "checking port  (8953): internal port listening (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 8953"
+  assert_success
+}
+
+@test "checking port  (8953): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 8953"
+  assert_success
 }
 
 @test "checking port (10026): internal port listening (default configuration)" {
@@ -757,6 +791,69 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_reverse /bin/sh -c "grep -i 'END PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
   assert_success
   assert_output 3
+}
+
+#
+# unbound
+#
+
+@test "checking unbound: /etc/resolv.conf" {
+  run docker exec mailserver_default cat /etc/resolv.conf
+  assert_success
+  assert_output "nameserver 127.0.0.1"
+}
+
+@test "checking unbound: /var/spool/postfix/etc/resolv.conf" {
+  run docker exec mailserver_default cat /var/spool/postfix/etc/resolv.conf
+  assert_success
+  assert_output "nameserver 127.0.0.1"
+}
+
+@test "checking unbound: root.hints exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/root.hints ]
+  assert_success
+}
+
+@test "checking unbound: root.key exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/root.key ]
+  assert_success
+}
+
+@test "checking unbound: unbound_control.key exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/unbound_control.key ]
+  assert_success
+}
+
+@test "checking unbound: unbound_control.pem exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/unbound_control.pem ]
+  assert_success
+}
+
+@test "checking unbound: unbound_server.key exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/unbound_server.key ]
+  assert_success
+}
+
+@test "checking unbound: unbound_server.pem exist" {
+  run docker exec mailserver_default [ -f /etc/unbound/unbound_server.pem ]
+  assert_success
+}
+
+@test "checking unbound: server is running and unbound-control works" {
+  run docker exec -ti mailserver_default unbound-control status
+  assert_success
+  assert_output --partial 'is running'
+}
+
+@test "checking unbound: get stats" {
+  run docker exec -ti mailserver_default unbound-control stats_noreset
+  assert_success
+}
+
+@test "checking unbound: testing DNSSEC validation" {
+  run docker exec mailserver_default /bin/sh -c "dig com. SOA +nocmd +noall +dnssec +comments | grep 'flags: qr rd ra ad' | wc -l"
+  assert_success
+  assert_output 1
 }
 
 #

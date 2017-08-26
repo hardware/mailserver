@@ -7,7 +7,6 @@ trap "{ postfix stop; exit 0; }" EXIT
 cp -f /etc/services /var/spool/postfix/etc/services
 cp -f /etc/hosts /var/spool/postfix/etc/hosts
 cp -f /etc/localtime /var/spool/postfix/etc/localtime
-cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
 # Build header_checks and virtual index files
 postmap /etc/postfix/header_checks
@@ -59,6 +58,14 @@ EOF
 
   fi
 fi
+
+# Wait for Unbound complete startup
+until pids=$(pidof unbound)
+do
+  sleep 1
+done
+
+logger -p mail.info "s6-supervise : spawning postfix process"
 
 # Start Postfix
 postfix -c /etc/postfix start

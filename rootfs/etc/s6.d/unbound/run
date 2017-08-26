@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Get a copy of the latest root DNS servers list
+curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
+
+# Update the root trust anchor to perform cryptographic DNSSEC validation
+unbound-anchor -a /etc/unbound/root.key
+
+# Use the local DNS server
+echo "nameserver 127.0.0.1" > /etc/resolv.conf
+
+# Update resolv.conf in postfix queue if it differ from /etc/resolv.conf
+# /etc/resolvconf/update-libc.d/postfix
+if ! cmp /var/spool/postfix/etc/resolv.conf /etc/resolv.conf &>/dev/null
+then
+  cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
+fi
+
+# Setting up unbound-control
+unbound-control-setup &> /dev/null
+
+# Change permissions
+chmod 775 /etc/unbound
+chown -R unbound:unbound /etc/unbound
+
+logger -p mail.info "s6-supervise : spawning unbound process"
+
+exec unbound &> /dev/stdout

@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav-daemon \
     python-pip python-setuptools python-gpgme \
-    rsyslog dnsutils curl sudo \
+    rsyslog dnsutils curl sudo unbound \
  && pip install envtpl \
  && apt-get autoremove -y \
  && apt-get clean \

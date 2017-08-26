@@ -19,6 +19,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
 - **Rainloop** : web based email client
 - **Postfixadmin** : web based administration interface
+- **Unbound**: recursive caching DNS resolver with DNSSEC support
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Nginx** : web server with HTTP/2 and TLS 1.3 (DRAFT), statically linked against BoringSSL
 - **SSL** : lets encrypt, custom and self-signed certificates support
@@ -372,6 +373,25 @@ openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
 # IMAP SSL/TLS - 993 port (IMAPS)
 openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 ```
+
+### Unbound DNS resolver
+
+Unbound is a validating, recursive, and caching DNS resolver inside the container, you can control it with the remote server control utility.
+
+Some examples :
+
+```bash
+# Display server status
+docker exec -ti mailserver unbound-control status
+
+# Print server statistics
+docker exec -ti mailserver unbound-control stats_noreset
+
+# Reload the server. This flushes the cache and reads the config file.
+docker exec -ti mailserver unbound-control reload
+```
+
+Documentation : https://www.unbound.net/documentation/unbound-control.html
 
 ### Files/Folders tree
 
