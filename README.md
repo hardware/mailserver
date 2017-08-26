@@ -6,7 +6,7 @@
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](bitcoin:1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg)
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
@@ -76,7 +76,7 @@ If you have a firewall, unblock the following ports, according to your needs :
 
 I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server. This docker image is really easy to use.
 
-**How to setup :** [NSD initial configuration](https://github.com/hardware/mailserver/wiki/NSD-initial-configuration)
+How to setup : [NSD initial configuration](https://github.com/hardware/mailserver/wiki/NSD-initial-configuration)
 
 #### Mandatory DNS records (A/MX) and reverse PTR :
 
@@ -138,7 +138,7 @@ For security reasons, you should regularly update the mail setup and docker imag
 
 Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/v1.1/docker-compose.sample.yml)
 
-**Run the stack :**
+Run the stack :
 
 ```
 mv docker-compose.sample.yml docker-compose.yml
@@ -149,21 +149,21 @@ docker-compose -f docker-compose.yml up -d
 
 I recommend you to use [wonderfall/boring-nginx](https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx) as a reverse proxy. Nginx is statically linked against BoringSSL, with embedded Brotli support, TLS 1.3, X25519, HTTP/2 and hardening standards.
 
-**More information here :** [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
+More information here : [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
 
 #### 4 - Postfixadmin installation
 
 PostfixAdmin is a web based interface used to manage mailboxes, virtual domains and aliases.
 
-* **Docker image :** https://github.com/hardware/postfixadmin
-* **How to setup :** [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
+* Docker image : https://github.com/hardware/postfixadmin
+* How to setup : [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
 
 #### 5 - Rainloop installation (optional)
 
 Rainloop is a simple, modern and fast webmail with Sieve scripts support (filters and vacation message), GPG and a modern user interface.
 
-* **Docker image :** https://github.com/hardware/rainloop
-* **How to setup :** [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
+* Docker image : https://github.com/hardware/rainloop
+* How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
 
 #### 6 - Done, congratulation ! :tada:
 
@@ -329,7 +329,7 @@ docker run -it --rm \
 docker-compose up -d
 ```
 
-* **Important :** When renewing certificates, you must restart affected containers.
+* Important : When renewing certificates, you must restart affected containers.
 
 * :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for example, let's encrypt live subfolder name must be equal to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
 
@@ -339,7 +339,7 @@ docker-compose up -d
 
 Place all your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
 
-**Required files in this folder :**
+Required files in this folder :
 
 | Filename | Description |
 |----------|-------------|
