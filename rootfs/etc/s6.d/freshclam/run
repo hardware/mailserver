@@ -8,8 +8,6 @@ fi
 sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
 
 # Add some database mirrors
-# database.clamav.net is a round robin record that tries to
-# equally balance the traffic between all the database mirrors.
 cat <<EOT >> /etc/clamav/freshclam.conf
 DatabaseMirror clamav.univ-nantes.fr
 DatabaseMirror switch.clamav.net

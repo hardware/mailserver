@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   mailserver:
-    image: hardware/mailserver:1.1-beta
+    image: hardware/mailserver:1.1-stable
     container_name: mailserver
     domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
@@ -86,7 +86,7 @@ services:
       - /mnt/docker/nsd/db:/var/db/nsd
 
   # Web server
-  # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
+  # https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx
   # https://nginx.org/
   # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
   nginx:

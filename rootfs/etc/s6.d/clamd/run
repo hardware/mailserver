@@ -7,7 +7,8 @@ fi
 mkdir -p /var/run/clamav /var/mail/clamav
 chown -R clamav:clamav /var/run/clamav /var/mail/clamav
 
-echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
+grep -qiF 'TCPSocket' /etc/clamav/clamd.conf || \
+     echo 'TCPSocket 3310' >> /etc/clamav/clamd.conf
 
 sed -i -e 's/^Foreground .*$/Foreground true/g' \
        -e 's/^LogSyslog .*$/LogSyslog true/g' \

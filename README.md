@@ -1,12 +1,20 @@
+### 2017-08-26 -> 1.1 is ready ! :heart_eyes:
+
+A new stable version is available (1.1-stable). Please see the list of changes [here](https://github.com/hardware/mailserver/issues/122) and the migration procedure [here](https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-stable).
+
+For the next 6 months, the `latest` docker tag will always point to **1.0 version** to not break compatibility with older installations. **After January 2018**, those who have not yet migrated, will receive an error at the next update (docker pull) and will be prompted to update the mail server or to switch to the `1.0-legacy` docker tag (not recommended).
+
+*Crafted with love by @hardware and [all contributors](https://github.com/hardware/mailserver/graphs/contributors)* :gift_heart:
+
 ## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Build
 
-[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.1)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta)
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.1-stable)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-stable.svg)](https://microbadger.com/images/hardware/mailserver:1.1-stable)
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-stable.svg)](https://microbadger.com/images/hardware/mailserver:1.1-stable) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
@@ -126,24 +134,26 @@ You can audit your mailserver with the following assessment services :
 #### 1 - Pull the latest image from docker hub
 
 ```bash
-# Pull from hub.docker.com :
-docker pull hardware/mailserver:1.1-beta
+# Pull from hub.docker.com
+docker pull hardware/mailserver:1.1-stable # Get the stable version (v1.1-stable branch)
+docker pull hardware/mailserver:1.1-latest # Get the latest version (master branch)
 
-# or build it manually :
-docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v1.1
+# or build it manually
+docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v1.1-stable
 ```
 
-For security reasons, you should regularly update the mail setup and docker images.
+:warning: `latest` docker tag points to a **legacy** version until **january 2018** to not break the compatibility with old installations.
+
+:bulb: For security reasons, you should regularly update all of your docker images.
 
 #### 2 - Get the latest docker-compose.yml
 
-Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/v1.1/docker-compose.sample.yml)
+Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
 
 Run the stack :
 
 ```
-mv docker-compose.sample.yml docker-compose.yml
-docker-compose -f docker-compose.yml up -d
+docker-compose up -d
 ```
 
 #### 3 - Reverse proxy setup
@@ -175,7 +185,24 @@ This image comes with a snake-oil self-signed certificate, please use your own t
 You can check the startup logs with this command :
 
 ```
-docker logs -f mailserver
+# docker logs -f mailserver
+
+[INFO] Let's encrypt live directory found
+[INFO] Using /etc/letsencrypt/live/mail.domain.tld folder
+[INFO] Creating DKIM keys for domain domain.tld
+[INFO] Database hostname found in /etc/hosts
+[INFO] Fetchmail forwarding is enabled.
+[INFO] Automatic GPG encryption is enabled.
+[INFO] ManageSieve protocol is enabled.
+[INFO] POP3 protocol is enabled.
+-------------------------------------------------------------------------------------
+2017-08-26T11:06:58.885562+00:00 mail root: s6-supervise : spawning clamd process
+2017-08-26T11:06:59.059077+00:00 mail root: s6-supervise : spawning freshclam process
+2017-08-26T11:06:59.395214+00:00 mail root: s6-supervise : spawning rspamd process
+2017-08-26T11:07:01.615597+00:00 mail root: s6-supervise : spawning unbound process
+2017-08-26T11:07:01.870856+00:00 mail root: s6-supervise : spawning postfix process
+2017-08-26T11:07:03.303536+00:00 mail root: s6-supervise : spawning dovecot process
+...
 ```
 
 ### Ansible Playbooks
@@ -309,7 +336,7 @@ nginx:
     ...
 ```
 
-And request the certificate with [xataz/letsencrypt](https://github.com/xataz/dockerfiles/tree/master/letsencrypt) or [cerbot](https://certbot.eff.org/) :
+And request the certificate with [xataz/letsencrypt](https://github.com/xataz/docker-letsencrypt) or [cerbot](https://certbot.eff.org/) :
 
 ```
 docker-compose stop nginx
@@ -500,6 +527,8 @@ docker logs -f mailserver
 - Rspamd 1.6.3
 - Fetchmail 6.3.26
 - ClamAV 0.99.2
+- Zeyple 1.2.0
+- Unbound 1.6.0
 - s6 2.6.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
