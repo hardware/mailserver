@@ -11,9 +11,9 @@ echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 # Update resolv.conf in postfix queue if it differ from /etc/resolv.conf
 # /etc/resolvconf/update-libc.d/postfix
-if ! cmp /var/spool/postfix/etc/resolv.conf /etc/resolv.conf &>/dev/null
+if ! cmp /var/mail/postfix/spool/etc/resolv.conf /etc/resolv.conf &>/dev/null
 then
-  cp -f /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
+  cp -f /etc/resolv.conf /var/mail/postfix/spool/etc/resolv.conf
 fi
 
 # Setting up unbound-control

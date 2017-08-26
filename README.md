@@ -420,13 +420,19 @@ docker exec -ti mailserver unbound-control reload
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
 
-### Files/Folders tree
+### Persistent files and folders in /mnt/docker/mail Docker volume
 
 ```
 /mnt/docker
 └──mail
    ├──postfix
    |     custom.conf
+   |  ├──spool (Postfix queues directory)
+   │  │     defer
+   │  │     flush
+   │  │     hold
+   │  │     maildrop
+   │  │     ...
    ├──dovecot
    |     instances
    |     ssl-parameters.dat

@@ -1,3 +1,7 @@
 #!/bin/sh
-logger -p mail.info "s6-supervise : spawning rsyslogd process"
+
+# Fix: rsyslogd: cannot create '/var/spool/postfix/dev/log': No such file or directory
+mkdir -p  /var/mail/postfix/spool/dev
+chmod 755 /var/mail/postfix/spool/dev
+
 exec rsyslogd -n -f /etc/rsyslog/rsyslog.conf

@@ -633,6 +633,38 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking postfix: check 'etc' files in queue directory" {
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/services ]
+  assert_success
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/hosts ]
+  assert_success
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/localtime ]
+  assert_success
+}
+
+@test "checking postfix: check some folders in queue directory" {
+  run docker exec mailserver_default [ -d /var/mail/postfix/spool/usr/lib/sasl2 ]
+  assert_success
+  run docker exec mailserver_default [ -d /var/mail/postfix/spool/usr/lib/zoneinfo ]
+  assert_success
+}
+
+@test "checking postfix: check dovecot unix sockets in queue directory" {
+  run docker exec mailserver_default [ -S /var/mail/postfix/spool/private/dovecot-lmtp ]
+  assert_success
+  run docker exec mailserver_default [ -S /var/mail/postfix/spool/private/auth ]
+  assert_success
+}
+
+@test "checking postfix: check group of 'public' and 'maildrop' folders in queue directory" {
+  run docker exec mailserver_default /bin/sh -c "stat -c '%G' /var/mail/postfix/spool/public"
+  assert_success
+  assert_output "postdrop"
+  run docker exec mailserver_default /bin/sh -c "stat -c '%G' /var/mail/postfix/spool/maildrop"
+  assert_success
+  assert_output "postdrop"
+}
+
 #
 # dovecot
 #
@@ -803,8 +835,8 @@ load 'test_helper/bats-assert/load'
   assert_output "nameserver 127.0.0.1"
 }
 
-@test "checking unbound: /var/spool/postfix/etc/resolv.conf" {
-  run docker exec mailserver_default cat /var/spool/postfix/etc/resolv.conf
+@test "checking unbound: /var/mail/postfix/spool/etc/resolv.conf" {
+  run docker exec mailserver_default cat /var/mail/postfix/spool/etc/resolv.conf
   assert_success
   assert_output "nameserver 127.0.0.1"
 }

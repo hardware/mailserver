@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     clamav-daemon \
     python-pip python-setuptools python-gpgme \
     rsyslog dnsutils curl sudo unbound \
+ && rm -rf /var/spool/postfix \
+ && ln -s /var/mail/postfix/spool /var/spool/postfix \
  && pip install envtpl \
  && apt-get autoremove -y \
  && apt-get clean \
