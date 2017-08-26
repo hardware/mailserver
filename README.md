@@ -2,11 +2,11 @@
 
 ### Build
 
-[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver)
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.0-legacy)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.0-legacy.svg)](https://microbadger.com/images/hardware/mailserver:1.0-legacy)
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver.svg)](https://microbadger.com/images/hardware/mailserver) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.0-legacy.svg)](https://microbadger.com/images/hardware/mailserver:1.0-legacy) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/)
 
 hardware/mailserver is a simple and full-featured mail server suite based on open source software as a set of multiple docker images including :
 
@@ -129,17 +129,17 @@ You can audit your mailserver with the following assessment services :
 
 ```bash
 # Pull from hub.docker.com :
-docker pull hardware/mailserver
+docker pull hardware/mailserver:1.0-legacy
 
 # or build it manually :
-docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#master
+docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v1.0-legacy
 ```
 
 For security reasons, you should regularly update the mail setup and docker images.
 
 #### 2 - Get the latest docker-compose.yml
 
-Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
+Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/v1.0-legacy/docker-compose.sample.yml)
 
 **Run the stack :**
 
