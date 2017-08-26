@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Remove leftover pid files from a stop/start
+rm -rf /var/run/*.pid /var/run/*/*.pid
+
+# Avoid "Compromised token secret file" error after container restart
+rm -f /var/run/dovecot/auth-token-secret.dat
+
+exit 0

@@ -1,0 +1,12 @@
+HELO mail.example.com
+MAIL FROM: user@example.com
+RCPT TO: john.doe+subname@domain.tld
+DATA
+From: Docker Mail Server <user@example.com>
+To: Existing Local User <john.doe+subname@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+This is a test mail.
+
+.
+QUIT

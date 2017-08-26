@@ -3,6 +3,7 @@
 #######################
 
 smtpd_banner         = $myhostname ESMTP $mail_name
+compatibility_level  = 2
 biff                 = no
 append_dot_mydomain  = no
 readme_directory     = no
@@ -23,6 +24,13 @@ mydestination = localhost localhost.$mydomain
 mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 {{ RELAY_NETWORKS }}
 
 alias_maps = hash:/etc/aliases
+
+###############
+## SMTP/UTF8 ##
+###############
+
+smtputf8_enable             = yes
+smtputf8_autodetect_classes = all
 
 ###################
 ## RATE LIMITING ##
@@ -161,7 +169,6 @@ smtpd_sender_restrictions=
 # * reject_non_fqdn_recipient : Reject when the RCPT TO address is not in fully-qualified domain form
 # * reject_unlisted_recipient : Reject when the RCPT TO address is not listed in the list of valid recipients for its domain
 # * reject_rbl_client : Reject connections from IP addresses blacklisted in zen.spamhaus.org
-# * check_policy_service : Apply greylisting policy with postgrey/gross if RCPT TO domain isn't whitelisted on dnswl.org
 
 smtpd_recipient_restrictions=
     permit_mynetworks,
@@ -169,9 +176,7 @@ smtpd_recipient_restrictions=
     reject_unknown_recipient_domain,
     reject_non_fqdn_recipient,
     reject_unlisted_recipient,
-    reject_rbl_client zen.spamhaus.org,
-    permit_dnswl_client list.dnswl.org,
-    check_policy_service inet:127.0.0.1:10023
+    reject_rbl_client zen.spamhaus.org
 
 ##
 # Restrictions that the Postfix SMTP server applies in the context of a client HELO command
@@ -194,19 +199,21 @@ smtpd_helo_restrictions =
     reject_non_fqdn_helo_hostname
 
 ############
-## AMAVIS ##
+## RSPAMD ##
 ############
 
-content_filter = amavis:[127.0.0.1]:10024
-receive_override_options = no_address_mappings
-
-##########################
-## MILTERS (DKIM/DMARC) ##
-##########################
-
 milter_protocol       = 6
+milter_mail_macros    = i {mail_addr} {client_addr} {client_name} {auth_authen}
 milter_default_action = accept
-dkim_milter           = inet:localhost:8891
-dmarc_milter          = inet:localhost:8893
-smtpd_milters         = $dkim_milter,$dmarc_milter
-non_smtpd_milters     = $dkim_milter
+smtpd_milters         = inet:localhost:11332
+non_smtpd_milters     = inet:localhost:11332
+
+############
+## ZEYPLE ##
+############
+
+content_filter = zeyple
+
+#######################
+## YOUR CUSTOM RULES ##
+#######################

@@ -1,36 +1,43 @@
-version: '2'
+version: '2.1'
+
 services:
   mailserver:
-    image: hardware/mailserver
+    image: hardware/mailserver:1.1-stable
     container_name: mailserver
-    domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
     # restart: always
-    # extra_hosts:                        - Required for external database (on other server or for local database on host)
-    #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
+    # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
+    #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
+    #  - "redis:xx.xx.xx.xx"                - Replace with IP address of Redis server
     ports:
-      - "25:25"     # SMTP                - Required
-    # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
-      - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
-    # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
-      - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
-      - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
-    # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
-      - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+      - "25:25"       # SMTP                - Required
+    # - "110:110"     # POP3       STARTTLS - Optional - For webmails/desktop clients
+      - "143:143"     # IMAP       STARTTLS - Optional - For webmails/desktop clients
+    # - "465:465"     # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+      - "587:587"     # Submission STARTTLS - Optional - For webmails/desktop clients
+      - "993:993"     # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+    # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+      - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
     environment:
-      - DBPASS=xxxxxxx
-    # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - GREYLISTING=gross         # Enable gross greylisting policy server
-    # - DISABLE_CLAMAV=true       # Disable virus scanning
-    # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
-    # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
+      - DBPASS=xxxxxxx                      # MariaDB database password (required)
+      - RSPAMD_PASSWORD=xxxxxxx             # Rspamd WebUI password (required)
+    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - ENABLE_POP3=true                    # Enable POP3 protocol
+    # - ENABLE_FETCHMAIL=true               # Enable fetchmail forwarding
+    # - DISABLE_CLAMAV=true                 # Disable virus scanning
+    # - DISABLE_SIGNING=true                # Disable DKIM/ARC signing
+    # - DISABLE_GREYLISTING=true            # Disable greylisting policy
+    # - DISABLE_RATELIMITING=true           # Disable ratelimiting policy
+    #
+    # Full list : https://github.com/hardware/mailserver#environment-variables
+    #
     volumes:
       - /mnt/docker/mail:/var/mail
-      - /mnt/docker/mail/opendkim:/etc/opendkim/keys
     # - /mnt/docker/nginx/certs:/etc/letsencrypt
-    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
     depends_on:
       - mariadb
+      - redis
 
   # Administration interface
   # https://github.com/hardware/postfixadmin
@@ -58,7 +65,6 @@ services:
     # restart: always
     volumes:
       - /mnt/docker/rainloop:/rainloop/data
-    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
     depends_on:
       - mailserver
       - mariadb
@@ -80,7 +86,7 @@ services:
       - /mnt/docker/nsd/db:/var/db/nsd
 
   # Web server
-  # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
+  # https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx
   # https://nginx.org/
   # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
   nginx:
@@ -96,6 +102,7 @@ services:
       - /mnt/docker/nginx/log:/var/log/nginx
       - /mnt/docker/nginx/certs:/certs
     depends_on:
+      - mailserver
       - postfixadmin
       - rainloop
 
@@ -114,4 +121,16 @@ services:
       - MYSQL_PASSWORD=xxxxxxx
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
-    # - /etc/localtime:/etc/localtime:ro               # Use host OS timezone
+
+  # Cache Database
+  # https://github.com/docker-library/redis
+  # https://redis.io/
+  redis:
+    image: redis:3.2-alpine
+    container_name: redis
+    # restart: always
+    command: redis-server --appendonly yes
+    sysctls:
+      - net.core.somaxconn=1024
+    volumes:
+      - /mnt/docker/redis/db:/data

@@ -1,0 +1,3 @@
+#!/bin/bash
+logger -p mail.info "s6-supervise : spawning cron process"
+exec cron -f
