@@ -6,7 +6,7 @@
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](bitcoin:1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-beta.svg)](https://microbadger.com/images/hardware/mailserver:1.1-beta) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
@@ -483,3 +483,9 @@ docker logs -f mailserver
 - s6 2.6.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
+
+### Donation
+
+My Bitcoin address : **1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg**
+
+This address is [signed cryptographically](https://keybase.io/hardware/sigchain#6f79301eac777d7aad942bdf2c32171e1e8f59694ea7125e7973a4f3ed4539d90f) to prove that it belongs to **me**. https://keybase.io/hardware
