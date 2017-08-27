@@ -56,7 +56,7 @@ Please remove any web server and mail services running on your server. I recomme
 # apt-get purge exim4*
 ```
 
-Also make sure that no other application is interferring with mail server configuration :
+Also make sure that no other application is interfering with mail server configuration :
 
 ```
 # netstat -tulpn | grep -E -w '25|80|110|143|443|465|587|993|995|4190'
