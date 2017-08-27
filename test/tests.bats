@@ -195,6 +195,73 @@ load 'test_helper/bats-assert/load'
 }
 
 #
+# processes restarting
+#
+
+@test "checking process: 8 cron tasks to reset all the process counters" {
+  run docker exec mailserver_default /bin/bash -c "cat /etc/cron.d/counters | wc -l"
+  assert_success
+  assert_output 8
+  run docker exec mailserver_reverse /bin/bash -c "cat /etc/cron.d/counters | wc -l"
+  assert_success
+  assert_output 8
+}
+
+@test "checking process: no service restarted (default configuration)" {
+  run docker exec mailserver_default cat /tmp/counters/clamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/cron
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/dovecot
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/freshclam
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/postfix
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/rspamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/rsyslogd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/unbound
+  assert_success
+  assert_output 0
+}
+
+@test "checking process: no service restarted (reverse configuration)" {
+  run docker exec mailserver_reverse cat /tmp/counters/clamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/cron
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/dovecot
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/freshclam
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/postfix
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/rspamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/rsyslogd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/unbound
+  assert_success
+  assert_output 0
+}
+
+#
 # ports
 #
 

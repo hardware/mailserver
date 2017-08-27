@@ -1,6 +1,8 @@
 00 00 * * * root echo 0 > /tmp/counters/clamd
+00 00 * * * root echo 0 > /tmp/counters/cron
 00 00 * * * root echo 0 > /tmp/counters/dovecot
 00 00 * * * root echo 0 > /tmp/counters/freshclam
 00 00 * * * root echo 0 > /tmp/counters/postfix
 00 00 * * * root echo 0 > /tmp/counters/rspamd
+00 00 * * * root echo 0 > /tmp/counters/rsyslogd
 00 00 * * * root echo 0 > /tmp/counters/unbound

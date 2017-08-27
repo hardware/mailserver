@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if [ "$DISABLE_CLAMAV" = true ]; then
-  exit 0
-fi
-
 grep -qiF 'TCPSocket' /etc/clamav/clamd.conf || \
      echo 'TCPSocket 3310' >> /etc/clamav/clamd.conf
 

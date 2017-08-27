@@ -346,21 +346,30 @@ chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
 mkdir -p /tmp/counters
 
-for service in clamd dovecot freshclam postfix rspamd unbound; do
+for service in clamd cron dovecot freshclam postfix rspamd rsyslogd unbound; do
 
 # Init process counters
 echo 0 > /tmp/counters/$service
 
-# Create a finish script for all main services
+# Create a finish script for all services
 cat > /services/$service/finish <<EOF
 #!/bin/bash
-COUNTER=\$((\$(cat /tmp/counters/${service})+1))
-if [ "\$COUNTER" -ge 20 ]; then
-  # permanent failure
-  exit "125"
+# $1 = exit code from the run script
+if [ "\$1" -eq 0 ]; then
+  # Send a SIGTERM and do not restart the service
+  logger -p mail.info "s6-supervise : stopping ${service} process"
+  s6-svc -d /services/${service}
 else
-  echo "\$COUNTER" > /tmp/counters/${service}
+  COUNTER=\$((\$(cat /tmp/counters/${service})+1))
+  if [ "\$COUNTER" -ge 20 ]; then
+    # Permanent failure for the service, s6-supervise does not restart it
+    logger -p mail.err "s6-supervise : ${service} has restarted too many times (permanent failure)"
+    exit 125
+  else
+    echo "\$COUNTER" > /tmp/counters/${service}
+  fi
 fi
+exit 0
 EOF
 
 done
