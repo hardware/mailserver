@@ -344,5 +344,28 @@ chmod +x /usr/local/bin/*
 chown -R vmail:vmail /var/mail/dkim
 chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
+mkdir -p /tmp/counters
+
+for service in clamd dovecot freshclam postfix rspamd unbound; do
+
+# Init process counters
+echo 0 > /tmp/counters/$service
+
+# Create a finish script for all main services
+cat > /services/$service/finish <<EOF
+#!/bin/bash
+COUNTER=\$((\$(cat /tmp/counters/${service})+1))
+if [ "\$COUNTER" -ge 20 ]; then
+  # permanent failure
+  exit "125"
+else
+  echo "\$COUNTER" > /tmp/counters/${service}
+fi
+EOF
+
+done
+
+chmod +x /services/*/finish
+
 # RUN !
 exec s6-svscan /services
