@@ -70,6 +70,6 @@ logger -p mail.info "s6-supervise : spawning postfix process"
 postfix -c /etc/postfix start
 
 # Start dovecot run script
-s6-svc -u /etc/s6.d/dovecot
+s6-svc -u /services/dovecot
 
 sleep infinity

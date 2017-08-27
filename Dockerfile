@@ -22,5 +22,5 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 VOLUME /var/mail /etc/letsencrypt
 EXPOSE 25 143 465 587 993 4190
 COPY rootfs /
-RUN chmod +x /usr/local/bin /etc/s6.d/*/run /etc/s6.d/.s6-svscan/finish
+RUN chmod +x /usr/local/bin /services/*/run /services/.s6-svscan/finish
 CMD ["run.sh"]

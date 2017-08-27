@@ -61,7 +61,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: s6        (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
@@ -130,7 +130,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: s6        (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 

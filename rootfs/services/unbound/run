@@ -25,7 +25,7 @@ chmod 775 /etc/unbound
 chown -R unbound:unbound /etc/unbound
 
 # Start postfix run script
-s6-svc -u /etc/s6.d/postfix
+s6-svc -u /services/postfix
 
 logger -p mail.info "s6-supervise : spawning unbound process"
 

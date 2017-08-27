@@ -345,4 +345,4 @@ chown -R vmail:vmail /var/mail/dkim
 chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
 # RUN !
-exec s6-svscan /etc/s6.d
+exec s6-svscan /services

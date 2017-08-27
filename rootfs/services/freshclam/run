@@ -40,7 +40,7 @@ chown -R clamav:clamav /var/run/clamav /var/mail/clamav
 freshclam --quiet
 
 # Start clamd run script
-s6-svc -u /etc/s6.d/clamd
+s6-svc -u /services/clamd
 
 logger -p mail.info "s6-supervise : spawning freshclam process"
 
