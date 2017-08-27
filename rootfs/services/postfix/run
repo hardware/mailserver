@@ -3,18 +3,23 @@
 # Perform nice termination of Postfix, releasing resources and saving state
 trap "{ postfix stop; exit 0; }" EXIT
 
+for subdir in "" usr usr/lib usr/lib/sasl2 usr/lib/zoneinfo public maildrop; do
+  mkdir -p  /var/mail/postfix/spool/$subdir
+  chmod 755 /var/mail/postfix/spool/$subdir
+done
+
 # Add etc files to Postfix chroot jail
-cp -f /etc/services /var/spool/postfix/etc/services
-cp -f /etc/hosts /var/spool/postfix/etc/hosts
-cp -f /etc/localtime /var/spool/postfix/etc/localtime
+cp -f /etc/services /var/mail/postfix/spool/etc/services
+cp -f /etc/hosts /var/mail/postfix/spool/etc/hosts
+cp -f /etc/localtime /var/mail/postfix/spool/etc/localtime
 
 # Build header_checks and virtual index files
 postmap /etc/postfix/header_checks
 postmap /etc/postfix/virtual
 
 # Fix permissions
-chgrp -R postdrop /var/spool/postfix/public
-chgrp -R postdrop /var/spool/postfix/maildrop
+chgrp -R postdrop /var/mail/postfix/spool/public
+chgrp -R postdrop /var/mail/postfix/spool/maildrop
 postfix set-permissions &>/dev/null
 
 if [ "$ENABLE_ENCRYPTION" = true ]; then
@@ -41,7 +46,7 @@ if [ "$ENABLE_ENCRYPTION" = true ]; then
   chown zeyple:zeyple /var/log/zeyple.log
 
 # Generating John Doe GPG key
-sudo -u zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
+s6-setuidgid zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
   %echo Generating John Doe GPG key
   Key-Type: default
   Key-Length: 1024
@@ -59,15 +64,12 @@ EOF
   fi
 fi
 
-# Wait for Unbound complete startup
-until pids=$(pidof unbound)
-do
-  sleep 1
-done
-
 logger -p mail.info "s6-supervise : spawning postfix process"
 
 # Start Postfix
 postfix -c /etc/postfix start
+
+# Start dovecot run script
+s6-svc -u /services/dovecot
 
 sleep infinity

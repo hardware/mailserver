@@ -61,7 +61,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: s6        (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
@@ -130,7 +130,7 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking process: s6        (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /etc/s6.d'"
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
@@ -192,6 +192,73 @@ load 'test_helper/bats-assert/load'
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_success
+}
+
+#
+# processes restarting
+#
+
+@test "checking process: 8 cron tasks to reset all the process counters" {
+  run docker exec mailserver_default /bin/bash -c "cat /etc/cron.d/counters | wc -l"
+  assert_success
+  assert_output 8
+  run docker exec mailserver_reverse /bin/bash -c "cat /etc/cron.d/counters | wc -l"
+  assert_success
+  assert_output 8
+}
+
+@test "checking process: no service restarted (default configuration)" {
+  run docker exec mailserver_default cat /tmp/counters/clamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/cron
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/dovecot
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/freshclam
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/postfix
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/rspamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/rsyslogd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/unbound
+  assert_success
+  assert_output 0
+}
+
+@test "checking process: no service restarted (reverse configuration)" {
+  run docker exec mailserver_reverse cat /tmp/counters/clamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/cron
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/dovecot
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/freshclam
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/postfix
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/rspamd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/rsyslogd
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/unbound
+  assert_success
+  assert_output 0
 }
 
 #
@@ -633,6 +700,38 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking postfix: check 'etc' files in queue directory" {
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/services ]
+  assert_success
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/hosts ]
+  assert_success
+  run docker exec mailserver_default [ -f /var/mail/postfix/spool/etc/localtime ]
+  assert_success
+}
+
+@test "checking postfix: check some folders in queue directory" {
+  run docker exec mailserver_default [ -d /var/mail/postfix/spool/usr/lib/sasl2 ]
+  assert_success
+  run docker exec mailserver_default [ -d /var/mail/postfix/spool/usr/lib/zoneinfo ]
+  assert_success
+}
+
+@test "checking postfix: check dovecot unix sockets in queue directory" {
+  run docker exec mailserver_default [ -S /var/mail/postfix/spool/private/dovecot-lmtp ]
+  assert_success
+  run docker exec mailserver_default [ -S /var/mail/postfix/spool/private/auth ]
+  assert_success
+}
+
+@test "checking postfix: check group of 'public' and 'maildrop' folders in queue directory" {
+  run docker exec mailserver_default /bin/sh -c "stat -c '%G' /var/mail/postfix/spool/public"
+  assert_success
+  assert_output "postdrop"
+  run docker exec mailserver_default /bin/sh -c "stat -c '%G' /var/mail/postfix/spool/maildrop"
+  assert_success
+  assert_output "postdrop"
+}
+
 #
 # dovecot
 #
@@ -670,8 +769,8 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking clamav: all databases correctly reloaded" {
-  run docker exec mailserver_default grep -i 'clamd\[.*\]: Database correctly reloaded' /var/log/mail.log
+@test "checking clamav: self checking every 3600 seconds" {
+  run docker exec mailserver_default grep -i 'clamd\[.*\]: Self checking every 3600 seconds' /var/log/mail.log
   assert_success
 }
 
@@ -770,7 +869,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking zeyple: retrieve john doe gpg key in public keyring" {
-  run docker exec mailserver_reverse /bin/sh -c "sudo -u zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+  run docker exec mailserver_reverse /bin/sh -c "s6-setuidgid zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
   assert_success
   assert_output 1
 }
@@ -803,8 +902,8 @@ load 'test_helper/bats-assert/load'
   assert_output "nameserver 127.0.0.1"
 }
 
-@test "checking unbound: /var/spool/postfix/etc/resolv.conf" {
-  run docker exec mailserver_default cat /var/spool/postfix/etc/resolv.conf
+@test "checking unbound: /var/mail/postfix/spool/etc/resolv.conf" {
+  run docker exec mailserver_default cat /var/mail/postfix/spool/etc/resolv.conf
   assert_success
   assert_output "nameserver 127.0.0.1"
 }

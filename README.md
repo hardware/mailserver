@@ -10,11 +10,11 @@ For the next 6 months, the `latest` docker tag will always point to **1.0 versio
 
 ### Build
 
-[![](https://travis-ci.org/hardware/mailserver.svg?branch=v1.1-stable)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-stable.svg)](https://microbadger.com/images/hardware/mailserver:1.1-stable)
+[![](https://travis-ci.org/hardware/mailserver.svg?branch=master)](https://travis-ci.org/hardware/mailserver) [![](https://images.microbadger.com/badges/version/hardware/mailserver:1.1-latest.svg)](https://microbadger.com/images/hardware/mailserver:1.1-latest)
 
 ### Docker image
 
-[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-stable.svg)](https://microbadger.com/images/hardware/mailserver:1.1-stable) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
+[![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-latest.svg)](https://microbadger.com/images/hardware/mailserver:1.1-latest) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
@@ -56,7 +56,7 @@ Please remove any web server and mail services running on your server. I recomme
 # apt-get purge exim4*
 ```
 
-Also make sure that no other application is interferring with mail server configuration :
+Also make sure that no other application is interfering with mail server configuration :
 
 ```
 # netstat -tulpn | grep -E -w '25|80|110|143|443|465|587|993|995|4190'
@@ -420,13 +420,19 @@ docker exec -ti mailserver unbound-control reload
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
 
-### Files/Folders tree
+### Persistent files and folders in /mnt/docker/mail Docker volume
 
 ```
 /mnt/docker
 └──mail
    ├──postfix
    |     custom.conf
+   |  ├──spool (Postfix queues directory)
+   │  │     defer
+   │  │     flush
+   │  │     hold
+   │  │     maildrop
+   │  │     ...
    ├──dovecot
    |     instances
    |     ssl-parameters.dat

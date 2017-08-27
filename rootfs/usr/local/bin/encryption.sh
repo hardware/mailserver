@@ -14,7 +14,7 @@ ZEYPLE_DIR="/var/mail/zeyple"
 case "$OPTIONS" in
   # Import a public key for one recipient
   "import-key")
-    sudo -u zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --keyserver "${KEYSERVER}" --recv-keys "${KEYID}"
+    s6-setuidgid zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --keyserver "${KEYSERVER}" --recv-keys "${KEYID}"
     ;;
   # Import public key for all recipients in the mailserver
   "import-all-keys")
@@ -28,16 +28,16 @@ case "$OPTIONS" in
             subdir=${subdir%*/}
             user=${subdir##*/}
             recipient="${user}@${domain}"
-            sudo -u zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --keyserver "${KEYSERVER}" --recv-keys "${recipient}"
+            s6-setuidgid zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --keyserver "${KEYSERVER}" --recv-keys "${recipient}"
         done
     done
     ;;
   # Remove a public key
   "remove-key")
-    sudo -u zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --delete-key "${KEYID}"
+    s6-setuidgid zeyple gpg --homedir "${ZEYPLE_DIR}/keys" --delete-key "${KEYID}"
     ;;
   # Other GPG action
   *)
-    sudo -u zeyple gpg --homedir "${ZEYPLE_DIR}/keys" "$@"
+    s6-setuidgid zeyple gpg --homedir "${ZEYPLE_DIR}/keys" "$@"
     ;;
 esac
