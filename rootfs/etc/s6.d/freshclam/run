@@ -32,8 +32,15 @@ else
          /etc/clamav/freshclam.conf
 fi
 
+# Create clamd directories
+mkdir -p /var/run/clamav /var/mail/clamav
+chown -R clamav:clamav /var/run/clamav /var/mail/clamav
+
 # Update virus databases
 freshclam --quiet
+
+# Start clamd run script
+s6-svc -u /etc/s6.d/clamd
 
 logger -p mail.info "s6-supervise : spawning freshclam process"
 

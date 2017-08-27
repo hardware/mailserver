@@ -702,8 +702,8 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking clamav: all databases correctly reloaded" {
-  run docker exec mailserver_default grep -i 'clamd\[.*\]: Database correctly reloaded' /var/log/mail.log
+@test "checking clamav: self checking every 3600 seconds" {
+  run docker exec mailserver_default grep -i 'clamd\[.*\]: Self checking every 3600 seconds' /var/log/mail.log
   assert_success
 }
 
@@ -802,7 +802,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking zeyple: retrieve john doe gpg key in public keyring" {
-  run docker exec mailserver_reverse /bin/sh -c "sudo -u zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+  run docker exec mailserver_reverse /bin/sh -c "s6-setuidgid zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
   assert_success
   assert_output 1
 }

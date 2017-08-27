@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav-daemon \
     python-pip python-setuptools python-gpgme \
-    rsyslog dnsutils curl sudo unbound \
+    rsyslog dnsutils curl unbound \
  && rm -rf /var/spool/postfix \
  && ln -s /var/mail/postfix/spool /var/spool/postfix \
  && pip install envtpl \
@@ -22,5 +22,5 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 VOLUME /var/mail /etc/letsencrypt
 EXPOSE 25 143 465 587 993 4190
 COPY rootfs /
-RUN chmod +x /usr/local/bin /etc/s6.d/*/* /etc/s6.d/.s6-svscan/*
+RUN chmod +x /usr/local/bin /etc/s6.d/*/run /etc/s6.d/.s6-svscan/finish
 CMD ["run.sh"]

@@ -3,7 +3,7 @@
 # Perform nice termination of Postfix, releasing resources and saving state
 trap "{ postfix stop; exit 0; }" EXIT
 
-for subdir in "" etc usr usr/lib usr/lib/sasl2 usr/lib/zoneinfo public maildrop; do
+for subdir in "" usr usr/lib usr/lib/sasl2 usr/lib/zoneinfo public maildrop; do
   mkdir -p  /var/mail/postfix/spool/$subdir
   chmod 755 /var/mail/postfix/spool/$subdir
 done
@@ -46,7 +46,7 @@ if [ "$ENABLE_ENCRYPTION" = true ]; then
   chown zeyple:zeyple /var/log/zeyple.log
 
 # Generating John Doe GPG key
-sudo -u zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
+s6-setuidgid zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
   %echo Generating John Doe GPG key
   Key-Type: default
   Key-Length: 1024
@@ -64,15 +64,12 @@ EOF
   fi
 fi
 
-# Wait for Unbound complete startup
-until pids=$(pidof unbound)
-do
-  sleep 1
-done
-
 logger -p mail.info "s6-supervise : spawning postfix process"
 
 # Start Postfix
 postfix -c /etc/postfix start
+
+# Start dovecot run script
+s6-svc -u /etc/s6.d/dovecot
 
 sleep infinity
