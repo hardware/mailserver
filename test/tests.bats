@@ -1026,11 +1026,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_default does not exist" {
-  run docker exec mailserver_default [ -f /var/log/mail.err ]
+  run docker exec mailserver_default cat /var/log/mail.err
   assert_failure
+  assert_output --partial 'No such file or directory'
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
-  run docker exec mailserver_reverse [ -f /var/log/mail.err ]
+  run docker exec mailserver_reverse cat /var/log/mail.err
   assert_failure
+  assert_output --partial 'No such file or directory'
 }
