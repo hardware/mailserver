@@ -130,7 +130,5 @@ services:
     container_name: redis
     # restart: always
     command: redis-server --appendonly yes
-    sysctls:
-      - net.core.somaxconn=1024
     volumes:
       - /mnt/docker/redis/db:/data

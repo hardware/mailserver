@@ -751,6 +751,12 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking dovecot: password scheme is correct" {
+  run docker exec mailserver_default /bin/sh -c "grep 'SHA512-CRYPT' /etc/dovecot/dovecot-sql.conf.ext | wc -l"
+  assert_success
+  assert_output 1
+}
+
 #
 # clamav
 #

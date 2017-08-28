@@ -78,7 +78,7 @@ init:
 		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
 		-t $(NAME)
 
-		docker run \
+	docker run \
 		-d \
 		--name mailserver_ecdsa \
 		--link mariadb:mariadb \

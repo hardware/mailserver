@@ -223,6 +223,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **VMAILGID** | vmail group id | *optional* | 1024
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
+| **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
 | **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
 | **DBPORT** | MariaDB instance port | *optional* | 3306
 | **DBUSER** | MariaDB database username | *optional* | postfix
@@ -246,6 +247,8 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
+* **VMAIL_SUBDIR** is the mail location subdirectory name `/var/mail/vhosts/%domain/%user/$subdir`. For more information, read this : https://wiki.dovecot.org/VirtualUsers/Home
+* **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
