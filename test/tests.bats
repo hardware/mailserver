@@ -959,6 +959,11 @@ load 'test_helper/bats-assert/load'
 # ssl
 #
 
+@test "checking ssl: ECDSA P-384 cert works correctly" {
+  run docker exec mailserver_ecdsa /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 18 (self signed certificate)'"
+  assert_success
+}
+
 @test "checking ssl: generated default cert works correctly" {
   run docker exec mailserver_default /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 18 (self signed certificate)'"
   assert_success

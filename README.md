@@ -322,7 +322,7 @@ This mail setup uses 4 domain names that should be covered by your new certifica
 
 To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` like this :
 
-```
+```yml
 mailserver:
   image: hardware/mailserver
   volumes:
@@ -363,6 +363,19 @@ docker-compose up -d
 
 * If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
+* If you have generated a ECDSA certificate with a curve other than `prime256v1` (NIST P-256), you need to change the Postfix TLS configuration because of a bug in OpenSSL 1.1.0. For example, if you use `secp384r1` elliptic curve with your ECDSA certificate, change the `tls_eecdh_strong_curve` value :
+
+```ini
+# /mnt/docker/mail/postfix/custom.conf
+
+tls_eecdh_strong_curve = secp384r1
+```
+
+Additional informations about this issue :
+
+* https://github.com/openssl/openssl/issues/2033
+* https://bugzilla.redhat.com/show_bug.cgi?id=1473971
+
 #### Another certificate authority (other than Let's Encrypt)
 
 Place all your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
@@ -378,7 +391,7 @@ Required files in this folder :
 
 Then mount the volume like this :
 
-```
+```yml
 mailserver:
   image: hardware/mailserver
   volumes:
@@ -497,7 +510,7 @@ and add your custom options inside.
 
 Example :
 
-```
+```ini
 # /mnt/docker/mail/postfix/custom.conf
 
 smtpd_banner = $myhostname ESMTP MyGreatMailServer
