@@ -222,21 +222,38 @@ else
   echo "[INFO] No extra postfix settings loaded because optional custom configuration file (/var/mail/postfix/custom.conf) is not provided."
 fi
 
-# Check database hostname
+# Check mariadb hostname
 grep -q "${DBHOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
-  echo "[INFO] Database hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
+  echo "[INFO] MariaDB hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
   IP=$(dig A ${DBHOST} +short)
   if [ -n "$IP" ]; then
-    echo "[INFO] Container IP found, adding new record in /etc/hosts"
+    echo "[INFO] Container IP found, adding a new record in /etc/hosts"
     echo "${IP} ${DBHOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
     exit 1
   fi
 else
-  echo "[INFO] Database hostname found in /etc/hosts"
+  echo "[INFO] MariaDB hostname found in /etc/hosts"
+fi
+
+# Check redis hostname
+grep -q "${REDIS_HOST}" /etc/hosts
+
+if [ $? -ne 0 ]; then
+  echo "[INFO] Redis hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
+  IP=$(dig A ${DBHOST} +short)
+  if [ -n "$IP" ]; then
+    echo "[INFO] Container IP found, adding a new record in /etc/hosts"
+    echo "${IP} ${DBHOST}" >> /etc/hosts
+  else
+    echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+    exit 1
+  fi
+else
+  echo "[INFO] Redis hostname found in /etc/hosts"
 fi
 
 # DOVECOT TUNING
