@@ -751,6 +751,12 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking dovecot: password scheme is correct" {
+  run docker exec mailserver_default /bin/sh -c "grep 'SHA512-CRYPT' /etc/dovecot/dovecot-sql.conf.ext | wc -l"
+  assert_success
+  assert_output 1
+}
+
 #
 # clamav
 #
@@ -959,6 +965,11 @@ load 'test_helper/bats-assert/load'
 # ssl
 #
 
+@test "checking ssl: ECDSA P-384 cert works correctly" {
+  run docker exec mailserver_ecdsa /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 18 (self signed certificate)'"
+  assert_success
+}
+
 @test "checking ssl: generated default cert works correctly" {
   run docker exec mailserver_default /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 18 (self signed certificate)'"
   assert_success
@@ -1021,11 +1032,13 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_default does not exist" {
-  run docker exec mailserver_default [ -f /var/log/mail.err ]
+  run docker exec mailserver_default cat /var/log/mail.err
   assert_failure
+  assert_output --partial 'No such file or directory'
 }
 
 @test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
-  run docker exec mailserver_reverse [ -f /var/log/mail.err ]
+  run docker exec mailserver_reverse cat /var/log/mail.err
   assert_failure
+  assert_output --partial 'No such file or directory'
 }

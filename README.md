@@ -223,6 +223,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **VMAILGID** | vmail group id | *optional* | 1024
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
+| **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
 | **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
 | **DBPORT** | MariaDB instance port | *optional* | 3306
 | **DBUSER** | MariaDB database username | *optional* | postfix
@@ -246,6 +247,8 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
+* **VMAIL_SUBDIR** is the mail location subdirectory name `/var/mail/vhosts/%domain/%user/$subdir`. For more information, read this : https://wiki.dovecot.org/VirtualUsers/Home
+* **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 
@@ -322,7 +325,7 @@ This mail setup uses 4 domain names that should be covered by your new certifica
 
 To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` like this :
 
-```
+```yml
 mailserver:
   image: hardware/mailserver
   volumes:
@@ -363,6 +366,19 @@ docker-compose up -d
 
 * If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
+* If you have generated a ECDSA certificate with a curve other than `prime256v1` (NIST P-256), you need to change the Postfix TLS configuration because of a bug in OpenSSL 1.1.0. For example, if you use `secp384r1` elliptic curve with your ECDSA certificate, change the `tls_eecdh_strong_curve` value :
+
+```ini
+# /mnt/docker/mail/postfix/custom.conf
+
+tls_eecdh_strong_curve = secp384r1
+```
+
+Additional informations about this issue :
+
+* https://github.com/openssl/openssl/issues/2033
+* https://bugzilla.redhat.com/show_bug.cgi?id=1473971
+
 #### Another certificate authority (other than Let's Encrypt)
 
 Place all your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
@@ -378,7 +394,7 @@ Required files in this folder :
 
 Then mount the volume like this :
 
-```
+```yml
 mailserver:
   image: hardware/mailserver
   volumes:
@@ -497,7 +513,7 @@ and add your custom options inside.
 
 Example :
 
-```
+```ini
 # /mnt/docker/mail/postfix/custom.conf
 
 smtpd_banner = $myhostname ESMTP MyGreatMailServer

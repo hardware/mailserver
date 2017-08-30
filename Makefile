@@ -11,7 +11,7 @@ build:
 	docker build -t $(NAME) .
 
 init:
-	-docker rm -f mariadb redis mailserver_default mailserver_reverse
+	-docker rm -f mariadb redis mailserver_default mailserver_reverse mailserver_ecdsa
 	sleep 2
 
 	docker run \
@@ -44,7 +44,7 @@ init:
 		-e RECIPIENT_DELIMITER=: \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
-		-v "`pwd`/test/share/ssl":/var/mail/ssl \
+		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.conf":/var/mail/postfix/custom.conf \
 		-h mail.domain.tld \
 		-t $(NAME)
@@ -74,8 +74,24 @@ init:
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
-		-v "`pwd`/test/share/ssl":/var/mail/ssl \
+		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
 		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
+		-t $(NAME)
+
+	docker run \
+		-d \
+		--name mailserver_ecdsa \
+		--link mariadb:mariadb \
+		--link redis:redis \
+		-e DBPASS=testpasswd \
+		-e RSPAMD_PASSWORD=testpasswd \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
+		-e TESTING=true \
+		-v "`pwd`/test/share/ssl/ecdsa":/var/mail/ssl \
+		-v "`pwd`/test/share/postfix/custom.ecdsa.conf":/var/mail/postfix/custom.conf \
+		-h mail.domain.tld \
 		-t $(NAME)
 
 	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"
