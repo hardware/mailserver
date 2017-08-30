@@ -244,10 +244,10 @@ grep -q "${REDIS_HOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
   echo "[INFO] Redis hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
-  IP=$(dig A ${DBHOST} +short)
+  IP=$(dig A ${REDIS_HOST} +short)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
-    echo "${IP} ${DBHOST}" >> /etc/hosts
+    echo "${IP} ${REDIS_HOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
     exit 1
