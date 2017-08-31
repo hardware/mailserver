@@ -1,0 +1,8 @@
+a1 LOGIN sarah.connor@domain.tld testpasswd12
+a2 SELECT INBOX
+a3 COPY 1 Spam
+a4 STORE 1 +flags (\Deleted)
+a5 EXPUNGE
+a6 SELECT Spam
+a7 COPY 1 INBOX
+a8 LOGOUT

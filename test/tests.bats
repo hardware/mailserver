@@ -498,11 +498,17 @@ load 'test_helper/bats-assert/load'
   assert_output 4
 }
 
-#@test "checking smtp: john.doe should have received 1 spam (external mail stored in Spam folder by Sieve)" {
-#  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/john.doe/mail/.Spam/new/ | wc -l"
-#  assert_success
-#  assert_output 1
-#}
+@test "checking smtp: sarah.connor should have received 1 mail (internal spam-ham test) (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/new/ | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking smtp: sarah.connor should have received 1 spam (with manual IMAP COPY to Spam folder)" {
+  run docker exec mailserver_default /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/.Spam/cur/ | wc -l"
+  assert_success
+  assert_output 1
+}
 
 @test "checking smtp: rejects mail to unknown user (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "grep '<ghost@domain.tld>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log | wc -l"
@@ -595,6 +601,26 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking rspamd: 7 messages scanned" {
+  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages scanned: 7'"
+  assert_success
+}
+
+@test "checking rspamd: 5 messages with action no action" {
+  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages with action no action: 5'"
+  assert_success
+}
+
+@test "checking rspamd: 2 messages with action reject" {
+  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages with action reject: 2'"
+  assert_success
+}
+
+@test "checking rspamd: 2 messages learned" {
+  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages learned: 2'"
+  assert_success
+}
+
 #
 # accounts
 #
@@ -619,9 +645,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking accounts: user mail folders for sarah.connor" {
-  run docker exec mailserver_default /bin/bash -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/ | grep -E 'cur|new|tmp' | wc -l"
+  run docker exec mailserver_default /bin/bash -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/ | grep -E '.Spam|cur|new|subscriptions|tmp' | wc -l"
   assert_success
-  assert_output 3
+  assert_output 5
 }
 
 #
@@ -753,6 +779,18 @@ load 'test_helper/bats-assert/load'
 
 @test "checking dovecot: password scheme is correct" {
   run docker exec mailserver_default /bin/sh -c "grep 'SHA512-CRYPT' /etc/dovecot/dovecot-sql.conf.ext | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking dovecot: piped ham message with sieve" {
+  run docker exec mailserver_default /bin/sh -c "grep -i 'sieve: pipe action: piped message to program.*rspamd-pipe-ham.sh' /var/log/mail.log | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking dovecot: piped spam message with sieve" {
+  run docker exec mailserver_default /bin/sh -c "grep -i 'sieve: pipe action: piped message to program.*rspamd-pipe-spam.sh' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
