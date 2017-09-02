@@ -110,7 +110,7 @@ services:
   # https://github.com/docker-library/mariadb
   # https://mariadb.org/
   mariadb:
-    image: mariadb:10.1
+    image: mariadb:10.2
     container_name: mariadb
     # restart: always
     # Info : These variables are ignored when the volume already exists (databases created before).
@@ -126,7 +126,7 @@ services:
   # https://github.com/docker-library/redis
   # https://redis.io/
   redis:
-    image: redis:3.2-alpine
+    image: redis:4.0-alpine
     container_name: redis
     # restart: always
     command: redis-server --appendonly yes

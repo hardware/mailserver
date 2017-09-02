@@ -22,12 +22,12 @@ init:
 		-e MYSQL_USER=postfix \
 		-e MYSQL_PASSWORD=testpasswd \
 		-v "`pwd`/test/config/mariadb":/docker-entrypoint-initdb.d \
-		-t mariadb:10.1
+		-t mariadb:10.2
 
 	docker run \
 		-d \
 		--name redis \
-		-t redis:3.2-alpine
+		-t redis:4.0-alpine
 
 	sleep 10
 
