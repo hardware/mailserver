@@ -621,6 +621,27 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking rspamd: dkim/arc signing is disabled (reverse configuration)" {
+  run docker exec mailserver_reverse cat /etc/rspamd/local.d/arc.conf
+  assert_success
+  assert_output "enabled = false;"
+  run docker exec mailserver_reverse cat /etc/rspamd/local.d/dkim_signing.conf
+  assert_success
+  assert_output "enabled = false;"
+}
+
+@test "checking rspamd: greylisting policy is disabled (reverse configuration)" {
+  run docker exec mailserver_reverse cat /etc/rspamd/local.d/greylisting.conf
+  assert_success
+  assert_output "enabled = false;"
+}
+
+@test "checking rspamd: ratelimiting policy is disabled (reverse configuration)" {
+  run docker exec mailserver_reverse cat /etc/rspamd/local.d/ratelimit.conf
+  assert_success
+  assert_output "enabled = false;"
+}
+
 #
 # accounts
 #

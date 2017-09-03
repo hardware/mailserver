@@ -144,6 +144,8 @@ docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v
 
 :warning: `latest` docker tag points to a **legacy** version until **january 2018** to not break the compatibility with old installations.
 
+:bulb: `1.1-latest` tag is the latest development build. These builds have been validated through the CI automation system but they are not meant for deployment in production.
+
 :bulb: For security reasons, you should regularly update all of your docker images.
 
 #### 2 - Get the latest docker-compose.yml

@@ -92,9 +92,8 @@ if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   CERTFILE="$LETS_ENCRYPT_LIVE_PATH"/cert.pem
   KEYFILE="$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
 
-  # When using https://github.com/JrCs/docker-nginx-proxy-letsencrypt
-  # and https://github.com/jwilder/nginx-proxy there is only key.pem and fullchain.pem
-  # so we look for key.pem and extract cert.pem and chain.pem
+  # When using https://github.com/jwilder/nginx-proxy there is only key.pem
+  # and fullchain.pem so we look for key.pem and extract cert.pem and chain.pem
   if [ ! -e "$KEYFILE" ]; then
     KEYFILE="$LETS_ENCRYPT_LIVE_PATH"/key.pem
   fi
@@ -218,15 +217,13 @@ if [ -f /var/mail/postfix/custom.conf ]; then
     postconf -e "$line"
   done < /var/mail/postfix/custom.conf
   echo "[INFO] Custom Postfix configuration file loaded"
-else
-  echo "[INFO] No extra postfix settings loaded because optional custom configuration file (/var/mail/postfix/custom.conf) is not provided."
 fi
 
 # Check mariadb hostname
 grep -q "${DBHOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
-  echo "[INFO] MariaDB hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
+  echo "[INFO] MariaDB hostname not found in /etc/hosts"
   IP=$(dig A ${DBHOST} +short)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
@@ -243,7 +240,7 @@ fi
 grep -q "${REDIS_HOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
-  echo "[INFO] Redis hostname not found in /etc/hosts, try to find container IP with docker embedded DNS server"
+  echo "[INFO] Redis hostname not found in /etc/hosts"
   IP=$(dig A ${REDIS_HOST} +short)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
@@ -264,64 +261,74 @@ DOVECOT_MIN_PROCESS=$(nproc)
 # NbMaxUsers = ( 500 * nbCores ) / 5
 # So on a two-core server that's 1000 processes/200 users
 # with ~5 open connections per user
-DOVECOT_MAX_PROCESS=$((`nproc` * 500))
+DOVECOT_MAX_PROCESS=$(($(nproc) * 500))
 
 sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
        -e "s/DOVECOT_MAX_PROCESS/${DOVECOT_MAX_PROCESS}/" /etc/dovecot/conf.d/10-master.conf
 
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
-  echo "[INFO] ClamAV is disabled, service will not start."
+  echo "[INFO] ClamAV is disabled, service will not start"
   rm -f /etc/rspamd/local.d/antivirus.conf
+else
+  echo "[INFO] ClamAV is enabled"
 fi
 
 # Disable fetchmail forwarding
 if [ "$ENABLE_FETCHMAIL" = false ]; then
-  echo "[INFO] Fetchmail forwarding is disabled."
+  echo "[INFO] Fetchmail forwarding is disabled"
   rm -f /etc/cron.d/fetchmail
 else
-  echo "[INFO] Fetchmail forwarding is enabled."
+  echo "[INFO] Fetchmail forwarding is enabled"
 fi
 
 # Disable automatic GPG encryption
 if [ "$ENABLE_ENCRYPTION" = false ]; then
-  echo "[INFO] Automatic GPG encryption is disabled."
+  echo "[INFO] Automatic GPG encryption is disabled"
   sed -i '/content_filter/ s/^/#/' /etc/postfix/main.cf
 else
-  echo "[INFO] Automatic GPG encryption is enabled."
+  echo "[INFO] Automatic GPG encryption is enabled"
 fi
 
 # Enable ManageSieve protocol
 if [ "$DISABLE_SIEVE" = false ]; then
-  echo "[INFO] ManageSieve protocol is enabled."
+  echo "[INFO] ManageSieve protocol is enabled"
   sed -i '/^protocols/s/$/ sieve/' /etc/dovecot/dovecot.conf
 else
-  echo "[INFO] ManageSieve protocol is disabled."
+  echo "[INFO] ManageSieve protocol is disabled"
 fi
 
 # Disable DKIM/ARC signing
 if [ "$DISABLE_SIGNING" = true ]; then
-  echo "[INFO] DKIM/ARC signing is disabled."
+  echo "[INFO] DKIM/ARC signing is disabled"
   echo "enabled = false;" > /etc/rspamd/local.d/arc.conf
   echo "enabled = false;" > /etc/rspamd/local.d/dkim_signing.conf
+else
+  echo "[INFO] DKIM/ARC signing is enabled"
 fi
 
 # Disable greylisting policy
 if [ "$DISABLE_GREYLISTING" = true ]; then
-  echo "[INFO] Greylisting policy is disabled."
+  echo "[INFO] Greylisting policy is disabled"
   echo "enabled = false;" > /etc/rspamd/local.d/greylisting.conf
+else
+  echo "[INFO] Greylisting policy is enabled"
 fi
 
 # Disable ratelimiting policy
 if [ "$DISABLE_RATELIMITING" = true ]; then
-  echo "[INFO] Ratelimiting policy is disabled."
+  echo "[INFO] Ratelimiting policy is disabled"
   echo "enabled = false;" > /etc/rspamd/local.d/ratelimit.conf
+else
+  echo "[INFO] Ratelimiting policy is enabled"
 fi
 
 # Enable POP3 protocol
 if [ "$ENABLE_POP3" = true ]; then
-  echo "[INFO] POP3 protocol is enabled."
+  echo "[INFO] POP3 protocol is enabled"
   sed -i '/^protocols/s/$/ pop3/' /etc/dovecot/dovecot.conf
+else
+  echo "[INFO] POP3 protocol is disabled"
 fi
 
 if [ "$TESTING" = true ]; then
