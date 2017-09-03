@@ -121,6 +121,14 @@ These DNS record will raise your trust reputation score and reduce abuse of your
 * https://dmarc.org/
 * http://arc-spec.org/
 
+**Some useful Thunderbird extensions** :
+
+* https://www.enigmail.net/
+* https://github.com/moisseev/rspamd-spamness
+* https://github.com/lieser/dkim_verifier
+
+[![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
+
 #### Testing
 
 You can audit your mailserver with the following assessment services :
