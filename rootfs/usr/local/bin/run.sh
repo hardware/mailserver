@@ -363,6 +363,9 @@ rm -rf /var/lib/clamav
 ln -s /var/mail/clamav /var/lib/clamav
 ln -s /var/mail/dovecot /var/lib/dovecot
 
+# Remove invoke-rc.d warning
+sed -i 's|invoke-rc.d rsyslog rotate |invoke-rc.d --quiet rsyslog rotate \&|g' /etc/logrotate.d/rsyslog
+
 # Folders and permissions
 groupadd -g "$VMAILGID" vmail &> /dev/null
 useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
