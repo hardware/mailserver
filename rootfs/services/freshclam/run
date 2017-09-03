@@ -4,44 +4,14 @@ if [ "$DISABLE_CLAMAV" = true ]; then
   exit 0
 fi
 
-# Remove all default mirrors
-sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
+logger -p mail.info "s6-supervise : spawning freshclam process"
 
-# Add some database mirrors
-cat <<EOT >> /etc/clamav/freshclam.conf
-DatabaseMirror clamav.univ-nantes.fr
-DatabaseMirror switch.clamav.net
-DatabaseMirror clamav.iol.cz
-DatabaseMirror db.fr.clamav.net
-EOT
-
-if [ "$TESTING" = true ]; then
-  # When testing, disable syslog logging to avoid random freshclam databases
-  # download timeouts to be logged in /var/log/mail.err and speed-up clamd
-  # startup with lower attempts value (default 5 attempts)
-  sed -i -e 's/^Foreground .*$/Foreground true/g' \
-         -e 's/^LogSyslog .*$/LogSyslog false/g' \
-         -e 's/^MaxAttempts .*$/MaxAttempts 1/g' \
-         /etc/clamav/freshclam.conf
-else
-  sed -i -e 's/^Foreground .*$/Foreground true/g' \
-         -e 's/^LogSyslog .*$/LogSyslog true/g' \
-         -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
-         -e 's/^MaxAttempts .*$/MaxAttempts 3/g' \
-         -e 's/^Checks .*$/Checks 4/g' \
-         /etc/clamav/freshclam.conf
+# Download virus databases if they don't exist locally
+if [ ! -f /var/mail/clamav/main.cvd ]; then
+  freshclam --quiet
 fi
-
-# Create clamd directories
-mkdir -p /var/run/clamav /var/mail/clamav
-chown -R clamav:clamav /var/run/clamav /var/mail/clamav
-
-# Update virus databases
-freshclam --quiet
 
 # Start clamd run script
 s6-svc -u /services/clamd
-
-logger -p mail.info "s6-supervise : spawning freshclam process"
 
 exec freshclam -d &>/dev/null

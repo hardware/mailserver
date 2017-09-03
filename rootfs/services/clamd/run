@@ -1,13 +1,3 @@
 #!/bin/bash
-
-grep -qiF 'TCPSocket' /etc/clamav/clamd.conf || \
-     echo 'TCPSocket 3310' >> /etc/clamav/clamd.conf
-
-sed -i -e 's/^Foreground .*$/Foreground true/g' \
-       -e 's/^LogSyslog .*$/LogSyslog true/g' \
-       -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
-       /etc/clamav/clamd.conf
-
 logger -p mail.info "s6-supervise : spawning clamd process"
-
 exec clamd &>/dev/null

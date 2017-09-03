@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# ENV
 export FQDN
 export DOMAIN
 export VMAILUID
@@ -79,7 +78,9 @@ then
   REDIS_PORT=6379
 fi
 
-# SSL certificates
+# SSL CERTIFICATES
+# ---------------------------------------------------------------------------------------------
+
 LETS_ENCRYPT_LIVE_PATH=/etc/letsencrypt/live/"$FQDN"
 
 if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
@@ -125,7 +126,7 @@ else
   KEYFILE=/var/mail/ssl/selfsigned/privkey.pem
 
   if [ ! -e "$CERTFILE" ] || [ ! -e "$KEYFILE" ]; then
-    echo "[INFO] No SSL certificates found, generating new selfsigned certificate"
+    echo "[INFO] No SSL certificates found, generating a new selfsigned certificate"
     mkdir -p /var/mail/ssl/selfsigned/
     openssl req -new -newkey rsa:4096 -days 3658 -sha256 -nodes -x509 \
       -subj "/C=FR/ST=France/L=Paris/O=Mailserver certificate/OU=Mail/CN=*.${DOMAIN}/emailAddress=postmaster@${DOMAIN}" \
@@ -134,17 +135,23 @@ else
   fi
 fi
 
+# Comment CAfile directives if Let's Encrypt CA is not used
 if [ ! -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
 fi
 
-# Diffie-Hellman parameters
+# DIFFIE-HELLMAN PARAMETERS
+# ---------------------------------------------------------------------------------------------
+
 if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/dh512.pem ]; then
   echo "[INFO] Diffie-Hellman parameters not found, generating new DH params"
   mkdir -p /var/mail/ssl/dhparams/
   openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
   openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
 fi
+
+# DKIM KEYS
+# ---------------------------------------------------------------------------------------------
 
 # Add domains from ENV DOMAIN and ADD_DOMAINS
 domains=(${DOMAIN})
@@ -174,6 +181,9 @@ for domain in "${domains[@]}"; do
   fi
 
 done
+
+# ENVIRONMENT VARIABLES TEMPLATING
+# ---------------------------------------------------------------------------------------------
 
 # Avoid envtpl error if cron file doesn't exist
 if [ ! -f /etc/cron.d/fetchmail ]; then
@@ -210,6 +220,9 @@ _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning.sh
 _envtpl /usr/local/bin/fetchmail.pl
 
+# POSTFIX CUSTOM CONFIG
+# ---------------------------------------------------------------------------------------------
+
 # Override Postfix configuration
 if [ -f /var/mail/postfix/custom.conf ]; then
   while read line; do
@@ -218,6 +231,9 @@ if [ -f /var/mail/postfix/custom.conf ]; then
   done < /var/mail/postfix/custom.conf
   echo "[INFO] Custom Postfix configuration file loaded"
 fi
+
+# DATABASES HOSTNAME CHECKING
+# ---------------------------------------------------------------------------------------------
 
 # Check mariadb hostname
 grep -q "${DBHOST}" /etc/hosts
@@ -254,7 +270,8 @@ else
 fi
 
 # DOVECOT TUNING
-# ---------------
+# ---------------------------------------------------------------------------------------------
+
 # process_min_avail = number of CPU cores, so that all of them will be used
 DOVECOT_MIN_PROCESS=$(nproc)
 
@@ -265,6 +282,9 @@ DOVECOT_MAX_PROCESS=$(($(nproc) * 500))
 
 sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
        -e "s/DOVECOT_MAX_PROCESS/${DOVECOT_MAX_PROCESS}/" /etc/dovecot/conf.d/10-master.conf
+
+# ENABLE / DISABLE MAIL SERVER FEATURES
+# ---------------------------------------------------------------------------------------------
 
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
@@ -352,7 +372,9 @@ else
   sed -i '/mail.log/d' /etc/rsyslog/rsyslog.conf
 fi
 
-# Move clamav databases and dovecot lib directory to /var/mail
+# MOVE DATA DIRECTORIES TO /VAR/MAIL (PERSISTENCE)
+# ---------------------------------------------------------------------------------------------
+
 if [ -d "/var/mail/dovecot" ]; then
   rm -rf /var/lib/dovecot
 else
@@ -363,18 +385,218 @@ rm -rf /var/lib/clamav
 ln -s /var/mail/clamav /var/lib/clamav
 ln -s /var/mail/dovecot /var/lib/dovecot
 
+# POSTFIX
+# ---------------------------------------------------------------------------------------------
+
+# Create vmail user
+groupadd -g "$VMAILGID" vmail &> /dev/null
+useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
+
+# Create all needed folders in queue directory
+for subdir in "" etc dev usr usr/lib usr/lib/sasl2 usr/lib/zoneinfo public maildrop; do
+  mkdir -p  /var/mail/postfix/spool/$subdir
+  chmod 755 /var/mail/postfix/spool/$subdir
+done
+
+# Add etc files to Postfix chroot jail
+cp -f /etc/services /var/mail/postfix/spool/etc/services
+cp -f /etc/hosts /var/mail/postfix/spool/etc/hosts
+cp -f /etc/localtime /var/mail/postfix/spool/etc/localtime
+
+# Build header_checks and virtual index files
+postmap /etc/postfix/header_checks
+postmap /etc/postfix/virtual
+
+# Set permissions
+chgrp -R postdrop /var/mail/postfix/spool/public
+chgrp -R postdrop /var/mail/postfix/spool/maildrop
+postfix set-permissions &>/dev/null
+
+# ZEYPLE
+# ---------------------------------------------------------------------------------------------
+
+if [ "$ENABLE_ENCRYPTION" = true ]; then
+
+  # Add Zeyple user
+  adduser --quiet \
+          --system \
+          --group \
+          --home /var/mail/zeyple \
+          --no-create-home \
+          --disabled-login \
+          --gecos "zeyple automatic GPG encryption tool" \
+          zeyple
+
+  # Create all files and directories needed by Zeyple
+  mkdir -p /var/mail/zeyple/keys
+  chmod 700 /var/mail/zeyple/keys
+  chmod 744 /usr/local/bin/zeyple.py
+  chown -R zeyple:zeyple /var/mail/zeyple /usr/local/bin/zeyple.py
+
+  if [ "$TESTING" = true ]; then
+
+    touch /var/log/zeyple.log
+    chown zeyple:zeyple /var/log/zeyple.log
+
+# Generating John Doe GPG key
+s6-setuidgid zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
+  %echo Generating John Doe GPG key
+  Key-Type: default
+  Key-Length: 1024
+  Subkey-Type: default
+  Subkey-Length: 1024
+  Name-Real: John Doe
+  Name-Comment: test key
+  Name-Email: john.doe@domain.tld
+  Expire-Date: 0
+  Passphrase: azerty
+  %commit
+  %echo done
+EOF
+
+  fi
+fi
+
+# DOVECOT
+# ---------------------------------------------------------------------------------------------
+
+# Sieve
+mkdir -p /var/mail/sieve
+
+# Default rule
+cat > /var/mail/sieve/default.sieve <<EOF
+require ["fileinto"];
+if anyof(
+    header :contains ["X-Spam-Flag"] "YES",
+    header :contains ["X-Spam"] "Yes",
+    header :contains ["Subject"] "*** SPAM ***"
+)
+{
+    fileinto "Spam";
+    stop;
+}
+EOF
+
+# Compile sieve scripts
+sievec /var/mail/sieve/default.sieve
+sievec /etc/dovecot/sieve/report-ham.sieve
+sievec /etc/dovecot/sieve/report-spam.sieve
+
+# Set permissions
+mkdir -p /var/run/dovecot
+chown -R dovecot:dovecot /var/run/dovecot
+chown -R vmail:vmail /var/mail/sieve
+chmod +x /etc/dovecot/sieve/*.sh
+
+# Check permissions of vhosts directory.
+# Do not do this every start-up, it may take a very long time. So we use a stat check here.
+if [[ $(stat -c %U /var/mail/vhosts) != "vmail" ]] ; then chown -R vmail:vmail /var/mail/vhosts ; fi
+
+# Avoid file_dotlock_open function exception
+rm -f /var/mail/dovecot/instances
+
+# UNBOUND
+# ---------------------------------------------------------------------------------------------
+
+# Get a copy of the latest root DNS servers list
+curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
+
+# Update the root trust anchor to perform cryptographic DNSSEC validation
+unbound-anchor -a /etc/unbound/root.key
+
+# Setting up unbound-control
+unbound-control-setup &> /dev/null
+
+# Set permissions
+chmod 775 /etc/unbound
+chown -R unbound:unbound /etc/unbound
+
+# RSPAMD
+# ---------------------------------------------------------------------------------------------
+
+# Add a rspamd user with DBDIR as home
+# https://github.com/hardware/debian-mail-overlay
+adduser --quiet \
+        --system \
+        --group \
+        --home /var/mail/rspamd \
+        --no-create-home \
+        --disabled-login \
+        --gecos "rspamd spam filtering system" \
+        --force-badname \
+        _rspamd
+
+# Setting the controller password
+PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password ${RSPAMD_PASSWORD})
+sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
+
+# Set permissions
+mkdir -p /var/mail/rspamd /var/log/rspamd /run/rspamd
+chown -R _rspamd:_rspamd /var/mail/rspamd /var/log/rspamd /run/rspamd
+chmod 750 /var/mail/rspamd /var/log/rspamd
+
+# CLAMD
+# ---------------------------------------------------------------------------------------------
+
+grep -qiF 'TCPSocket' /etc/clamav/clamd.conf || \
+     echo 'TCPSocket 3310' >> /etc/clamav/clamd.conf
+
+sed -i -e 's/^Foreground .*$/Foreground true/g' \
+       -e 's/^LogSyslog .*$/LogSyslog true/g' \
+       -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
+       /etc/clamav/clamd.conf
+
+# FRESHCLAM
+# ---------------------------------------------------------------------------------------------
+
+# Remove all default mirrors
+sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
+
+# Add some database mirrors
+cat <<EOT >> /etc/clamav/freshclam.conf
+DatabaseMirror clamav.univ-nantes.fr
+DatabaseMirror switch.clamav.net
+DatabaseMirror clamav.iol.cz
+DatabaseMirror db.fr.clamav.net
+EOT
+
+if [ "$TESTING" = true ]; then
+  # When testing, disable syslog logging to avoid random freshclam databases
+  # download timeouts to be logged in /var/log/mail.err and speed-up clamd
+  # startup with lower attempts value (default 5 attempts)
+  sed -i -e 's/^Foreground .*$/Foreground true/g' \
+         -e 's/^LogSyslog .*$/LogSyslog false/g' \
+         -e 's/^MaxAttempts .*$/MaxAttempts 1/g' \
+         /etc/clamav/freshclam.conf
+else
+  sed -i -e 's/^Foreground .*$/Foreground true/g' \
+         -e 's/^LogSyslog .*$/LogSyslog true/g' \
+         -e 's/^LogFacility .*$/LogFacility LOG_MAIL/g' \
+         -e 's/^MaxAttempts .*$/MaxAttempts 3/g' \
+         -e 's/^Checks .*$/Checks 4/g' \
+         /etc/clamav/freshclam.conf
+fi
+
+# Create clamd directories
+mkdir -p /var/run/clamav /var/mail/clamav
+chown -R clamav:clamav /var/run/clamav /var/mail/clamav
+
+# MISCELLANEOUS
+# ---------------------------------------------------------------------------------------------
+
 # Remove invoke-rc.d warning
 sed -i 's|invoke-rc.d rsyslog rotate |invoke-rc.d --quiet rsyslog rotate \&|g' /etc/logrotate.d/rsyslog
 
 # Folders and permissions
-groupadd -g "$VMAILGID" vmail &> /dev/null
-useradd -g vmail -u "$VMAILUID" vmail -d /var/mail &> /dev/null
 mkdir -p /var/run/fetchmail
 chmod +x /usr/local/bin/*
 
 # Fix old DKIM keys permissions
 chown -R vmail:vmail /var/mail/dkim
 chmod 444 /var/mail/dkim/*/{private.key,public.key}
+
+# S6 WATCHDOG
+# ---------------------------------------------------------------------------------------------
 
 mkdir -p /tmp/counters
 
@@ -408,5 +630,7 @@ done
 
 chmod +x /services/*/finish
 
-# RUN !
+# LAUNCH ALL SERVICES
+# ---------------------------------------------------------------------------------------------
+
 exec s6-svscan /services
