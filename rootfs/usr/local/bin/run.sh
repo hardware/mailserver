@@ -600,7 +600,7 @@ chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
 mkdir -p /tmp/counters
 
-for service in clamd cron dovecot freshclam postfix rspamd rsyslogd unbound; do
+for service in _parent clamd cron dovecot freshclam postfix rspamd rsyslogd unbound; do
 
 # Init process counters
 echo 0 > /tmp/counters/$service

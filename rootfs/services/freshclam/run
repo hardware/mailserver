@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if [ "$DISABLE_CLAMAV" = true ]; then
-  exit 0
-fi
-
 logger -p mail.info "s6-supervise : spawning freshclam process"
 
 # Download virus databases if they don't exist locally

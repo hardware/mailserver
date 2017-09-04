@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Launch all services in order
+# -----------------------------------------------------------
+# 1. rsyslogd  (logger)
+# 2. unbound   (dns resolver)
+# 3. postfix   (smtp server)
+# 4. dovecot   (imap/pop server)
+# 5. rspamd    (anti-spam)
+# 6. cron      (job scheduler)
+# 7. freshclam (clamav database updater)
+# 8. clamd     (antivirus, is launched after database update)
+
+s6-svc -u /services/rsyslogd && s6-svwait -u /services/rsyslogd
+s6-svc -u /services/unbound  && s6-svwait -u /services/unbound
+s6-svc -u /services/postfix  && s6-svwait -u /services/postfix
+s6-svc -u /services/dovecot
+s6-svc -u /services/rspamd
+s6-svc -u /services/cron
+
+[ "$DISABLE_CLAMAV" = true ] || s6-svc -u /services/freshclam
+
+sleep 2
+logger -p mail.info "s6-supervise : (_parent) all my wonderful children have started, i can die in peace :)"
+exit 0

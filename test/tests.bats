@@ -198,16 +198,19 @@ load 'test_helper/bats-assert/load'
 # processes restarting
 #
 
-@test "checking process: 8 cron tasks to reset all the process counters" {
+@test "checking process: 9 cron tasks to reset all the process counters" {
   run docker exec mailserver_default /bin/bash -c "cat /etc/cron.d/counters | wc -l"
   assert_success
-  assert_output 8
+  assert_output 9
   run docker exec mailserver_reverse /bin/bash -c "cat /etc/cron.d/counters | wc -l"
   assert_success
-  assert_output 8
+  assert_output 9
 }
 
 @test "checking process: no service restarted (default configuration)" {
+  run docker exec mailserver_default cat /tmp/counters/_parent
+  assert_success
+  assert_output 0
   run docker exec mailserver_default cat /tmp/counters/clamd
   assert_success
   assert_output 0
@@ -235,6 +238,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: no service restarted (reverse configuration)" {
+  run docker exec mailserver_default cat /tmp/counters/_parent
+  assert_success
+  assert_output 0
   run docker exec mailserver_reverse cat /tmp/counters/clamd
   assert_success
   assert_output 0

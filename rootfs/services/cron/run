@@ -1,14 +1,3 @@
 #!/bin/bash
-
-# Launch all services in order
-s6-svwait -u /services/rsyslogd
-s6-svc    -u /services/unbound
-s6-svwait -u /services/unbound
-s6-svc    -u /services/postfix
-s6-svwait -u /services/postfix
-s6-svc    -u /services/dovecot
-s6-svc    -u /services/rspamd
-s6-svc    -u /services/freshclam
-
 logger -p mail.info "s6-supervise : spawning cron process"
 exec cron -f
