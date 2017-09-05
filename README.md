@@ -121,6 +121,14 @@ These DNS record will raise your trust reputation score and reduce abuse of your
 * https://dmarc.org/
 * http://arc-spec.org/
 
+**Some useful Thunderbird extensions** :
+
+* https://www.enigmail.net/
+* https://github.com/moisseev/rspamd-spamness
+* https://github.com/lieser/dkim_verifier
+
+[![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
+
 #### Testing
 
 You can audit your mailserver with the following assessment services :
@@ -143,6 +151,8 @@ docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v
 ```
 
 :warning: `latest` docker tag points to a **legacy** version until **january 2018** to not break the compatibility with old installations.
+
+:bulb: `1.1-latest` tag is the latest development build. These builds have been validated through the CI automation system but they are not meant for deployment in production.
 
 :bulb: For security reasons, you should regularly update all of your docker images.
 

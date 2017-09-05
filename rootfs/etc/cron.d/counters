@@ -1,3 +1,4 @@
+00 00 * * * root echo 0 > /tmp/counters/_parent
 00 00 * * * root echo 0 > /tmp/counters/clamd
 00 00 * * * root echo 0 > /tmp/counters/cron
 00 00 * * * root echo 0 > /tmp/counters/dovecot

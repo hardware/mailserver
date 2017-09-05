@@ -1,0 +1,26 @@
+HELO mail.example.com
+MAIL FROM: user@example.com
+RCPT TO: sarah.connor@domain.tld
+DATA
+From: Docker Mail Server <user@example.com>
+To: Existing Local User <sarah.connor@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vehicula at magna ac molestie.
+Nam venenatis tincidunt magna, id tincidunt sem dictum quis. Vestibulum diam neque, venenatis in
+neque quis, lacinia mattis eros. Donec ornare eget mi ac interdum. Donec eu molestie velit. Duis
+sit amet tempus orci. Integer aliquet porttitor dui, quis lobortis eros sodales imperdiet. Cras
+consectetur odio velit, et scelerisque nunc tempor in. Lorem ipsum dolor sit amet, consectetur
+adipiscing elit.
+
+In elementum iaculis odio, nec viverra ex sodales sit amet. Fusce elementum sollicitudin erat,
+eget fringilla nibh dictum ut. Ut lobortis mauris et diam cursus molestie. Morbi arcu libero,
+auctor sed enim ac, tristique iaculis turpis. Phasellus a aliquet orci. Phasellus hendrerit
+eros ut placerat malesuada. Phasellus scelerisque felis risus, id porttitor lorem scelerisque
+et. Phasellus consequat risus vel tortor tempor fringilla. Nam vestibulum, elit et porta viverra,
+urna nulla sodales odio, vel vehicula leo felis in nibh. Nullam lobortis dui eu massa sagittis
+feugiat. Fusce sed massa nibh. Integer eget blandit massa. Nulla aliquet malesuada risus ut dapibus.
+Phasellus sit amet cursus metus.
+
+.
+QUIT
