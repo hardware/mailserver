@@ -172,6 +172,8 @@ I recommend you to use [wonderfall/boring-nginx](https://github.com/Wonderfall/d
 
 More information here : [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
 
+Notice : if you plan to use [Let's Encrypt as Certificate Authority](https://github.com/hardware/mailserver#ssl-certificates); be sure to request them before with the XATAZ way.
+
 #### 4 - Postfixadmin installation
 
 PostfixAdmin is a web based interface used to manage mailboxes, virtual domains and aliases.
