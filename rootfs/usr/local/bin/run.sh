@@ -289,7 +289,7 @@ sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
   echo "[INFO] ClamAV is disabled, service will not start"
-  rm -f /etc/rspamd/local.d/antivirus.conf
+  rm -f /etc/rspamd/local.d/antivirus.conf /etc/logrotate.d/clamav-*
 else
   echo "[INFO] ClamAV is enabled"
 fi
