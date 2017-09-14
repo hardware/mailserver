@@ -1,4 +1,4 @@
-FROM hardware/debian-mail-overlay:1.6.3
+FROM hardware/debian-mail-overlay:1.6.4
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"
@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
  && apt-get clean \
  && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old
 
-VOLUME /var/mail /etc/letsencrypt
 EXPOSE 25 143 465 587 993 4190 11334
 COPY rootfs /
 RUN chmod +x /usr/local/bin /services/*/run /services/.s6-svscan/finish
