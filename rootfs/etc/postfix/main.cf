@@ -29,8 +29,13 @@ alias_maps = hash:/etc/aliases
 ## SMTP/UTF8 ##
 ###############
 
-smtputf8_enable             = yes
-smtputf8_autodetect_classes = all
+smtputf8_enable = yes
+
+# The default is to enable "SMTPUTF8 required" autodetection
+# only for Postfix sendmail command-line submissions and address
+# verification probes.
+# https://github.com/hardware/mailserver/issues/166
+# smtputf8_autodetect_classes = all
 
 ###################
 ## RATE LIMITING ##
