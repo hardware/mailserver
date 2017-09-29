@@ -18,6 +18,7 @@ export CERTFILE
 export KEYFILE
 export FULLCHAIN
 export DISABLE_CLAMAV
+export DISABLE_DNS_RESOLVER
 export RECIPIENT_DELIMITER
 export FETCHMAIL_INTERVAL
 export RELAY_NETWORKS
@@ -41,6 +42,7 @@ DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 DISABLE_SIGNING=${DISABLE_SIGNING:-false}
 DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
 DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-false}
+DISABLE_DNS_RESOLVER=${DISABLE_DNS_RESOLVER:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
 ENABLE_ENCRYPTION=${ENABLE_ENCRYPTION:-false}
@@ -351,6 +353,18 @@ else
   echo "[INFO] POP3 protocol is disabled"
 fi
 
+# Disable Unbound DNS resolver
+if [ "$DISABLE_DNS_RESOLVER" = true ]; then
+  echo "[INFO] Unbound DNS resolver is disabled"
+  # Disable DNSSEC in Postfix and Rspamd configuration
+  sed -i -e 's|\(enable_dnssec.*=\).*|\1 false;|' \
+         -e '/nameserver/ s/^/#/' /etc/rspamd/local.d/options.inc
+  sed -i -e 's|\(smtp_tls_security_level.*=\).*|\1 may|' \
+         -e '/smtp_dns_support_level/ s/^/#/' /etc/postfix/main.cf
+else
+  echo "[INFO] Unbound DNS resolver is enabled"
+fi
+
 if [ "$TESTING" = true ]; then
   echo "[INFO] DOCKER IMAGE UNDER TESTING"
   # Disable postfix virtual table
@@ -498,18 +512,22 @@ rm -f /var/mail/dovecot/instances
 # UNBOUND
 # ---------------------------------------------------------------------------------------------
 
-# Get a copy of the latest root DNS servers list
-curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
+if [ "$DISABLE_DNS_RESOLVER" = false ]; then
 
-# Update the root trust anchor to perform cryptographic DNSSEC validation
-unbound-anchor -a /etc/unbound/root.key
+  # Get a copy of the latest root DNS servers list
+  curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
 
-# Setting up unbound-control
-unbound-control-setup &> /dev/null
+  # Update the root trust anchor to perform cryptographic DNSSEC validation
+  unbound-anchor -a /etc/unbound/root.key
 
-# Set permissions
-chmod 775 /etc/unbound
-chown -R unbound:unbound /etc/unbound
+  # Setting up unbound-control
+  unbound-control-setup &> /dev/null
+
+  # Set permissions
+  chmod 775 /etc/unbound
+  chown -R unbound:unbound /etc/unbound
+
+fi
 
 # RSPAMD
 # ---------------------------------------------------------------------------------------------

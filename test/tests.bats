@@ -191,7 +191,7 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
-  assert_success
+  assert_failure
 }
 
 #
@@ -288,7 +288,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking port    (53): internal port listening (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 53"
-  assert_success
+  assert_failure
 }
 
 @test "checking port   (110): external port closed    (default configuration)" {
@@ -378,7 +378,7 @@ load 'test_helper/bats-assert/load'
 
 @test "checking port  (8953): internal port listening (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 8953"
-  assert_success
+  assert_failure
 }
 
 @test "checking port (10026): internal port listening (default configuration)" {
@@ -785,6 +785,30 @@ load 'test_helper/bats-assert/load'
   assert_output "postdrop"
 }
 
+@test "checking postfix: smtp_tls_security_level value (default configuration)" {
+  run docker exec mailserver_default postconf -h smtp_tls_security_level
+  assert_success
+  assert_output "dane"
+}
+
+@test "checking postfix: smtp_tls_security_level value (reverse configuration)" {
+  run docker exec mailserver_reverse postconf -h smtp_tls_security_level
+  assert_success
+  assert_output "may"
+}
+
+@test "checking postfix: smtp_dns_support_level value (default configuration)" {
+  run docker exec mailserver_default postconf -h smtp_dns_support_level
+  assert_success
+  assert_output "dnssec"
+}
+
+@test "checking postfix: smtp_dns_support_level value (reverse configuration)" {
+  run docker exec mailserver_reverse postconf -h smtp_dns_support_level
+  assert_success
+  assert_output ""
+}
+
 #
 # dovecot
 #
@@ -967,25 +991,47 @@ load 'test_helper/bats-assert/load'
 # unbound
 #
 
-@test "checking unbound: /etc/resolv.conf" {
+@test "checking unbound: /etc/resolv.conf (default configuration)" {
   run docker exec mailserver_default cat /etc/resolv.conf
   assert_success
   assert_output "nameserver 127.0.0.1"
 }
 
-@test "checking unbound: /var/mail/postfix/spool/etc/resolv.conf" {
+@test "checking unbound: /etc/resolv.conf (reverse configuration)" {
+  run docker exec mailserver_reverse cat /etc/resolv.conf
+  assert_success
+  refute_output "nameserver 127.0.0.1"
+}
+
+@test "checking unbound: /var/mail/postfix/spool/etc/resolv.conf (default configuration)" {
   run docker exec mailserver_default cat /var/mail/postfix/spool/etc/resolv.conf
   assert_success
   assert_output "nameserver 127.0.0.1"
 }
 
-@test "checking unbound: root.hints exist" {
+@test "checking unbound: /var/mail/postfix/spool/etc/resolv.conf (reverse configuration)" {
+  run docker exec mailserver_reverse cat /var/mail/postfix/spool/etc/resolv.conf
+  assert_success
+  refute_output "nameserver 127.0.0.1"
+}
+
+@test "checking unbound: root.hints exist (default configuration)" {
   run docker exec mailserver_default [ -f /etc/unbound/root.hints ]
   assert_success
 }
 
-@test "checking unbound: root.key exist" {
+@test "checking unbound: root.hints doesn't exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ ! -f /etc/unbound/root.hints ]
+  assert_success
+}
+
+@test "checking unbound: root.key exist (default configuration)" {
   run docker exec mailserver_default [ -f /etc/unbound/root.key ]
+  assert_success
+}
+
+@test "checking unbound: root.key doesn't exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ ! -f /etc/unbound/root.key ]
   assert_success
 }
 

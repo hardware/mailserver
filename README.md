@@ -253,6 +253,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
 | **DISABLE_GREYLISTING** | Disable greylisting policy | *optional* | false
 | **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | false
+| **DISABLE_DNS_RESOLVER** | Disable the local DNS resolver | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **ENABLE_ENCRYPTION** | Enable automatic GPG encryption | *optional* | false
@@ -263,6 +264,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 * **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
+* Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
 
 ### Automatic GPG encryption of all your e-mails
 
