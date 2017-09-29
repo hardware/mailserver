@@ -569,6 +569,11 @@ docker logs -f mailserver
 - Rsyslog 8.24.0
 - ManageSieve server
 
+### Community projects
+
+- [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easely deploy hardware/mailserver.
+- [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
+
 ### Donation
 
 My Bitcoin address : **1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg**
