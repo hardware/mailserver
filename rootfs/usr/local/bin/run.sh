@@ -596,8 +596,8 @@ else
 fi
 
 # Create clamd directories
-mkdir -p /var/run/clamav /var/mail/clamav
-chown -R clamav:clamav /var/run/clamav /var/mail/clamav
+mkdir -p /var/run/clamav /var/mail/clamav /var/log/clamav
+chown -R clamav:clamav /var/run/clamav /var/mail/clamav /var/log/clamav
 
 # MISCELLANEOUS
 # ---------------------------------------------------------------------------------------------
