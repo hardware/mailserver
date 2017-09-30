@@ -648,6 +648,18 @@ load 'test_helper/bats-assert/load'
   assert_output "enabled = false;"
 }
 
+@test "checking rspamd: 3 modules disabled in ecdsa configuration" {
+  run docker exec mailserver_ecdsa cat /etc/rspamd/local.d/rbl.conf
+  assert_success
+  assert_output "enabled = false;"
+  run docker exec mailserver_ecdsa cat /etc/rspamd/local.d/mx_check.conf
+  assert_success
+  assert_output "enabled = false;"
+  run docker exec mailserver_ecdsa cat /etc/rspamd/local.d/url_redirector.conf
+  assert_success
+  assert_output "enabled = false;"
+}
+
 #
 # accounts
 #

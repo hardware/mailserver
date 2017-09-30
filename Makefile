@@ -89,6 +89,7 @@ init:
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e DISABLE_CLAMAV=true \
+		-e DISABLE_RSPAMD_MODULE=rbl,mx_check,url_redirector \
 		-e TESTING=true \
 		-v "`pwd`/test/share/ssl/ecdsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.ecdsa.conf":/var/mail/postfix/custom.conf \

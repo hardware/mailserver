@@ -248,6 +248,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
+| **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
@@ -265,6 +266,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 * Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
+* Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
 
 ### Automatic GPG encryption of all your e-mails
 
@@ -571,7 +573,7 @@ docker logs -f mailserver
 
 ### Community projects
 
-- [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easely deploy hardware/mailserver.
+- [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
 - [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
 
 ### Donation

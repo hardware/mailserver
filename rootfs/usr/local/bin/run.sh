@@ -37,6 +37,7 @@ REDIS_HOST=${REDIS_HOST:-redis}
 REDIS_PORT=${REDIS_PORT:-6379}
 REDIS_PASS=${REDIS_PASS:-}
 REDIS_NUMB=${REDIS_NUMB:-0}
+DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 DISABLE_SIGNING=${DISABLE_SIGNING:-false}
@@ -552,6 +553,15 @@ sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
 mkdir -p /var/mail/rspamd /var/log/rspamd /run/rspamd
 chown -R _rspamd:_rspamd /var/mail/rspamd /var/log/rspamd /run/rspamd
 chmod 750 /var/mail/rspamd /var/log/rspamd
+
+modules+=(${DISABLE_RSPAMD_MODULE//,/ })
+
+if [ ${#modules[@]} -gt 0 ]; then
+  echo "[INFO] $DISABLE_RSPAMD_MODULE rspamd module(s) disabled"
+  for module in "${modules[@]}"; do
+    echo "enabled = false;" > /etc/rspamd/local.d/"$module".conf
+  done
+fi
 
 # CLAMD
 # ---------------------------------------------------------------------------------------------
