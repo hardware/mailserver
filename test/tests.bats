@@ -858,6 +858,12 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking dovecot: custom sieve file is used" {
+  run docker exec mailserver_reverse /bin/sh -c "wc -l < /var/mail/sieve/default.sieve"
+  assert_success
+  assert_output 4
+}
+
 #
 # clamav
 #

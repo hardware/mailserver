@@ -492,6 +492,10 @@ if anyof(
 }
 EOF
 
+if [ -s /var/mail/sieve/custom.sieve ]; then
+  cp -f /var/mail/sieve/custom.sieve /var/mail/sieve/default.sieve
+fi
+
 # Compile sieve scripts
 sievec /var/mail/sieve/default.sieve
 sievec /etc/dovecot/sieve/report-ham.sieve

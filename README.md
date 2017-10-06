@@ -482,7 +482,7 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    │  │     ...
    ├──sieve
    │     default.sieve
-   │     default.svbin
+   │     custom.sieve (custom default sieve rules for all users)
    ├──dkim
    │  ├──domain.tld
    │  │     private.key

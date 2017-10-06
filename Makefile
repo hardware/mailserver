@@ -76,6 +76,7 @@ init:
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
+		-v "`pwd`/test/share/sieve/custom.sieve":/var/mail/sieve/custom.sieve \
 		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
 		-t $(NAME)
 
