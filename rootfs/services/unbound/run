@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Use the local DNS server
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
+if [ "$DISABLE_DNS_RESOLVER" = true ]; then
+  cp -f /etc/resolv.conf /var/mail/postfix/spool/etc/resolv.conf
+  exit 0
+fi
 
-# Update resolv.conf in postfix queue
-cp -f /etc/resolv.conf /var/mail/postfix/spool/etc/resolv.conf
+# Use the local DNS server
+echo "nameserver 127.0.0.1" | tee /etc/resolv.conf \
+                                  /var/mail/postfix/spool/etc/resolv.conf \
+                                  >/dev/null
 
 logger -p mail.info "s6-supervise : spawning unbound process"
 exec unbound &> /dev/stdout

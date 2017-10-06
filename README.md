@@ -248,11 +248,13 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
+| **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
 | **DISABLE_GREYLISTING** | Disable greylisting policy | *optional* | false
 | **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | false
+| **DISABLE_DNS_RESOLVER** | Disable the local DNS resolver | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
 | **ENABLE_ENCRYPTION** | Enable automatic GPG encryption | *optional* | false
@@ -263,6 +265,8 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 * **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
+* Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
+* Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
 
 ### Automatic GPG encryption of all your e-mails
 
@@ -478,7 +482,7 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    │  │     ...
    ├──sieve
    │     default.sieve
-   │     default.svbin
+   │     custom.sieve (custom default sieve rules for all users)
    ├──dkim
    │  ├──domain.tld
    │  │     private.key
@@ -566,6 +570,11 @@ docker logs -f mailserver
 - s6 2.6.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
+
+### Community projects
+
+- [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
+- [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
 
 ### Donation
 

@@ -18,6 +18,7 @@ export CERTFILE
 export KEYFILE
 export FULLCHAIN
 export DISABLE_CLAMAV
+export DISABLE_DNS_RESOLVER
 export RECIPIENT_DELIMITER
 export FETCHMAIL_INTERVAL
 export RELAY_NETWORKS
@@ -36,11 +37,13 @@ REDIS_HOST=${REDIS_HOST:-redis}
 REDIS_PORT=${REDIS_PORT:-6379}
 REDIS_PASS=${REDIS_PASS:-}
 REDIS_NUMB=${REDIS_NUMB:-0}
+DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 DISABLE_SIGNING=${DISABLE_SIGNING:-false}
 DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
 DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-false}
+DISABLE_DNS_RESOLVER=${DISABLE_DNS_RESOLVER:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
 ENABLE_ENCRYPTION=${ENABLE_ENCRYPTION:-false}
@@ -351,6 +354,18 @@ else
   echo "[INFO] POP3 protocol is disabled"
 fi
 
+# Disable Unbound DNS resolver
+if [ "$DISABLE_DNS_RESOLVER" = true ]; then
+  echo "[INFO] Unbound DNS resolver is disabled"
+  # Disable DNSSEC in Postfix and Rspamd configuration
+  sed -i -e 's|\(enable_dnssec.*=\).*|\1 false;|' \
+         -e '/nameserver/ s/^/#/' /etc/rspamd/local.d/options.inc
+  sed -i -e 's|\(smtp_tls_security_level.*=\).*|\1 may|' \
+         -e '/smtp_dns_support_level/ s/^/#/' /etc/postfix/main.cf
+else
+  echo "[INFO] Unbound DNS resolver is enabled"
+fi
+
 if [ "$TESTING" = true ]; then
   echo "[INFO] DOCKER IMAGE UNDER TESTING"
   # Disable postfix virtual table
@@ -477,6 +492,10 @@ if anyof(
 }
 EOF
 
+if [ -s /var/mail/sieve/custom.sieve ]; then
+  cp -f /var/mail/sieve/custom.sieve /var/mail/sieve/default.sieve
+fi
+
 # Compile sieve scripts
 sievec /var/mail/sieve/default.sieve
 sievec /etc/dovecot/sieve/report-ham.sieve
@@ -498,18 +517,22 @@ rm -f /var/mail/dovecot/instances
 # UNBOUND
 # ---------------------------------------------------------------------------------------------
 
-# Get a copy of the latest root DNS servers list
-curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
+if [ "$DISABLE_DNS_RESOLVER" = false ]; then
 
-# Update the root trust anchor to perform cryptographic DNSSEC validation
-unbound-anchor -a /etc/unbound/root.key
+  # Get a copy of the latest root DNS servers list
+  curl -s -o /etc/unbound/root.hints https://www.internic.net/domain/named.cache > /dev/null
 
-# Setting up unbound-control
-unbound-control-setup &> /dev/null
+  # Update the root trust anchor to perform cryptographic DNSSEC validation
+  unbound-anchor -a /etc/unbound/root.key
 
-# Set permissions
-chmod 775 /etc/unbound
-chown -R unbound:unbound /etc/unbound
+  # Setting up unbound-control
+  unbound-control-setup &> /dev/null
+
+  # Set permissions
+  chmod 775 /etc/unbound
+  chown -R unbound:unbound /etc/unbound
+
+fi
 
 # RSPAMD
 # ---------------------------------------------------------------------------------------------
@@ -534,6 +557,15 @@ sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
 mkdir -p /var/mail/rspamd /var/log/rspamd /run/rspamd
 chown -R _rspamd:_rspamd /var/mail/rspamd /var/log/rspamd /run/rspamd
 chmod 750 /var/mail/rspamd /var/log/rspamd
+
+modules+=(${DISABLE_RSPAMD_MODULE//,/ })
+
+if [ ${#modules[@]} -gt 0 ]; then
+  echo "[INFO] $DISABLE_RSPAMD_MODULE rspamd module(s) disabled"
+  for module in "${modules[@]}"; do
+    echo "enabled = false;" > /etc/rspamd/local.d/"$module".conf
+  done
+fi
 
 # CLAMD
 # ---------------------------------------------------------------------------------------------
@@ -578,8 +610,8 @@ else
 fi
 
 # Create clamd directories
-mkdir -p /var/run/clamav /var/mail/clamav
-chown -R clamav:clamav /var/run/clamav /var/mail/clamav
+mkdir -p /var/run/clamav /var/mail/clamav /var/log/clamav
+chown -R clamav:clamav /var/run/clamav /var/mail/clamav /var/log/clamav
 
 # MISCELLANEOUS
 # ---------------------------------------------------------------------------------------------
