@@ -56,10 +56,11 @@ init:
 		--link redis:redis \
 		-e FQDN=mail.domain.tld \
 		-e DOMAIN=domain.tld \
-		-e DBPASS=testpasswd \
+		-e DBPASS=/tmp/passwd/mariadb \
 		-e REDIS_HOST=redis \
 		-e REDIS_PORT=6379 \
-		-e RSPAMD_PASSWORD=testpasswd \
+		-e REDIS_PASS=/tmp/passwd/redis \
+		-e RSPAMD_PASSWORD=/tmp/passwd/rspamd \
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e VMAIL_SUBDIR=subdir \
@@ -75,6 +76,7 @@ init:
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
+		-v "`pwd`/test/share/passwd":/tmp/passwd \
 		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
 		-v "`pwd`/test/share/sieve/custom.sieve":/var/mail/sieve/custom.sieve \
 		-v "`pwd`/test/share/letsencrypt":/etc/letsencrypt \
