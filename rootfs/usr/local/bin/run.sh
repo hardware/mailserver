@@ -33,12 +33,12 @@ DBHOST=${DBHOST:-mariadb}
 DBPORT=${DBPORT:-3306}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
-DBPASS=$([ -f $DBPASS ] && cat $DBPASS || echo ${DBPASS:-})
+DBPASS=$([ -f "$DBPASS" ] && cat "$DBPASS" || echo "${DBPASS:-}")
 REDIS_HOST=${REDIS_HOST:-redis}
 REDIS_PORT=${REDIS_PORT:-6379}
-REDIS_PASS=$([ -f $REDIS_PASS ] && cat $REDIS_PASS || echo ${REDIS_PASS:-})
+REDIS_PASS=$([ -f "$REDIS_PASS" ] && cat "$REDIS_PASS" || echo "${REDIS_PASS:-}")
 REDIS_NUMB=${REDIS_NUMB:-0}
-RSPAMD_PASSWORD=$([ -f $RSPAMD_PASSWORD ] && cat $RSPAMD_PASSWORD || echo ${RSPAMD_PASSWORD:-})
+RSPAMD_PASSWORD=$([ -f "$RSPAMD_PASSWORD" ] && cat "$RSPAMD_PASSWORD" || echo "${RSPAMD_PASSWORD:-}")
 DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
@@ -552,7 +552,7 @@ adduser --quiet \
         _rspamd
 
 # Setting the controller password
-PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password ${RSPAMD_PASSWORD})
+PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password "${RSPAMD_PASSWORD}")
 sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
 
 # Set permissions
