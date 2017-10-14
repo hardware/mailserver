@@ -874,12 +874,9 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking clamav: all databases downloaded" {
-  run docker exec mailserver_default [ -f /var/lib/clamav/main.cvd ]
+  run docker exec mailserver_default /bin/sh -c "ls /var/lib/clamav | wc -l"
   assert_success
-  run docker exec mailserver_default [ -f /var/lib/clamav/daily.cvd ]
-  assert_success
-  run docker exec mailserver_default [ -f /var/lib/clamav/bytecode.cvd ]
-  assert_success
+  assert_output 4
 }
 
 @test "checking clamav: self checking every 3600 seconds" {

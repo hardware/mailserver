@@ -240,12 +240,12 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **DBPORT** | MariaDB instance port | *optional* | 3306
 | **DBUSER** | MariaDB database username | *optional* | postfix
 | **DBNAME** | MariaDB database name | *optional* | postfix
-| **DBPASS** | MariaDB database password | **required** | null
+| **DBPASS** | MariaDB database password or location of a file containing it | **required** | null
 | **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
 | **REDIS_PORT** | Redis instance port | *optional*  | 6379
-| **REDIS_PASS** | Redis database password | *optional* | null
+| **REDIS_PASS** | Redis database password or location of a file containing it | *optional* | null
 | **REDIS_NUMB** | Redis database number | *optional* | 0
-| **RSPAMD_PASSWORD** | Rspamd WebUI and controller password | **required** | null
+| **RSPAMD_PASSWORD** | Rspamd WebUI and controller password or location of a file containing it | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
 | **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
