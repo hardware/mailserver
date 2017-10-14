@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Make sure all services have actually exited *completely*
-for svc in /services/[a-z]*; do [ -d "$svc" ] && s6-svc -d -wD "$svc"; done
+for svc in /services/[a-z]*; do [ -d "$svc" ] && redirfd -w 2 /dev/null s6-svc -d -wD "$svc"; done
 
 # Remove leftover pid files from a stop/start
 rm -rf /var/run/*.pid /var/run/*/*.pid
