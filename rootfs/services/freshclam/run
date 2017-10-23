@@ -10,4 +10,5 @@ fi
 # Start clamd run script
 s6-svc -u /services/clamd
 
+echo $$>/var/run/clamav/freshclam.pid
 exec freshclam -d &>/dev/null
