@@ -562,12 +562,12 @@ docker logs -f mailserver
 
 - Postfix 3.1.4
 - Dovecot 2.2.27
-- Rspamd 1.6.3
+- Rspamd 1.6.5
 - Fetchmail 6.3.26
 - ClamAV 0.99.2
-- Zeyple 1.2.0
+- Zeyple 1.2.1
 - Unbound 1.6.0
-- s6 2.6.0.0
+- s6 2.6.1.1
 - Rsyslog 8.24.0
 - ManageSieve server
 
