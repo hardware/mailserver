@@ -145,16 +145,6 @@ if [ ! -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
 fi
 
-# DIFFIE-HELLMAN PARAMETERS
-# ---------------------------------------------------------------------------------------------
-
-if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/dh512.pem ]; then
-  echo "[INFO] Diffie-Hellman parameters not found, generating new DH params"
-  mkdir -p /var/mail/ssl/dhparams/
-  openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
-  openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
-fi
-
 # DKIM KEYS
 # ---------------------------------------------------------------------------------------------
 

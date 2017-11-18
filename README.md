@@ -190,7 +190,7 @@ Rainloop is a simple, modern and fast webmail with Sieve scripts support (filter
 
 #### 6 - Done, congratulation ! :tada:
 
-At first launch, the container takes few minutes to generate SSL certificates (if needed), Diffie-Hellman parameters, DKIM keypair and update clamav database, all of this takes some time (2/3 minutes), be patient...
+At first launch, the container takes few minutes to generate SSL certificates (if needed), DKIM keypair and update clamav database, all of this takes some time (1/2 minutes).
 
 This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.
 
@@ -487,10 +487,6 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    │  ├──domain.tld
    │  │     private.key
    │  │     public.key
-   ├──ssl
-   │  ├──dhparams
-   │  │     dh512.pem
-   │  │     dh2048.pem
    │  ├──live (Let's Encrypt or other CA)
    │  │  ├──mail.domain.tld
    │  │  │     privkey.pem
