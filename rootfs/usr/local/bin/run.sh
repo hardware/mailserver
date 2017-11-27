@@ -499,9 +499,8 @@ chown -R dovecot:dovecot /var/run/dovecot
 chown -R vmail:vmail /var/mail/sieve
 chmod +x /etc/dovecot/sieve/*.sh
 
-# Check permissions of vhosts directory.
-# Do not do this every start-up, it may take a very long time. So we use a stat check here.
-if [[ $(stat -c %U /var/mail/vhosts) != "vmail" ]] ; then chown -R vmail:vmail /var/mail/vhosts ; fi
+# Check permissions of vhosts directories
+find /var/mail/vhosts ! -user vmail -print0 | xargs -0 chown vmail:vmail
 
 # Avoid file_dotlock_open function exception
 rm -f /var/mail/dovecot/instances
