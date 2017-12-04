@@ -145,16 +145,6 @@ if [ ! -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
   sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
 fi
 
-# DIFFIE-HELLMAN PARAMETERS
-# ---------------------------------------------------------------------------------------------
-
-if [ ! -e /var/mail/ssl/dhparams/dh2048.pem ] || [ ! -e /var/mail/ssl/dhparams/dh512.pem ]; then
-  echo "[INFO] Diffie-Hellman parameters not found, generating new DH params"
-  mkdir -p /var/mail/ssl/dhparams/
-  openssl dhparam -out /var/mail/ssl/dhparams/dh2048.pem 2048
-  openssl dhparam -out /var/mail/ssl/dhparams/dh512.pem 512
-fi
-
 # DKIM KEYS
 # ---------------------------------------------------------------------------------------------
 
@@ -509,9 +499,8 @@ chown -R dovecot:dovecot /var/run/dovecot
 chown -R vmail:vmail /var/mail/sieve
 chmod +x /etc/dovecot/sieve/*.sh
 
-# Check permissions of vhosts directory.
-# Do not do this every start-up, it may take a very long time. So we use a stat check here.
-if [[ $(stat -c %U /var/mail/vhosts) != "vmail" ]] ; then chown -R vmail:vmail /var/mail/vhosts ; fi
+# Check permissions of vhosts directories
+find /var/mail/vhosts ! -user vmail -print0 | xargs -0 -r chown vmail:vmail
 
 # Avoid file_dotlock_open function exception
 rm -f /var/mail/dovecot/instances
