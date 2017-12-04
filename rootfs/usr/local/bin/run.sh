@@ -500,7 +500,7 @@ chown -R vmail:vmail /var/mail/sieve
 chmod +x /etc/dovecot/sieve/*.sh
 
 # Check permissions of vhosts directories
-find /var/mail/vhosts ! -user vmail -print0 | xargs -0 chown vmail:vmail
+find /var/mail/vhosts ! -user vmail -print0 | xargs -0 -r chown vmail:vmail
 
 # Avoid file_dotlock_open function exception
 rm -f /var/mail/dovecot/instances
