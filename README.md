@@ -468,6 +468,7 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    ├──dovecot
    |     instances
    |     ssl-parameters.dat
+   |  ├──conf.d (Custom dovecot configuration)
    ├──clamav (ClamAV databases directory)
    │     bytecode.cvd
    │     daily.cld
@@ -542,6 +543,31 @@ docker logs -f mailserver
 [INFO] Override : delay_notice_recipient = postmaster@domain.tld
 [INFO] Override : delay_warning_time = 2h
 [INFO] Custom Postfix configuration file loaded
+```
+
+### Custom configuration for dovecot
+
+Sometimes you might want to add additional configuration parameters or override the default ones. You can do so by placing configuration files to the persistent folder `/mnt/docker/mail/dovecot/conf.d`.
+
+Example:
+
+```bash
+# /mnt/docker/mail/dovecot/conf.d/20-imap.conf
+
+protocol imap {
+
+  mail_max_userip_connections = 100
+
+}
+
+# /mnt/docker/mail/dovecot/conf.d/90-quota.conf
+
+plugin {
+
+  quota_rule2 = Trash:storage=+200M
+  quota_exceeded_message = You have exceeded your mailbox quota.
+
+}
 ```
 
 ### Email client settings :
