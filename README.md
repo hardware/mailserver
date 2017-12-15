@@ -1,11 +1,3 @@
-### 2017-08-26 -> 1.1 is ready ! :heart_eyes:
-
-A new stable version is available (1.1-stable). Please see the list of changes [here](https://github.com/hardware/mailserver/issues/122) and the migration procedure [here](https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-stable).
-
-For the next 6 months, the `latest` docker tag will always point to **1.0 version** to not break compatibility with older installations. **After January 2018**, those who have not yet migrated, will receive an error at the next update (docker pull) and will be prompted to update the mail server or to switch to the `1.0-legacy` docker tag (not recommended).
-
-*Crafted with love by @hardware and [all contributors](https://github.com/hardware/mailserver/graphs/contributors)* :gift_heart:
-
 ## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Build
@@ -18,7 +10,7 @@ For the next 6 months, the `latest` docker tag will always point to **1.0 versio
 
 Simple and full-featured mail server as a set of multiple docker images includes :
 
-- **Postfix** : a full set smtp email server supporting custom rules
+- **Postfix** : a full set smtp email server
 - **Dovecot** : secure imap and pop3 email server
 - **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
 - **Clamav** : antivirus with automatic updates
@@ -42,7 +34,7 @@ Please check, if your system meets the following minimum system requirements :
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
-| RAM | 1 GiB | 2 GiB |
+| RAM | 1.5 GiB | 2 GiB |
 | Disk | 5 GiB (without emails) | 5 GiB (without emails) |
 | System | x86_64 | x86_64 |
 
