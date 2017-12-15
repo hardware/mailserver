@@ -864,6 +864,30 @@ load 'test_helper/bats-assert/load'
   assert_output 4
 }
 
+@test "checking dovecot: login_greeting value (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "doveconf -h login_greeting 2>/dev/null"
+  assert_success
+  assert_output "Do. Or do not. There is no try."
+}
+
+@test "checking dovecot: login_greeting value (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "doveconf -h login_greeting 2>/dev/null"
+  assert_success
+  assert_output "Dovecot ready."
+}
+
+@test "checking dovecot: mail_max_userip_connections imap value" {
+  run docker exec mailserver_default /bin/sh -c "doveconf -h -f protocol=imap mail_max_userip_connections 2>/dev/null"
+  assert_success
+  assert_output "100"
+}
+
+@test "checking dovecot: mail_max_userip_connections pop3 value" {
+  run docker exec mailserver_default /bin/sh -c "doveconf -h -f protocol=pop3 mail_max_userip_connections 2>/dev/null"
+  assert_success
+  assert_output "50"
+}
+
 #
 # clamav
 #

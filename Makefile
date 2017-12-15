@@ -46,6 +46,7 @@ init:
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.conf":/var/mail/postfix/custom.conf \
+		-v "`pwd`/test/share/dovecot/conf.d":/var/mail/dovecot/conf.d \
 		-h mail.domain.tld \
 		-t $(NAME)
 

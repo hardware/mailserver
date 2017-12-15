@@ -547,15 +547,28 @@ docker logs -f mailserver
 
 ### Custom configuration for dovecot
 
-Dovecot is configured to "just work". Sometimes you might want to add additional configuration parameters or override the default ones. 
-You can do so by placing configuration files to the persistent folder /mnt/docker/mail/dovecot/conf.d.
+Sometimes you might want to add additional configuration parameters or override the default ones. You can do so by placing configuration files to the persistent folder `/mnt/docker/mail/dovecot/conf.d`.
 
 Example:
 
 ```bash
-# echo 'login_greeting = Dovecot welcomes you!' > /mnt/docker/mail/dovecot/10-custom.conf
-```
+# /mnt/docker/mail/dovecot/conf.d/20-imap.conf
 
+protocol imap {
+
+  mail_max_userip_connections = 100
+
+}
+
+# /mnt/docker/mail/dovecot/conf.d/90-quota.conf
+
+plugin {
+
+  quota_rule2 = Trash:storage=+200M
+  quota_exceeded_message = You have exceeded your mailbox quota.
+
+}
+```
 
 ### Email client settings :
 
