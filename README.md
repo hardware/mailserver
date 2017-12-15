@@ -468,6 +468,7 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    ├──dovecot
    |     instances
    |     ssl-parameters.dat
+   |  ├──conf.d (Custom dovecot configuration)
    ├──clamav (ClamAV databases directory)
    │     bytecode.cvd
    │     daily.cld
@@ -543,6 +544,18 @@ docker logs -f mailserver
 [INFO] Override : delay_warning_time = 2h
 [INFO] Custom Postfix configuration file loaded
 ```
+
+### Custom configuration for dovecot
+
+Dovecot is configured to "just work". Sometimes you might want to add additional configuration parameters or override the default ones. 
+You can do so by placing configuration files to the persistent folder /mnt/docker/mail/dovecot/conf.d.
+
+Example:
+
+```bash
+# echo 'login_greeting = Dovecot welcomes you!' > /mnt/docker/mail/dovecot/10-custom.conf
+```
+
 
 ### Email client settings :
 
