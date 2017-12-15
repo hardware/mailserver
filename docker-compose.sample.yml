@@ -35,6 +35,7 @@ services:
     volumes:
       - /mnt/docker/mail:/var/mail
     # - /mnt/docker/nginx/certs:/etc/letsencrypt
+      - /mnt/docker/mail/dovecot/conf.d:/etc/dovecot/custom.conf.d
     depends_on:
       - mariadb
       - redis
