@@ -210,6 +210,7 @@ _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/statistic.conf
+_envtpl /etc/rspamd/local.d/settings.conf
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning.sh
