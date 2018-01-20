@@ -1,36 +1,11 @@
 version: '2.1'
 
 services:
-   traefik:
-    restart: unless-stopped
-    image: traefik
-    container_name: proxy_traefik
-    hostname: traefik
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080" 
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.toml:/traefik.toml
-      - ./files/acme:/etc/traefik/acme
-    networks:
-       - traefik_proxy
-
   mailserver:
     image: hardware/mailserver:1.1-stable
     container_name: mailserver
     domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: mail
-    labels:
-      - traefik.enable=true
-      - traefik.mail.backend.port=143
-      - traefik.mail.frontend.rule=Host:mail.domail.tld
-      - traefik.smtp.backend.port=587
-      - traefik.smtp.frontend.rule=Host:smtp.domail.tld
-      - traefik.imap.backend.port=993
-      - traefik.imap.frontend.rule=Host:imap.domail.tld
-      - traefik.docker.network=traefik_proxy
     # restart: always
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
     #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
@@ -47,8 +22,8 @@ services:
     environment:
       - DBPASS=xxxxxxx                      # MariaDB database password (required)
       - RSPAMD_PASSWORD=xxxxxxx             # Rspamd WebUI password (required)
-    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
-    # - ENABLE_POP3=true                    # Enable POP3 protocol
+    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - ENABLE_POP3=true                    # Enable POP3 protocol
     # - ENABLE_FETCHMAIL=true               # Enable fetchmail forwarding
     # - DISABLE_CLAMAV=true                 # Disable virus scanning
     # - DISABLE_SIGNING=true                # Disable DKIM/ARC signing
@@ -63,12 +38,9 @@ services:
     depends_on:
       - mariadb
       - redis
-    networks:
-      - mail_back
-      - traefik_proxy
 
   # Administration interface
-  # https://github.com/hardware/postfixadmin
+  # https://github.com/hardware/postfixadmin
   # http://postfixadmin.sourceforge.net/
   # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
   postfixadmin:
@@ -76,42 +48,63 @@ services:
     container_name: postfixadmin
     domainname: domain.tld
     hostname: mail
-    labels:
-    - traefik.enable=true
-    - traefik.frontend.rule=Host:postfixadmin.domain.tld
-    - traefik.backend.port=8888
-    - traefik.docker.network=traefik_proxy
     # restart: always
     environment:
       - DBPASS=xxxxxxx
     depends_on:
       - mailserver
       - mariadb
-    networks:
-      - mail_back
-      - traefik_proxy
 
   # Webmail (Optional)
-  # https://github.com/hardware/rainloop
+  # https://github.com/hardware/rainloop
   # https://www.rainloop.net/
   # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
   rainloop:
     image: hardware/rainloop
     container_name: rainloop
-    labels:
-      - traefik.enable=true
-      - traefik.backend.port=8888
-      - traefik.frontend.rule=Host:webmail.domain.tld
-      - traefik.docker.network=traefik_proxy
     # restart: always
     volumes:
       - /mnt/docker/rainloop:/rainloop/data
     depends_on:
       - mailserver
       - mariadb
-    networks:
-      - mail_back
-      - traefik_proxy
+
+  # Authoritative DNS server (Optional)
+  # https://github.com/hardware/nsd-dnssec
+  # https://www.nlnetlabs.nl/projects/nsd/
+  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+  nsd:
+    image: hardware/nsd-dnssec
+    container_name: nsd
+    # restart: always
+    ports:
+      - "53:53"
+      - "53:53/udp"
+    volumes:
+      - /mnt/docker/nsd/conf:/etc/nsd
+      - /mnt/docker/nsd/zones:/zones
+      - /mnt/docker/nsd/db:/var/db/nsd
+
+  # Web server
+  # https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx
+  # https://nginx.org/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+  nginx:
+    image: wonderfall/boring-nginx
+    container_name: nginx
+    # restart: always
+    ports:
+      - "80:8000"
+      - "443:4430"
+    volumes:
+      - /mnt/docker/nginx/sites-enabled:/sites-enabled
+      - /mnt/docker/nginx/conf:/conf.d
+      - /mnt/docker/nginx/log:/var/log/nginx
+      - /mnt/docker/nginx/certs:/certs
+    depends_on:
+      - mailserver
+      - postfixadmin
+      - rainloop
 
   # Database
   # https://github.com/docker-library/mariadb
@@ -128,8 +121,6 @@ services:
       - MYSQL_PASSWORD=xxxxxxx
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
-    networks:
-      - mail_back
 
   # Cache Database
   # https://github.com/docker-library/redis
@@ -141,11 +132,3 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - /mnt/docker/redis/db:/data
-    networks:
-      - mail_back
-
-networks:
-  traefik_proxy:
-    external:
-      name: traefik_proxy
-  mail_back:
