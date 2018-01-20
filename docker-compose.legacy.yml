@@ -1,0 +1,134 @@
+version: '2.1'
+
+services:
+  mailserver:
+    image: hardware/mailserver:1.1-stable
+    container_name: mailserver
+    domainname: domain.tld                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
+    hostname: mail
+    # restart: always
+    # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
+    #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
+    #  - "redis:xx.xx.xx.xx"                - Replace with IP address of Redis server
+    ports:
+      - "25:25"       # SMTP                - Required
+    # - "110:110"     # POP3       STARTTLS - Optional - For webmails/desktop clients
+      - "143:143"     # IMAP       STARTTLS - Optional - For webmails/desktop clients
+    # - "465:465"     # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+      - "587:587"     # Submission STARTTLS - Optional - For webmails/desktop clients
+      - "993:993"     # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+    # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+      - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+    environment:
+      - DBPASS=xxxxxxx                      # MariaDB database password (required)
+      - RSPAMD_PASSWORD=xxxxxxx             # Rspamd WebUI password (required)
+    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - ENABLE_POP3=true                    # Enable POP3 protocol
+    # - ENABLE_FETCHMAIL=true               # Enable fetchmail forwarding
+    # - DISABLE_CLAMAV=true                 # Disable virus scanning
+    # - DISABLE_SIGNING=true                # Disable DKIM/ARC signing
+    # - DISABLE_GREYLISTING=true            # Disable greylisting policy
+    # - DISABLE_RATELIMITING=true           # Disable ratelimiting policy
+    #
+    # Full list : https://github.com/hardware/mailserver#environment-variables
+    #
+    volumes:
+      - /mnt/docker/mail:/var/mail
+    # - /mnt/docker/nginx/certs:/etc/letsencrypt
+    depends_on:
+      - mariadb
+      - redis
+
+  # Administration interface
+  # https://github.com/hardware/postfixadmin
+  # http://postfixadmin.sourceforge.net/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
+  postfixadmin:
+    image: hardware/postfixadmin
+    container_name: postfixadmin
+    domainname: domain.tld
+    hostname: mail
+    # restart: always
+    environment:
+      - DBPASS=xxxxxxx
+    depends_on:
+      - mailserver
+      - mariadb
+
+  # Webmail (Optional)
+  # https://github.com/hardware/rainloop
+  # https://www.rainloop.net/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
+  rainloop:
+    image: hardware/rainloop
+    container_name: rainloop
+    # restart: always
+    volumes:
+      - /mnt/docker/rainloop:/rainloop/data
+    depends_on:
+      - mailserver
+      - mariadb
+
+  # Authoritative DNS server (Optional)
+  # https://github.com/hardware/nsd-dnssec
+  # https://www.nlnetlabs.nl/projects/nsd/
+  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+  nsd:
+    image: hardware/nsd-dnssec
+    container_name: nsd
+    # restart: always
+    ports:
+      - "53:53"
+      - "53:53/udp"
+    volumes:
+      - /mnt/docker/nsd/conf:/etc/nsd
+      - /mnt/docker/nsd/zones:/zones
+      - /mnt/docker/nsd/db:/var/db/nsd
+
+  # Web server
+  # https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx
+  # https://nginx.org/
+  # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+  nginx:
+    image: wonderfall/boring-nginx
+    container_name: nginx
+    # restart: always
+    ports:
+      - "80:8000"
+      - "443:4430"
+    volumes:
+      - /mnt/docker/nginx/sites-enabled:/sites-enabled
+      - /mnt/docker/nginx/conf:/conf.d
+      - /mnt/docker/nginx/log:/var/log/nginx
+      - /mnt/docker/nginx/certs:/certs
+    depends_on:
+      - mailserver
+      - postfixadmin
+      - rainloop
+
+  # Database
+  # https://github.com/docker-library/mariadb
+  # https://mariadb.org/
+  mariadb:
+    image: mariadb:10.2
+    container_name: mariadb
+    # restart: always
+    # Info : These variables are ignored when the volume already exists (databases created before).
+    environment:
+      - MYSQL_ROOT_PASSWORD=xxxxxxx
+      - MYSQL_DATABASE=postfix
+      - MYSQL_USER=postfix
+      - MYSQL_PASSWORD=xxxxxxx
+    volumes:
+      - /mnt/docker/mysql/db:/var/lib/mysql
+
+  # Cache Database
+  # https://github.com/docker-library/redis
+  # https://redis.io/
+  redis:
+    image: redis:4.0-alpine
+    container_name: redis
+    # restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - /mnt/docker/redis/db:/data
