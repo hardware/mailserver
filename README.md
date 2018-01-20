@@ -138,13 +138,15 @@ chmod 600 docker-compose.yml traefik/traefik.toml traefik/acme/acme.json
 
 #### 2 - Get the latest docker-compose.yml and traefik.toml
 
+| Tags | Description |
+| ---- | ----------- |
+| **1.1-stable** | Stable version (v1.1-stable branch) |
+| **1.1-latest** | Latest development build* (master branch) |
+
+\*These builds have been validated through the CI automation system but they are not meant for deployment in production.
+
 * [docker-compose.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
 * [traefik.toml](https://github.com/hardware/mailserver/blob/master/traefik.sample.toml)
-
-| Tags | Description | 
-| -------- | ----- |
-| 1.1-stable | Stable version (v1.1-stable branch) |
-| 1.1-latest | Latest development build (master branch). These builds have been validated through the CI automation system but they are not meant for deployment in production. |
 
 Don't forger to replace all values surrounded by **{{ }}** mark. Then, start all services :
 
@@ -329,7 +331,7 @@ Required files in this folder :
 | chain.pem | Root and intermediate certificates only, excluding server certificate |
 | fullchain.pem | All certificates, including server certificate. This is concatenation of cert.pem and chain.pem |
 
-** Notes : **
+**Notes** :
 
 * Important : When renewing certificates, you must restart the mailserver container.
 
