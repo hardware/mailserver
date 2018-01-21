@@ -85,7 +85,6 @@ A correct DNS setup is required, this step is very important.
 | -------- | ----- | ---- | -------- | ----- |
 | mail | IN | A/AAAA | any | 1.2.3.4 |
 | postfixadmin | IN | CNAME | any | mail.domain.tld. |
-| webmail | IN | CNAME | any | mail.domain.tld. |
 | @ | IN | MX | 10 | mail.domain.tld. |
 
 Make sure that the **PTR record** of your IP matches the FQDN of your mailserver host. This record is usually set in your web hosting interface.
@@ -96,6 +95,7 @@ DKIM, SPF and DMARC are recommended to build a good reputation score.
 
 | HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
 | -------- | ----- | ---- | -------- | ----- |
+| webmail | IN | CNAME | any | mail.domain.tld. |
 | @ | IN | TXT | any | "v=spf1 a mx ip4:SERVER_IPV4 ~all" |
 | mail._domainkey | IN | TXT | any | "v=DKIM1; k=rsa; p=YOUR DKIM Public Key" |
 | _dmarc | IN | TXT | any | "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject" |
@@ -147,7 +147,7 @@ chmod 600 docker-compose.yml traefik/traefik.toml traefik/acme/acme.json
 * [docker-compose.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
 * [traefik.toml](https://github.com/hardware/mailserver/blob/master/traefik.sample.toml)
 
-Don't forger to replace all values surrounded by **{{ }}** mark. Then, start all services :
+Don't forget to replace all values surrounded by **{{ }}** mark. Then, start all services :
 
 ```
 docker-compose up -d
