@@ -101,7 +101,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.backend.port=8888
-      - traefik.frontend.rule=Host:rainloop.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:webmail.{{ DOMAIN }}
       - traefik.docker.network=http_network
     volumes:
       - /mnt/docker/rainloop:/rainloop/data

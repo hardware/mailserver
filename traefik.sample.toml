@@ -7,6 +7,7 @@ defaultEntryPoints = ["https","http"]
     entryPoint = "https"
   [entryPoints.https]
   address = ":443"
+    [entryPoints.https.tls]
 
 [acme]
 email = "{{ EMAIL }}"
