@@ -104,15 +104,15 @@ if [ -f "$ACME_PATH"/acme.json ]; then
 
   echo "[INFO] acme.json found, dumping into pem files"
   mkdir -p "$CERT_TEMP_PATH" "$LETS_ENCRYPT_LIVE_PATH"
-  dumpcerts.sh "$ACME_PATH"/acme.json "$CERT_TEMP_PATH" >> /etc/letsencrypt/acme/dump.log 2>&1
+  dumpcerts.sh "$ACME_PATH"/acme.json "$CERT_TEMP_PATH" >> "$ACME_PATH"/dump.log 2>&1
 
   if [ -e "$CERT_TEMP_PATH"/certs/"$FQDN".crt ] && [ -e "$CERT_TEMP_PATH"/private/"$FQDN".key ]; then
     mv -f "$CERT_TEMP_PATH"/certs/"$FQDN".crt "$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
     mv -f "$CERT_TEMP_PATH"/private/"$FQDN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
-    rm -rf "$CERT_TEMP_PATH" /etc/letsencrypt/acme/dump.log
+    rm -rf "$CERT_TEMP_PATH" "$ACME_PATH"/dump.log
   else
     echo "[ERROR] ${FQDN}.crt or ${FQDN}.key not found !"
-    echo "[ERROR] Look /etc/letsencrypt/acme/dump.log for more information"
+    echo "[ERROR] Look /mnt/docker/traefik/acme/dump.log for more information"
     exit 1
   fi
 
