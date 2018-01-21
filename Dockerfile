@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav-daemon \
     python-pip python-setuptools python-gpgme \
-    rsyslog dnsutils curl unbound \
+    rsyslog dnsutils curl unbound jq \
  && rm -rf /var/spool/postfix \
  && ln -s /var/mail/postfix/spool /var/spool/postfix \
  && pip install envtpl \
