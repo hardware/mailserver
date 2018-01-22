@@ -14,6 +14,11 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:mail.{{ DOMAIN }}
+      - traefik.backend.port=8080
+      - traefik.docker.network=http_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/docker/traefik/traefik.toml:/traefik.toml:ro
@@ -29,7 +34,7 @@ services:
     hostname: mail
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:mail.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:spam.{{ DOMAIN }}
       - traefik.backend.port=11334
       - traefik.docker.network=http_network
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
