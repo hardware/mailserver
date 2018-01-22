@@ -923,10 +923,10 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking clamav: 4 database mirrors" {
+@test "checking clamav: 6 database mirrors" {
   run docker exec mailserver_default /bin/sh -c "grep 'DatabaseMirror' /etc/clamav/freshclam.conf | wc -l"
   assert_success
-  assert_output 4
+  assert_output 6
 }
 
 #
