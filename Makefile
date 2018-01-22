@@ -11,7 +11,7 @@ build:
 	docker build -t $(NAME) .
 
 init:
-	-docker rm -f mariadb redis mailserver_default mailserver_reverse mailserver_ecdsa
+	-docker rm -f mariadb redis mailserver_default mailserver_reverse mailserver_ecdsa mailserver_traefik_acme
 	sleep 2
 
 	docker run \
@@ -97,6 +97,21 @@ init:
 		-e TESTING=true \
 		-v "`pwd`/test/share/ssl/ecdsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.ecdsa.conf":/var/mail/postfix/custom.conf \
+		-h mail.domain.tld \
+		-t $(NAME)
+
+	docker run \
+		-d \
+		--name mailserver_traefik_acme \
+		--link mariadb:mariadb \
+		--link redis:redis \
+		-e DBPASS=testpasswd \
+		-e RSPAMD_PASSWORD=testpasswd \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
+		-e TESTING=true \
+		-v "`pwd`/test/share/traefik":/etc/letsencrypt/acme \
 		-h mail.domain.tld \
 		-t $(NAME)
 

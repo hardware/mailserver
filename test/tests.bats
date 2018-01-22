@@ -1130,6 +1130,11 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking ssl: traefik cert works correctly" {
+  run docker exec mailserver_traefik_acme /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
+  assert_success
+}
+
 @test "checking ssl: default configuration is correct" {
   run docker exec mailserver_default /bin/sh -c "grep '/var/mail/ssl/selfsigned' /etc/postfix/main.cf | wc -l"
   assert_success
@@ -1146,6 +1151,43 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_reverse /bin/sh -c "grep '/etc/letsencrypt/live/mail.domain.tld' /etc/dovecot/conf.d/10-ssl.conf | wc -l"
   assert_success
   assert_output 2
+}
+
+#
+# traefik acme
+#
+
+@test "checking traefik acme: acme.json exist" {
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/acme/acme.json ]
+  assert_success
+}
+
+@test "checking traefik acme: dump.log doesn't exist" {
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/acme/dump.log ]
+  assert_failure
+}
+
+@test "checking traefik acme: all certificates were generated" {
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/cert.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/chain.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/fullchain.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/privkey.pem ]
+  assert_success
+}
+
+@test "checking traefik acme: check private key" {
+  run docker exec mailserver_traefik_acme /bin/sh -c "openssl rsa -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem -check 2>/dev/null | head -n 1"
+  assert_success
+  assert_output "RSA key ok"
+}
+
+@test "checking traefik acme: private key matches the certificate" {
+  run docker exec mailserver_traefik_acme /bin/sh -c "(openssl x509 -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/cert.pem | openssl md5 ; openssl rsa -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem | openssl md5) | uniq | wc -l"
+  assert_success
+  assert_output 1
 }
 
 #
