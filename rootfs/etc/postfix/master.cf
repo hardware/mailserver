@@ -17,7 +17,7 @@ submission inet n       -       -       -       -       smtpd
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=authclean
 
-465       inet  n       -       -       -       -       smtpd
+smtps     inet  n       -       -       -       -       smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=yes
   -o smtpd_tls_ciphers=high
@@ -65,5 +65,5 @@ zeyple    unix  -       n       n       -       -       pipe
   -o smtpd_client_restrictions=
   -o smtpd_sender_restrictions=
   -o smtpd_recipient_restrictions=permit_mynetworks,reject
-  -o mynetworks=127.0.0.0/8
-  -o smtpd_authorized_xforward_hosts=127.0.0.0/8
+  -o mynetworks=127.0.0.0/8,[::1]/128
+  -o smtpd_authorized_xforward_hosts=127.0.0.0/8,[::1]/128

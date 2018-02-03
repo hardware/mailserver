@@ -611,9 +611,11 @@ sed -i '/^DatabaseMirror/ d' /etc/clamav/freshclam.conf
 
 # Add some database mirrors
 cat <<EOT >> /etc/clamav/freshclam.conf
-DatabaseMirror clamav.univ-nantes.fr
 DatabaseMirror switch.clamav.net
 DatabaseMirror clamav.iol.cz
+DatabaseMirror clamav.easynet.fr
+DatabaseMirror clamav.begi.net
+DatabaseMirror clamav.univ-nantes.fr
 DatabaseMirror db.fr.clamav.net
 EOT
 
