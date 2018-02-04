@@ -9,9 +9,9 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     postfix postfix-mysql postfix-pcre libsasl2-modules \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
     fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
-    clamav-daemon \
+    clamav clamav-daemon \
     python-pip python-setuptools python-gpgme \
-    rsyslog dnsutils curl unbound jq \
+    rsyslog dnsutils curl unbound jq rsync \
  && rm -rf /var/spool/postfix \
  && ln -s /var/mail/postfix/spool /var/spool/postfix \
  && pip install envtpl \
