@@ -213,15 +213,16 @@ done
 # ENVIRONMENT VARIABLES TEMPLATING
 # ---------------------------------------------------------------------------------------------
 
-# Avoid envtpl error if cron file doesn't exist
+# Avoid gucci error if cron file doesn't exist
 if [ ! -f /etc/cron.d/fetchmail ]; then
   touch /etc/cron.d/fetchmail
 fi
 
-# Replace ENV vars
+# Replace environment variables with Gucci
+# https://github.com/noqcks/gucci
+# Gucci requires files to have .tpl extension
 _envtpl() {
-  mv "$1" "$1.tpl" # envtpl requires files to have .tpl extension
-  envtpl "$1.tpl"
+  mv "$1" "$1.tpl" && gucci "$1.tpl" > "$1" && rm -f "$1.tpl"
 }
 
 _envtpl /etc/postfix/main.cf

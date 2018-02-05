@@ -230,8 +230,6 @@ If you use Ansible, I recommend you to go to see @ksylvan playbooks here : https
 
 ### Environment variables
 
-:warning: Use only ASCII printable characters in environment variables : https://en.wikipedia.org/wiki/ASCII#Printable_characters
-
 | Variable | Description | Type | Default value |
 | -------- | ----------- | ---- | ------------- |
 | **VMAILUID** | vmail user id | *optional* | 1024

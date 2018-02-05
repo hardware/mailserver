@@ -10,7 +10,7 @@ readme_directory     = no
 allow_percent_hack   = no
 delay_warning_time   = 4h
 mailbox_command      = procmail -a "$EXTENSION"
-recipient_delimiter  = {{ RECIPIENT_DELIMITER }}
+recipient_delimiter  = {{ .RECIPIENT_DELIMITER }}
 disable_vrfy_command = yes
 message_size_limit   = 502400000
 mailbox_size_limit   = 1024000000
@@ -18,10 +18,10 @@ mailbox_size_limit   = 1024000000
 inet_interfaces = all
 inet_protocols = all
 
-myhostname    = {{ FQDN }}
-myorigin      = {{ FQDN }}
+myhostname    = {{ .FQDN }}
+myorigin      = {{ .FQDN }}
 mydestination = localhost localhost.$mydomain
-mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 {{ RELAY_NETWORKS }}
+mynetworks    = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 {{ .RELAY_NETWORKS }}
 
 alias_maps = hash:/etc/aliases
 
@@ -58,7 +58,7 @@ default_destination_recipient_limit = 10
 smtp_tls_loglevel            = 1
 smtp_tls_security_level      = dane
 smtp_dns_support_level       = dnssec
-smtp_tls_CAfile              = {{ CAFILE }}
+smtp_tls_CAfile              = {{ .CAFILE }}
 smtp_tls_protocols           = !SSLv2, !SSLv3
 smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtp_tls_mandatory_ciphers   = medium
@@ -74,8 +74,8 @@ smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 smtpd_tls_mandatory_ciphers   = medium
 smtpd_tls_exclude_ciphers     = aNULL,eNULL,EXPORT,DES,3DES,RC2,RC4,MD5,PSK,SRP,DSS,AECDH,ADH
 smtpd_tls_CAfile              = $smtp_tls_CAfile
-smtpd_tls_cert_file           = {{ CERTFILE }}
-smtpd_tls_key_file            = {{ KEYFILE }}
+smtpd_tls_cert_file           = {{ .CERTFILE }}
+smtpd_tls_key_file            = {{ .KEYFILE }}
 smtpd_tls_dh1024_param_file   = /etc/postfix/ffdhe2048.pem
 
 tls_preempt_cipherlist = yes
@@ -104,9 +104,9 @@ broken_sasl_auth_clients = yes
 ## VIRTUALS MAPS PARAMETERS ##
 ##############################
 
-virtual_uid_maps        = static:{{ VMAILUID }}
-virtual_gid_maps        = static:{{ VMAILGID }}
-virtual_minimum_uid     = {{ VMAILUID }}
+virtual_uid_maps        = static:{{ .VMAILUID }}
+virtual_gid_maps        = static:{{ .VMAILGID }}
+virtual_minimum_uid     = {{ .VMAILUID }}
 virtual_mailbox_base    = /var/mail
 virtual_transport       = lmtp:unix:private/dovecot-lmtp
 virtual_mailbox_domains = mysql:/etc/postfix/sql/virtual-mailbox-domains.cf
@@ -124,10 +124,10 @@ virtual_alias_maps      = mysql:/etc/postfix/sql/virtual-alias-maps.cf,
 # notify_classes = bounce, delay, resource, software
 notify_classes = resource, software
 
-error_notice_recipient     = postmaster@{{ DOMAIN }}
-# delay_notice_recipient   = postmaster@{{ DOMAIN }}
-# bounce_notice_recipient  = postmaster@{{ DOMAIN }}
-# 2bounce_notice_recipient = postmaster@{{ DOMAIN }}
+error_notice_recipient     = postmaster@{{ .DOMAIN }}
+# delay_notice_recipient   = postmaster@{{ .DOMAIN }}
+# bounce_notice_recipient  = postmaster@{{ .DOMAIN }}
+# 2bounce_notice_recipient = postmaster@{{ .DOMAIN }}
 
 ##################
 ## RESTRICTIONS ##
