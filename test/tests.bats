@@ -47,12 +47,12 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking system: all environment variables have been replaced (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
+  run docker exec mailserver_default /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
   assert_failure
 }
 
 @test "checking system: all environment variables have been replaced (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "egrep -R "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
+  run docker exec mailserver_reverse /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
   assert_failure
 }
 
@@ -897,12 +897,6 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking clamav: all databases downloaded" {
-  run docker exec mailserver_default /bin/sh -c "ls /var/lib/clamav | wc -l"
-  assert_success
-  assert_output 4
-}
-
 @test "checking clamav: self checking every 3600 seconds" {
   run docker exec mailserver_default grep -i 'clamd\[.*\]: Self checking every 3600 seconds' /var/log/mail.log
   assert_success
@@ -927,6 +921,48 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_default /bin/sh -c "grep 'DatabaseMirror' /etc/clamav/freshclam.conf | wc -l"
   assert_success
   assert_output 6
+}
+
+#
+# clamav-unofficial-sigs
+#
+
+@test "checking clamav-unofficial-sigs: rsync command exist" {
+  run docker exec mailserver_default /bin/sh -c "command -v rsync"
+  assert_success
+  assert_output "/usr/bin/rsync"
+}
+
+@test "checking clamav-unofficial-sigs: curl command exist" {
+  run docker exec mailserver_default /bin/sh -c "command -v curl"
+  assert_success
+  assert_output "/usr/bin/curl"
+}
+
+@test "checking clamav-unofficial-sigs: clamscan command exist" {
+  run docker exec mailserver_default /bin/sh -c "command -v clamscan"
+  assert_success
+  assert_output "/usr/bin/clamscan"
+}
+
+@test "checking clamav-unofficial-sigs: cron task exist" {
+  run docker exec mailserver_default [ -f /etc/cron.d/clamav-unofficial-sigs ]
+  assert_success
+}
+
+@test "checking clamav-unofficial-sigs: logrotate task exist" {
+  run docker exec mailserver_default [ -f /etc/logrotate.d/clamav-unofficial-sigs ]
+  assert_success
+}
+
+@test "checking clamav-unofficial-sigs: cron task doesn't exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /etc/cron.d/clamav-unofficial-sigs ]
+  assert_failure
+}
+
+@test "checking clamav-unofficial-sigs: logrotate task doesn't exist (reverse configuration)" {
+  run docker exec mailserver_reverse [ -f /etc/logrotate.d/clamav-unofficial-sigs ]
+  assert_failure
 }
 
 #

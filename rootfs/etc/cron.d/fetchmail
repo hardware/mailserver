@@ -1,1 +1,1 @@
-*/{{ FETCHMAIL_INTERVAL }} * * * * root /usr/bin/perl /usr/local/bin/fetchmail.pl > /dev/null 2>&1
+*/{{ .FETCHMAIL_INTERVAL }} * * * * root /usr/bin/perl /usr/local/bin/fetchmail.pl > /dev/null 2>&1

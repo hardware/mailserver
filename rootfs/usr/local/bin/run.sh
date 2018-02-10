@@ -213,15 +213,16 @@ done
 # ENVIRONMENT VARIABLES TEMPLATING
 # ---------------------------------------------------------------------------------------------
 
-# Avoid envtpl error if cron file doesn't exist
+# Avoid gucci error if cron file doesn't exist
 if [ ! -f /etc/cron.d/fetchmail ]; then
   touch /etc/cron.d/fetchmail
 fi
 
-# Replace ENV vars
+# Replace environment variables with Gucci
+# https://github.com/noqcks/gucci
+# Gucci requires files to have .tpl extension
 _envtpl() {
-  mv "$1" "$1.tpl" # envtpl requires files to have .tpl extension
-  envtpl "$1.tpl"
+  mv "$1" "$1.tpl" && gucci "$1.tpl" > "$1" && rm -f "$1.tpl"
 }
 
 _envtpl /etc/postfix/main.cf
@@ -275,6 +276,7 @@ if [ $? -ne 0 ]; then
     echo "${IP} ${DBHOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+    echo "[ERROR] Check your DBHOST environment variable"
     exit 1
   fi
 else
@@ -292,6 +294,7 @@ if [ $? -ne 0 ]; then
     echo "${IP} ${REDIS_HOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+    echo "[ERROR] Check your REDIS_HOST environment variable"
     exit 1
   fi
 else
@@ -639,6 +642,21 @@ fi
 # Create clamd directories
 mkdir -p /var/run/clamav /var/mail/clamav /var/log/clamav
 chown -R clamav:clamav /var/run/clamav /var/mail/clamav /var/log/clamav
+
+# CLAMAV-UNOFFICIAL-SIGS
+# ---------------------------------------------------------------------------------------------
+
+if [ -f "/var/mail/clamav-unofficial-sigs/user.conf" ]; then
+  echo "[INFO] clamav-unofficial-sigs is enabled (user configuration found)"
+  rm -rf /var/lib/clamav-unofficial-sigs
+  ln -s /var/mail/clamav-unofficial-sigs /var/lib/clamav-unofficial-sigs
+  cp -f /var/mail/clamav-unofficial-sigs/user.conf /etc/clamav/unofficial-sigs
+  mkdir -p /var/log/clamav-unofficial-sigs
+  clamav-unofficial-sigs.sh --install-cron &>/dev/null
+  clamav-unofficial-sigs.sh --install-logrotate &>/dev/null
+else
+  echo "[INFO] clamav-unofficial-sigs is disabled (user configuration not found)"
+fi
 
 # MISCELLANEOUS
 # ---------------------------------------------------------------------------------------------

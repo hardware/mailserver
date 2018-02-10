@@ -129,7 +129,7 @@ TXT
   print $file_handler $text;
   close $file_handler;
 
-  $ret=`/usr/bin/fetchmail -f $filename -i $run_dir/fetchmail.pid --sslcertfile {{ CERTFILE }}`;
+  $ret=`/usr/bin/fetchmail -f $filename -i $run_dir/fetchmail.pid --sslcertfile {{ .CERTFILE }}`;
 
   unlink $filename;
 

@@ -18,7 +18,14 @@ s6-svc -u /services/dovecot
 s6-svc -u /services/rspamd
 s6-svc -u /services/cron
 
-[ "$DISABLE_CLAMAV" = true ] || s6-svc -u /services/freshclam
+if [ "$DISABLE_CLAMAV" = false ]; then
+  s6-svc -u /services/freshclam && s6-svwait -u /services/clamd
+  if [ -f "/var/mail/clamav-unofficial-sigs/user.conf" ]; then
+    logger -p mail.info "s6-supervise : clamav unofficial signature update running"
+    clamav-unofficial-sigs.sh &>/dev/null
+    logger -p mail.info "s6-supervise : clamav unofficial signature update done"
+  fi
+fi
 
 sleep 2
 logger -p mail.info "s6-supervise : (_parent) all my wonderful children have started, i can die in peace :)"
