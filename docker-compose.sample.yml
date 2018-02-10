@@ -10,31 +10,31 @@ services:
   traefik:
     image: traefik:1.5-alpine
     container_name: traefik
-    restart: unless-stopped
+    restart: ${RESTART_MODE}
     ports:
       - "80:80"
       - "443:443"
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:mail.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:mail.${DOMAIN}
       - traefik.backend.port=8080
       - traefik.docker.network=http_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/docker/traefik/traefik.toml:/traefik.toml:ro
-      - /mnt/docker/traefik/acme:/etc/traefik/acme
+      - ${VOLUMES_ROOT_PATH}/traefik/traefik.toml:/traefik.toml:ro
+      - ${VOLUMES_ROOT_PATH}/traefik/acme:/etc/traefik/acme
     networks:
       - http_network
 
   mailserver:
-    image: hardware/mailserver:1.1-stable
+    image: hardware/mailserver:${MAILSERVER_DOCKER_TAG}
     container_name: mailserver
-    restart: unless-stopped
-    domainname: {{ DOMAIN }}                  # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
-    hostname: mail
+    restart: ${RESTART_MODE}
+    domainname: ${DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
+    hostname: ${HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:spam.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:spam.${DOMAIN}
       - traefik.backend.port=11334
       - traefik.docker.network=http_network
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
@@ -50,8 +50,8 @@ services:
     # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
       - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
     environment:
-      - DBPASS={{ DB_PASS }}                   # MariaDB database password (required)
-      - RSPAMD_PASSWORD={{ RSPAMD_PASSWORD }}  # Rspamd WebUI password (required)
+      - DBPASS=${DATABASE_USER_PASSWORD}       # MariaDB database password (required)
+      - RSPAMD_PASSWORD=${RSPAMD_PASSWORD}     # Rspamd WebUI password (required)
     # - ADD_DOMAINS=aa.tld, www.bb.tld...      # Add additional domains separated by commas (needed for dkim keys etc.)
     # - ENABLE_POP3=true                       # Enable POP3 protocol
     # - ENABLE_FETCHMAIL=true                  # Enable fetchmail forwarding
@@ -63,7 +63,7 @@ services:
     # Full list : https://github.com/hardware/mailserver#environment-variables
     #
     volumes:
-      - /mnt/docker/mail:/var/mail
+      - ${VOLUMES_ROOT_PATH}/mail:/var/mail
     depends_on:
       - mariadb
       - redis
@@ -78,16 +78,16 @@ services:
   postfixadmin:
     image: hardware/postfixadmin
     container_name: postfixadmin
-    restart: unless-stopped
-    domainname: {{ DOMAIN }}
-    hostname: mail
+    restart: ${RESTART_MODE}
+    domainname: ${DOMAIN}
+    hostname: ${HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:postfixadmin.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:postfixadmin.${DOMAIN}
       - traefik.backend.port=8888
       - traefik.docker.network=http_network
     environment:
-      - DBPASS={{ DB_PASS }}
+      - DBPASS=${DATABASE_USER_PASSWORD}
     depends_on:
       - mailserver
       - mariadb
@@ -102,14 +102,14 @@ services:
   rainloop:
     image: hardware/rainloop
     container_name: rainloop
-    restart: unless-stopped
+    restart: ${RESTART_MODE}
     labels:
       - traefik.enable=true
       - traefik.backend.port=8888
-      - traefik.frontend.rule=Host:webmail.{{ DOMAIN }}
+      - traefik.frontend.rule=Host:webmail.${DOMAIN}
       - traefik.docker.network=http_network
     volumes:
-      - /mnt/docker/rainloop:/rainloop/data
+      - ${VOLUMES_ROOT_PATH}/rainloop:/rainloop/data
     depends_on:
       - mailserver
       - mariadb
@@ -124,14 +124,14 @@ services:
   # nsd:
   #   image: hardware/nsd-dnssec
   #   container_name: nsd
-  #   restart: unless-stopped
+  #   restart: ${RESTART_MODE}
   #   ports:
   #     - "53:53"
   #     - "53:53/udp"
   #   volumes:
-  #     - /mnt/docker/nsd/conf:/etc/nsd
-  #     - /mnt/docker/nsd/zones:/zones
-  #     - /mnt/docker/nsd/db:/var/db/nsd
+  #     - ${VOLUMES_ROOT_PATH}/nsd/conf:/etc/nsd
+  #     - ${VOLUMES_ROOT_PATH}/nsd/zones:/zones
+  #     - ${VOLUMES_ROOT_PATH}/nsd/db:/var/db/nsd
 
   # Database
   # https://github.com/docker-library/mariadb
@@ -139,15 +139,15 @@ services:
   mariadb:
     image: mariadb:10.2
     container_name: mariadb
-    restart: unless-stopped
+    restart: ${RESTART_MODE}
     # Info : These variables are ignored when the volume already exists (if databases was created before).
     environment:
-      - MYSQL_ROOT_PASSWORD={{ ROOT_PASS }}
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
       - MYSQL_DATABASE=postfix
       - MYSQL_USER=postfix
-      - MYSQL_PASSWORD={{ DB_PASS }}
+      - MYSQL_PASSWORD=${DATABASE_USER_PASSWORD}
     volumes:
-      - /mnt/docker/mysql/db:/var/lib/mysql
+      - ${VOLUMES_ROOT_PATH}/mysql/db:/var/lib/mysql
     networks:
       - mail_network
 
@@ -157,9 +157,9 @@ services:
   redis:
     image: redis:4.0-alpine
     container_name: redis
-    restart: unless-stopped
+    restart: ${RESTART_MODE}
     command: redis-server --appendonly yes
     volumes:
-      - /mnt/docker/redis/db:/data
+      - ${VOLUMES_ROOT_PATH}/redis/db:/data
     networks:
       - mail_network

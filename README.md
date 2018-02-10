@@ -48,14 +48,21 @@ Simple and full-featured mail server as a set of multiple docker images includes
 
 ### System Requirements
 
-Please check, if your system meets the following minimum system requirements :
+Please check, if your system meets the following minimum requirements :
+
+#### With MariaDB and Redis on the same host :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
-| Disk | 5 GiB (without emails) | 5 GiB (without emails) |
-| System | x86_64 | x86_64 |
+
+#### With MariaDB and Redis hosted on another server :
+
+| Type | Without ClamAV | With ClamAV |
+| ---- | -------------- | ----------- |
+| CPU | 1 GHz | 1 GHz |
+| RAM | 512 MiB | 1 GiB |
 
 ### Prerequisites
 
@@ -142,49 +149,42 @@ You can audit your mailserver with the following assessment services :
 
 #### 1 - Prepare your environment
 
+:bulb: The reverse proxy used in this setup is [Traefik](https://traefik.io/), but you can use the solution of your choice (Nginx, Apache, Haproxy, Caddy, H2O...etc).
+
 ```bash
 # Create a new docker network for Traefik
 docker network create http_network
 
 # Create the required folders and files
-mkdir -p /mnt/docker/traefik/acme && cd /mnt/docker
-touch docker-compose.yml traefik/traefik.toml traefik/acme/acme.json
-chmod 600 docker-compose.yml traefik/traefik.toml traefik/acme/acme.json
+mkdir -p /mnt/docker/traefik/acme && cd /mnt/docker \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/docker-compose.sample.yml -o docker-compose.yml \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/sample.env -o .env \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/traefik.sample.toml -o traefik/traefik.toml \
+&& touch traefik/acme/acme.json \
+&& chmod 600 docker-compose.yml .env traefik/traefik.toml traefik/acme/acme.json
 ```
 
-#### 2 - Get the latest docker-compose.yml and traefik.toml
-
-| Tags | Description |
-| ---- | ----------- |
-| **1.1-stable** | Stable version (v1.1-stable branch) |
-| **1.1-latest** | Latest development build* (master branch) |
-
-\*These builds have been validated through the CI automation system but they are not meant for deployment in production.
-
-* [docker-compose.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
-* [traefik.toml](https://github.com/hardware/mailserver/blob/master/traefik.sample.toml)
-
-Don't forget to replace all values surrounded by **{{ }}** mark. Then, start all services :
+Edit the `.env` and `traefik.toml`, adapt to your needs, then start all services :
 
 ```
 docker-compose up -d
 ```
 
-#### 3 - Postfixadmin installation
+#### 2 - Postfixadmin installation
 
 PostfixAdmin is a web based interface used to manage mailboxes, virtual domains and aliases.
 
 * Docker image : https://github.com/hardware/postfixadmin
 * How to setup : [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
 
-#### 4 - Rainloop installation (optional)
+#### 3 - Rainloop installation (optional)
 
 Rainloop is a simple, modern and fast webmail with Sieve scripts support (filters and vacation message), GPG and a modern user interface.
 
 * Docker image : https://github.com/hardware/rainloop
 * How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
 
-#### 5 - Done, congratulation ! :tada:
+#### 4 - Done, congratulation ! :tada:
 
 At first launch, the container takes few minutes to generate SSL certificates (if needed), DKIM keypair and update clamav database, all of this takes some time (1/2 minutes). This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.
 

@@ -276,6 +276,7 @@ if [ $? -ne 0 ]; then
     echo "${IP} ${DBHOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+    echo "[ERROR] Check your DBHOST environment variable"
     exit 1
   fi
 else
@@ -293,6 +294,7 @@ if [ $? -ne 0 ]; then
     echo "${IP} ${REDIS_HOST}" >> /etc/hosts
   else
     echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+    echo "[ERROR] Check your REDIS_HOST environment variable"
     exit 1
   fi
 else
