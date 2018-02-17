@@ -656,15 +656,15 @@ plugin {
 
 ### Components
 
-- Postfix 3.1.4
+- Postfix 3.1.6
 - Dovecot 2.2.27
-- Rspamd 1.6.5
+- Rspamd 1.6.6
 - Fetchmail 6.3.26
 - ClamAV 0.99.2
 - Clamav Unofficial Sigs 5.6.2
-- Zeyple 1.2.1
+- Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.6.1.1
+- s6 2.7.0.0
 - Rsyslog 8.24.0
 - ManageSieve server
 
