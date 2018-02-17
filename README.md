@@ -368,11 +368,10 @@ Alternatively, you can specify your domains in the `traefik.toml` :
 ```toml
 [acme]
 onHostRule = false
-...
 
 [[acme.domains]]
-  main = "domain.tld"
-  sans = ["mail.domain.tld", "spam.domain.tld", "postfixadmin.domain.tld", "webmail.domain.tld"]
+main = "domain.tld"
+sans = ["mail.domain.tld", "spam.domain.tld", "postfixadmin.domain.tld", "webmail.domain.tld"]
 ```
 
 #### Custom certificates
