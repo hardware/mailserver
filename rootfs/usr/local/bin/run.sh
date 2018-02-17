@@ -110,9 +110,14 @@ if [ -f "$ACME_PATH"/acme.json ]; then
     mv -f "$CERT_TEMP_PATH"/certs/"$FQDN".crt "$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
     mv -f "$CERT_TEMP_PATH"/private/"$FQDN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
     rm -rf "$CERT_TEMP_PATH" "$ACME_PATH"/dump.log
+  elif [ -e "$CERT_TEMP_PATH"/certs/"$DOMAIN".crt ] && [ -e "$CERT_TEMP_PATH"/private/"$DOMAIN".key ]; then
+    mv -f "$CERT_TEMP_PATH"/certs/"$DOMAIN".crt "$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
+    mv -f "$CERT_TEMP_PATH"/private/"$DOMAIN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
+    rm -rf "$CERT_TEMP_PATH" "$ACME_PATH"/dump.log
   else
     echo "[ERROR] ${FQDN}.crt or ${FQDN}.key not found !"
-    echo "[ERROR] Look /mnt/docker/traefik/acme/dump.log for more information"
+    echo "[INFO] Don't forget to add a new traefik frontend rule to generate a certificate for ${FQDN} subdomain"
+    echo "[INFO] Look /mnt/docker/traefik/acme/dump.log for more information"
     exit 1
   fi
 

@@ -120,7 +120,7 @@ A correct DNS setup is required, this step is very important.
 
 **Notes:**
 
-* Make sure that the **PTR record** of your IP matches the FQDN of your mailserver host. This record is usually set in your web hosting interface.
+* Make sure that the **PTR record** of your IP matches the FQDN (default : mail.domain.tld) of your mailserver host. This record is usually set in your web hosting interface.
 * DKIM, SPF and DMARC records are recommended to build a good reputation score.
 * The DKIM public key will be available on host after the container startup :
 
@@ -354,6 +354,26 @@ docker logs -f mailserver
 [INFO] Using /etc/letsencrypt/live/mail.domain.tld folder
 ```
 
+Don't forget to add a new traefik frontend rule somewhere in your docker-compose.yml to generate a certificate for your mailserver FQDN (default : mail.domain.tld) subdomain.
+
+```yml
+# docker-compose.yml
+
+labels:
+  - traefik.frontend.rule=Host:mail.${DOMAIN}
+```
+
+Alternatively, you can specify your domains in the `traefik.toml` :
+
+```toml
+[acme]
+onHostRule = false
+
+[[acme.domains]]
+main = "domain.tld"
+sans = ["mail.domain.tld", "spam.domain.tld", "postfixadmin.domain.tld", "webmail.domain.tld"]
+```
+
 #### Custom certificates
 
 You can use Let's Encrypt or any other certification authority. Setup your `docker-compose.yml` like this :
@@ -370,12 +390,25 @@ Request your certificates in `/mnt/docker/ssl/live/mail.domain.tld` with an [ACM
 
 Required files in this folder :
 
+:bulb: If you only have the fullchain.pem and privkey.pem, the startup script extract automatically the cert.pem and chain.pem from fullchain.pem.
+
 | Filename | Description |
 |----------|-------------|
 | privkey.pem | Private key for the certificate |
 | cert.pem | Server certificate only |
 | chain.pem | Root and intermediate certificates only, excluding server certificate |
 | fullchain.pem | All certificates, including server certificate. This is concatenation of cert.pem and chain.pem |
+
+Example with [acme.sh](https://acme.sh) :
+
+```bash
+acme.sh --install-cert -d example.com \
+--ca-file        ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/chain.pem  \
+--cert-file      ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/cert.pem  \
+--key-file       ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/privkey.pem  \
+--fullchain-file ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/fullchain.pem \
+--reloadcmd      "docker restart mailserver"
+```
 
 **Notes** :
 
