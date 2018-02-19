@@ -152,7 +152,7 @@ trap 'umask ${oldumask}' EXIT
 # key if it does not parse out correctly. The other mechanisms were left as
 # comments so that the user can choose the mechanism most appropriate to them.
 echo -e "-----BEGIN RSA PRIVATE KEY-----\n${priv}\n-----END RSA PRIVATE KEY-----" \
-   | openssl rsa -inform pem -out "${pdir}/letsencrypt.key"
+   | openssl rsa -inform pem -out "${pdir}/letsencrypt.key" >/dev/null
 
 # Process the certificates for each of the domains in acme.json
 for domain in $(jq -r '.DomainsCertificate.Certs[].Certificate.Domain' ${acmefile}); do
