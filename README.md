@@ -41,6 +41,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
+- [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
 - [Community projects](#community-projects)
 - [Useful Thunderbird extensions](#some-useful-thunderbird-extensions-)
@@ -222,11 +223,21 @@ You can check the startup logs with this command :
 ...
 ```
 
+### Rancher Catalog
+
+![rancher-logo](https://i.imgur.com/R9AArJN.png)
+
+https://github.com/hardware/mailserver-rancher
+
+This catalog provides a basic template to easily deploy an email server based on [hardware/mailserver](https://github.com/hardware/mailserver) very quickly. To use it, just add this repository to your Rancher system as a catalog in `Admin > Settings` page and follow [the readme](https://github.com/hardware/mailserver-rancher/blob/master/README.md). This catalog has been initiated by [@MichelDiz](https://github.com/MichelDiz).
+
+![rancher-ui](https://i.imgur.com/kdJxAiN.png)
+
 ### Ansible Playbooks
 
 ![logo](https://i.imgur.com/tvTG8pN.png)
 
-If you use Ansible, I recommend you to go to see @ksylvan playbooks here : https://github.com/ksylvan/docker-mail-server
+If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/ksylvan) playbooks here : https://github.com/ksylvan/docker-mail-server
 
 ### Environment variables
 
