@@ -115,9 +115,9 @@ if [ -f "$ACME_PATH"/acme.json ]; then
     mv -f "$CERT_TEMP_PATH"/private/"$DOMAIN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
     rm -rf "$CERT_TEMP_PATH" "$ACME_PATH"/dump.log
   else
-    echo "[ERROR] ${FQDN}.crt or ${FQDN}.key not found !"
+    echo "[ERROR] The certificate for ${FQDN} or the private key was not found !"
     echo "[INFO] Don't forget to add a new traefik frontend rule to generate a certificate for ${FQDN} subdomain"
-    echo "[INFO] Look /mnt/docker/traefik/acme/dump.log for more information"
+    echo "[INFO] Look /mnt/docker/traefik/acme/dump.log and 'docker logs traefik' for more information"
     exit 1
   fi
 
