@@ -1,4 +1,4 @@
-FROM hardware/debian-mail-overlay:latest
+FROM hardware/debian-mail-overlay:stable
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"
