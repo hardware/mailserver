@@ -5,4 +5,4 @@ dbname   = {{ .DBNAME }}
 
 option_group = client
 
-query = SELECT username FROM mailbox WHERE username='%s' AND active = 1 UNION SELECT goto FROM alias WHERE address="%s" AND active = 1
+query = SELECT username FROM mailbox WHERE username='%s' AND active = TRUE UNION SELECT goto FROM alias WHERE address='%s' AND active = TRUE

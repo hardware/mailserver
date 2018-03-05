@@ -5,4 +5,4 @@ dbname   = {{ .DBNAME }}
 
 option_group = client
 
-query = SELECT maildir FROM mailbox WHERE username='%s' AND active = 1
+query = SELECT maildir FROM mailbox WHERE username='%s' AND active = TRUE
