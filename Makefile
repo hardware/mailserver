@@ -11,7 +11,7 @@ build:
 	docker build -t $(NAME) .
 
 init:
-	-docker rm -f mariadb redis mailserver_default mailserver_reverse mailserver_ecdsa mailserver_traefik_acme
+	-docker rm -f mariadb postgres redis mailserver_default mailserver_reverse mailserver_ecdsa mailserver_traefik_acme
 	sleep 2
 
 	docker run \
