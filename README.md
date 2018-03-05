@@ -23,7 +23,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Træfik** : modern HTTP reverse proxy
 - **SSL** : lets encrypt with auto-renewal, custom and self-signed certificates support
-- Supporting multiple virtual domains over MySQL backend
+- Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
 
@@ -51,14 +51,14 @@ Simple and full-featured mail server as a set of multiple docker images includes
 
 Please check, if your system meets the following minimum requirements :
 
-#### With MariaDB and Redis on the same host :
+#### With MariaDB/PostgreSQL and Redis on the same host :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
 
-#### With MariaDB and Redis hosted on another server :
+#### With MariaDB/PostgreSQL and Redis hosted on another server :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
@@ -248,11 +248,12 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
-| **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
-| **DBPORT** | MariaDB instance port | *optional* | 3306
-| **DBUSER** | MariaDB database username | *optional* | postfix
-| **DBNAME** | MariaDB database name | *optional* | postfix
-| **DBPASS** | MariaDB database password or location of a file containing it | **required** | null
+| **DBDRIVER** | Database type: mysql, pgsql | *optional* | mysql
+| **DBHOST** | Database instance ip/hostname | *optional* | mariadb
+| **DBPORT** | Database instance port | *optional* | 3306
+| **DBUSER** | Database username | *optional* | postfix
+| **DBNAME** | Database name | *optional* | postfix
+| **DBPASS** | Database password or location of a file containing it | **required** | null
 | **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
 | **REDIS_PORT** | Redis instance port | *optional*  | 6379
 | **REDIS_PASS** | Redis database password or location of a file containing it | *optional* | null

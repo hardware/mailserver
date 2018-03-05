@@ -1,4 +1,4 @@
-driver = mysql
+driver = {{ .DBDRIVER }}
 connect = host={{ .DBHOST }} port={{ .DBPORT }} dbname={{ .DBNAME }} user={{ .DBUSER }} password={{ .DBPASS }}
 default_pass_scheme = {{ .PASSWORD_SCHEME }}
 iterate_query = SELECT username AS user FROM mailbox

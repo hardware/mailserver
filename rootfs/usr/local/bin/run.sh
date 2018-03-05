@@ -5,6 +5,7 @@ export DOMAIN
 export VMAILUID
 export VMAILGID
 export VMAIL_SUBDIR
+export DBDRIVER
 export DBHOST
 export DBPORT
 export DBNAME
@@ -29,6 +30,7 @@ DOMAIN=${DOMAIN:-$(hostname --domain)}
 VMAILUID=${VMAILUID:-1024}
 VMAILGID=${VMAILGID:-1024}
 VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
+DBDRIVER=${DBDRIVER:-mysql}
 DBHOST=${DBHOST:-mariadb}
 DBPORT=${DBPORT:-3306}
 DBNAME=${DBNAME:-postfix}
@@ -58,7 +60,7 @@ RELAY_NETWORKS=${RELAY_NETWORKS:-}
 PASSWORD_SCHEME=${PASSWORD_SCHEME:-"SHA512-CRYPT"}
 
 if [ -z "$DBPASS" ]; then
-  echo "[ERROR] Mariadb database password must be set !"
+  echo "[ERROR] MariaDB/PostgreSQL database password must be set !"
   exit 1
 fi
 
@@ -247,6 +249,7 @@ _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
+_envtpl /etc/dovecot/conf.d/90-quota.conf
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/statistic.conf
 _envtpl /etc/rspamd/local.d/settings.conf
@@ -270,11 +273,11 @@ fi
 # DATABASES HOSTNAME CHECKING
 # ---------------------------------------------------------------------------------------------
 
-# Check mariadb hostname
+# Check mariadb/postgres hostname
 grep -q "${DBHOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
-  echo "[INFO] MariaDB hostname not found in /etc/hosts"
+  echo "[INFO] MariaDB/PostgreSQL hostname not found in /etc/hosts"
   IP=$(dig A ${DBHOST} +short)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
@@ -285,7 +288,7 @@ if [ $? -ne 0 ]; then
     exit 1
   fi
 else
-  echo "[INFO] MariaDB hostname found in /etc/hosts"
+  echo "[INFO] MariaDB/PostgreSQL hostname found in /etc/hosts"
 fi
 
 # Check redis hostname
