@@ -142,7 +142,7 @@ services:
     restart: ${RESTART_MODE}
     # Info : These variables are ignored when the volume already exists (if databases was created before).
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=postfix
       - MYSQL_USER=postfix
       - MYSQL_PASSWORD=${DATABASE_USER_PASSWORD}

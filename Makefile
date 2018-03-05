@@ -17,7 +17,7 @@ init:
 	docker run \
 		-d \
 		--name mariadb \
-		-e MYSQL_ROOT_PASSWORD=testpasswd \
+		-e MYSQL_RANDOM_ROOT_PASSWORD=yes \
 		-e MYSQL_DATABASE=postfix \
 		-e MYSQL_USER=postfix \
 		-e MYSQL_PASSWORD=testpasswd \
