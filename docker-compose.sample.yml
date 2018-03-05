@@ -131,7 +131,7 @@ services:
   #   volumes:
   #     - ${VOLUMES_ROOT_PATH}/nsd/conf:/etc/nsd
   #     - ${VOLUMES_ROOT_PATH}/nsd/zones:/zones
-  #     - ${VOLUMES_ROOT_PATH}/nsd/db:/var/db/nsd
+  #     - ${VOLUMES_ROOT_PATH}/nsd/db:/var/db/nsd
 
   # Database
   # https://github.com/docker-library/mariadb
