@@ -1,6 +1,6 @@
-driver = mysql
+driver = {{ .DBDRIVER }}
 connect = host={{ .DBHOST }} port={{ .DBPORT }} dbname={{ .DBNAME }} user={{ .DBUSER }} password={{ .DBPASS }}
 default_pass_scheme = {{ .PASSWORD_SCHEME }}
 iterate_query = SELECT username AS user FROM mailbox
-user_query = SELECT CONCAT('/var/mail/vhosts/',maildir) AS home, CONCAT('maildir:/var/mail/vhosts/',maildir,'{{ .VMAIL_SUBDIR }}') AS mail, {{ .VMAILUID }} AS uid, {{ .VMAILGID }} AS gid, CONCAT('*:bytes=',quota) AS quota_rule FROM mailbox WHERE username = '%u' AND active = 1
-password_query = SELECT password, CONCAT('*:bytes=',quota) AS userdb_quota_rule FROM mailbox WHERE username = '%u' AND active = 1
+user_query = SELECT CONCAT('/var/mail/vhosts/',maildir) AS home, CONCAT('maildir:/var/mail/vhosts/',maildir,'{{ .VMAIL_SUBDIR }}') AS mail, {{ .VMAILUID }} AS uid, {{ .VMAILGID }} AS gid, CONCAT('*:bytes=',quota) AS quota_rule FROM mailbox WHERE username = '%u' AND active = TRUE
+password_query = SELECT password, CONCAT('*:bytes=',quota) AS userdb_quota_rule FROM mailbox WHERE username = '%u' AND active = TRUE

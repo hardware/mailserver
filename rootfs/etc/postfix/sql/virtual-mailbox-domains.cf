@@ -3,6 +3,8 @@ user     = {{ .DBUSER }}
 password = {{ .DBPASS }}
 dbname   = {{ .DBNAME }}
 
+{{ if eq .DBDRIVER "mysql" }}
 option_group = client
+{{ end }}
 
-query = SELECT domain FROM domain WHERE domain='%s' and backupmx = 0 and active = 1
+query = SELECT domain FROM domain WHERE domain='%s' and backupmx = FALSE and active = TRUE

@@ -238,7 +238,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking process: no service restarted (reverse configuration)" {
-  run docker exec mailserver_default cat /tmp/counters/_parent
+  run docker exec mailserver_reverse cat /tmp/counters/_parent
   assert_success
   assert_output 0
   run docker exec mailserver_reverse cat /tmp/counters/clamd
@@ -425,8 +425,13 @@ load 'test_helper/bats-assert/load'
 # sasl
 #
 
-@test "checking sasl: dovecot auth with good password" {
+@test "checking sasl: dovecot auth with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "doveadm auth test sarah.connor@domain.tld testpasswd12 | grep 'auth succeeded'"
+  assert_success
+}
+
+@test "checking sasl: dovecot auth with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "doveadm auth test sarah.connor@domain.tld testpasswd12 | grep 'auth succeeded'"
   assert_success
 }
 
@@ -452,8 +457,13 @@ load 'test_helper/bats-assert/load'
 # YmFkcGFzc3dvcmQ=
 #   echo -ne 'badpassword' | openssl base64
 
-@test "checking smtp (25): STARTTLS AUTH PLAIN works with good password" {
+@test "checking smtp (25): STARTTLS AUTH PLAIN works with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:25 -starttls smtp < /tmp/tests/auth/smtp-auth-plain.txt 2>&1 | grep -i 'authentication successful'"
+  assert_success
+}
+
+@test "checking smtp (25): STARTTLS AUTH PLAIN works with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:25 -starttls smtp < /tmp/tests/auth/smtp-auth-plain.txt 2>&1 | grep -i 'authentication successful'"
   assert_success
 }
 
@@ -467,8 +477,13 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking submission (587): STARTTLS AUTH LOGIN works with good password" {
+@test "checking submission (587): STARTTLS AUTH LOGIN works with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/auth/smtp-auth-login.txt 2>&1 | grep -i 'authentication successful'"
+  assert_success
+}
+
+@test "checking submission (587): STARTTLS AUTH LOGIN works with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/auth/smtp-auth-login.txt 2>&1 | grep -i 'authentication successful'"
   assert_success
 }
 
@@ -482,8 +497,13 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking smtps (465): SSL/TLS AUTH LOGIN works with good password" {
+@test "checking smtps (465): SSL/TLS AUTH LOGIN works with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:465 < /tmp/tests/auth/smtp-auth-login.txt 2>&1 | grep -i 'authentication successful'"
+  assert_success
+}
+
+@test "checking smtps (465): SSL/TLS AUTH LOGIN works with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:465 < /tmp/tests/auth/smtp-auth-login.txt 2>&1 | grep -i 'authentication successful'"
   assert_success
 }
 
@@ -523,7 +543,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking smtp: rejects mail to unknown user (reverse configuration)" {
-  run docker exec mailserver_default /bin/sh -c "grep '<ghost@domain.tld>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log | wc -l"
+  run docker exec mailserver_reverse /bin/sh -c "grep '<ghost@domain.tld>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
@@ -544,8 +564,13 @@ load 'test_helper/bats-assert/load'
 # imap
 #
 
-@test "checking imap (143): STARTTLS login works with good password" {
+@test "checking imap (143): STARTTLS login works with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:143 -starttls imap < /tmp/tests/auth/imap-auth.txt 2>&1 | grep -i 'logged in'"
+  assert_success
+}
+
+@test "checking imap (143): STARTTLS login works with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:143 -starttls imap < /tmp/tests/auth/imap-auth.txt 2>&1 | grep -i 'logged in'"
   assert_success
 }
 
@@ -554,8 +579,13 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking imaps (993): SSL/TLS login works with good password" {
+@test "checking imaps (993): SSL/TLS login works with good password (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:993 < /tmp/tests/auth/imap-auth.txt 2>&1 | grep -i 'logged in'"
+  assert_success
+}
+
+@test "checking imaps (993): SSL/TLS login works with good password (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:993 < /tmp/tests/auth/imap-auth.txt 2>&1 | grep -i 'logged in'"
   assert_success
 }
 
@@ -664,15 +694,28 @@ load 'test_helper/bats-assert/load'
 # accounts
 #
 
-@test "checking accounts: user accounts" {
+@test "checking accounts: user accounts (default configuration)" {
   run docker exec mailserver_default doveadm user '*'
   assert_success
   [ "${lines[0]}" = "john.doe@domain.tld" ]
   [ "${lines[1]}" = "sarah.connor@domain.tld" ]
 }
 
-@test "checking accounts: user quotas" {
+@test "checking accounts: user accounts (reverse configuration)" {
+  run docker exec mailserver_reverse doveadm user '*'
+  assert_success
+  [ "${lines[0]}" = "john.doe@domain.tld" ]
+  [ "${lines[1]}" = "sarah.connor@domain.tld" ]
+}
+
+@test "checking accounts: user quotas (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "doveadm quota get -A 2>&1 | grep '1000' | wc -l"
+  assert_success
+  assert_output 2
+}
+
+@test "checking accounts: user quotas (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/bash -c "doveadm quota get -A 2>&1 | grep '1000' | wc -l"
   assert_success
   assert_output 2
 }
@@ -821,6 +864,16 @@ load 'test_helper/bats-assert/load'
   assert_output ""
 }
 
+@test "checking postfix: smtpd_sender_login mysql maps (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "postconf -h smtpd_sender_login_maps | grep 'mysql'"
+  assert_success
+}
+
+@test "checking postfix: smtpd_sender_login pgsql maps (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "postconf -h smtpd_sender_login_maps | grep 'pgsql'"
+  assert_success
+}
+
 #
 # dovecot
 #
@@ -886,6 +939,16 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_default /bin/sh -c "doveconf -h -f protocol=pop3 mail_max_userip_connections 2>/dev/null"
   assert_success
   assert_output "50"
+}
+
+@test "checking dovecot: quota dict mysql (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "doveconf dict sqlquota 2>/dev/null | grep 'mysql'"
+  assert_success
+}
+
+@test "checking dovecot: quota dict pgsql (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "doveconf dict sqlquota 2>/dev/null | grep 'pgsql'"
+  assert_success
 }
 
 #
