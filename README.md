@@ -38,6 +38,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Relaying from other networks](#relaying-from-other-networks)
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
 - [DNS resolver](#unbound-dns-resolver)
+- [PostgreSQL support](#postgresql-support)
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
@@ -565,6 +566,49 @@ docker exec -ti mailserver unbound-control reload
 ```
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
+
+### PostgreSQL support
+
+PostgreSQL can be used instead of MariaDB. You have to make some changes in the original `docker-compose.yml` file to use this DBMS :
+
+```yml
+mailserver:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+postfixadmin:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+rainloop:
+  depends_on:
+    - postgres
+
+# Database
+# https://github.com/docker-library/postgres
+# https://postgresql.org/
+postgres:
+  image: postgres:10.3-alpine
+  container_name: postgres
+  restart: ${RESTART_MODE}
+  # Info : These variables are ignored when the volume already exists (if databases was created before).
+  environment:
+    - POSTGRES_DB=postfix
+    - POSTGRES_USER=postfix
+    - POSTGRES_PASSWORD=${DATABASE_USER_PASSWORD}
+  volumes:
+    - ${VOLUMES_ROOT_PATH}/pgsql/db:/var/lib/postgresql/data
+  networks:
+    - mail_network
+```
 
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 

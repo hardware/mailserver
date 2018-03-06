@@ -26,6 +26,15 @@ init:
 
 	docker run \
 		-d \
+		--name postgres \
+		-e POSTGRES_DB=postfix \
+		-e POSTGRES_USER=postfix \
+		-e POSTGRES_PASSWORD=testpasswd \
+		-v "`pwd`/test/config/postgres":/docker-entrypoint-initdb.d \
+		-t postgres:10.3
+
+	docker run \
+		-d \
 		--name redis \
 		-t redis:4.0-alpine
 
@@ -54,11 +63,14 @@ init:
 	docker run \
 		-d \
 		--name mailserver_reverse \
-		--link mariadb:mariadb \
+		--link postgres:postgres \
 		--link redis:redis \
 		-e FQDN=mail.domain.tld \
 		-e DOMAIN=domain.tld \
-		-e DBPASS=/tmp/passwd/mariadb \
+		-e DBDRIVER=pgsql \
+		-e DBHOST=postgres \
+		-e DBPORT=5432 \
+		-e DBPASS=/tmp/passwd/postgres \
 		-e REDIS_HOST=redis \
 		-e REDIS_PORT=6379 \
 		-e REDIS_PASS=/tmp/passwd/redis \
