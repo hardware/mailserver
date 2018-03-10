@@ -2,3 +2,4 @@ docker-compose.mysql.yml
 docker-compose.pgsql.yml
 traefik.toml
 .env
+certs
