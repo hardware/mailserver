@@ -263,10 +263,12 @@ _envtpl /usr/local/bin/fetchmail.pl
 
 # Override Postfix configuration
 if [ -f /var/mail/postfix/custom.conf ]; then
+  # Ignore blank lines and comments
+  sed -e '/^\s*$/d' -e '/^#/d' /var/mail/postfix/custom.conf | \
   while read line; do
     echo "[INFO] Override : ${line}"
     postconf -e "$line"
-  done < /var/mail/postfix/custom.conf
+  done
   echo "[INFO] Custom Postfix configuration file loaded"
 fi
 
