@@ -17,7 +17,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.frontend.rule=Host:mail.${DOMAIN}
-      - traefik.backend.port=8080
+      - traefik.port=8080
       - traefik.docker.network=http_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -35,7 +35,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.frontend.rule=Host:spam.${DOMAIN}
-      - traefik.backend.port=11334
+      - traefik.port=11334
       - traefik.docker.network=http_network
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
     #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
@@ -84,7 +84,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.frontend.rule=Host:postfixadmin.${DOMAIN}
-      - traefik.backend.port=8888
+      - traefik.port=8888
       - traefik.docker.network=http_network
     environment:
       - DBPASS=${DATABASE_USER_PASSWORD}
@@ -105,7 +105,7 @@ services:
     restart: ${RESTART_MODE}
     labels:
       - traefik.enable=true
-      - traefik.backend.port=8888
+      - traefik.port=8888
       - traefik.frontend.rule=Host:webmail.${DOMAIN}
       - traefik.docker.network=http_network
     volumes:
