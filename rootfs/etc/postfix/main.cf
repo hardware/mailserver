@@ -208,7 +208,6 @@ smtpd_helo_restrictions =
 ############
 
 milter_protocol       = 6
-milter_mail_macros    = i {mail_addr} {client_addr} {client_name} {auth_authen}
 milter_default_action = accept
 smtpd_milters         = inet:localhost:11332
 non_smtpd_milters     = inet:localhost:11332

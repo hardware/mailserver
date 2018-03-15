@@ -401,16 +401,6 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port (11333): external port listening (default configuration)" {
-  run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 11333"
-  assert_success
-}
-
-@test "checking port (11333): external port listening (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/sh -c "nc -z 0.0.0.0 11333"
-  assert_success
-}
-
 @test "checking port (11334): external port listening (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "nc -z 0.0.0.0 11334"
   assert_success
@@ -638,22 +628,22 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking rspamd: 7 messages scanned" {
-  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages scanned: 7'"
+  run docker exec mailserver_default /bin/sh -c "rspamc -h localhost:11334 stat | grep -i 'Messages scanned: 7'"
   assert_success
 }
 
 @test "checking rspamd: 5 messages with action no action" {
-  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages with action no action: 5'"
+  run docker exec mailserver_default /bin/sh -c "rspamc -h localhost:11334 stat | grep -i 'Messages with action no action: 5'"
   assert_success
 }
 
 @test "checking rspamd: 2 messages with action reject" {
-  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages with action reject: 2'"
+  run docker exec mailserver_default /bin/sh -c "rspamc -h localhost:11334 stat | grep -i 'Messages with action reject: 2'"
   assert_success
 }
 
 @test "checking rspamd: 2 messages learned" {
-  run docker exec mailserver_default /bin/sh -c "rspamc stat | grep -i 'Messages learned: 2'"
+  run docker exec mailserver_default /bin/sh -c "rspamc -h localhost:11334 stat | grep -i 'Messages learned: 2'"
   assert_success
 }
 
