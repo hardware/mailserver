@@ -16,7 +16,7 @@ services:
       - "443:443"
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:mail.${DOMAIN}
+      - traefik.frontend.rule=Host:mail.${MAILSERVER_DOMAIN}
       - traefik.port=8080
       - traefik.docker.network=http_network
     volumes:
@@ -30,11 +30,11 @@ services:
     image: hardware/mailserver:${MAILSERVER_DOCKER_TAG}
     container_name: mailserver
     restart: ${RESTART_MODE}
-    domainname: ${DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
-    hostname: ${HOSTNAME}
+    domainname: ${MAILSERVER_DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
+    hostname: ${MAILSERVER_HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:spam.${DOMAIN}
+      - traefik.frontend.rule=Host:spam.${MAILSERVER_DOMAIN}
       - traefik.port=11334
       - traefik.docker.network=http_network
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
@@ -79,11 +79,11 @@ services:
     image: hardware/postfixadmin
     container_name: postfixadmin
     restart: ${RESTART_MODE}
-    domainname: ${DOMAIN}
-    hostname: ${HOSTNAME}
+    domainname: ${MAILSERVER_DOMAIN}
+    hostname: ${MAILSERVER_HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:postfixadmin.${DOMAIN}
+      - traefik.frontend.rule=Host:postfixadmin.${MAILSERVER_DOMAIN}
       - traefik.port=8888
       - traefik.docker.network=http_network
     environment:
@@ -106,7 +106,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.port=8888
-      - traefik.frontend.rule=Host:webmail.${DOMAIN}
+      - traefik.frontend.rule=Host:webmail.${MAILSERVER_DOMAIN}
       - traefik.docker.network=http_network
     volumes:
       - ${VOLUMES_ROOT_PATH}/rainloop:/rainloop/data
