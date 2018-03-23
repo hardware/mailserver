@@ -1,1 +1,1 @@
-bind_socket = "*:11333";
+enabled = false;

@@ -23,7 +23,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Træfik** : modern HTTP reverse proxy
 - **SSL** : lets encrypt with auto-renewal, custom and self-signed certificates support
-- Supporting multiple virtual domains over MySQL backend
+- Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
 
@@ -38,6 +38,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Relaying from other networks](#relaying-from-other-networks)
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
 - [DNS resolver](#unbound-dns-resolver)
+- [PostgreSQL support](#postgresql-support)
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
@@ -51,14 +52,14 @@ Simple and full-featured mail server as a set of multiple docker images includes
 
 Please check, if your system meets the following minimum requirements :
 
-#### With MariaDB and Redis on the same host :
+#### With MariaDB/PostgreSQL and Redis on the same host :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
 
-#### With MariaDB and Redis hosted on another server :
+#### With MariaDB/PostgreSQL and Redis hosted on another server :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
@@ -248,11 +249,12 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
-| **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
-| **DBPORT** | MariaDB instance port | *optional* | 3306
-| **DBUSER** | MariaDB database username | *optional* | postfix
-| **DBNAME** | MariaDB database name | *optional* | postfix
-| **DBPASS** | MariaDB database password or location of a file containing it | **required** | null
+| **DBDRIVER** | Database type: mysql, pgsql | *optional* | mysql
+| **DBHOST** | Database instance ip/hostname | *optional* | mariadb
+| **DBPORT** | Database instance port | *optional* | 3306
+| **DBUSER** | Database username | *optional* | postfix
+| **DBNAME** | Database name | *optional* | postfix
+| **DBPASS** | Database password or location of a file containing it | **required** | null
 | **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
 | **REDIS_PORT** | Redis instance port | *optional*  | 6379
 | **REDIS_PASS** | Redis database password or location of a file containing it | *optional* | null
@@ -565,6 +567,49 @@ docker exec -ti mailserver unbound-control reload
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
 
+### PostgreSQL support
+
+PostgreSQL can be used instead of MariaDB. You have to make some changes in the original `docker-compose.yml` file to use this DBMS :
+
+```yml
+mailserver:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+postfixadmin:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+rainloop:
+  depends_on:
+    - postgres
+
+# Database
+# https://github.com/docker-library/postgres
+# https://postgresql.org/
+postgres:
+  image: postgres:10.3-alpine
+  container_name: postgres
+  restart: ${RESTART_MODE}
+  # Info : These variables are ignored when the volume already exists (if databases was created before).
+  environment:
+    - POSTGRES_DB=postfix
+    - POSTGRES_USER=postfix
+    - POSTGRES_PASSWORD=${DATABASE_USER_PASSWORD}
+  volumes:
+    - ${VOLUMES_ROOT_PATH}/pgsql/db:/var/lib/postgresql/data
+  networks:
+    - mail_network
+```
+
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 
 ```
@@ -692,11 +737,11 @@ plugin {
 
 ### Components
 
-- Postfix 3.1.6
+- Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.6.6
+- Rspamd 1.7.1
 - Fetchmail 6.3.26
-- ClamAV 0.99.2
+- ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0

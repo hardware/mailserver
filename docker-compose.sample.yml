@@ -16,8 +16,8 @@ services:
       - "443:443"
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:mail.${DOMAIN}
-      - traefik.backend.port=8080
+      - traefik.frontend.rule=Host:mail.${MAILSERVER_DOMAIN}
+      - traefik.port=8080
       - traefik.docker.network=http_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -30,12 +30,12 @@ services:
     image: hardware/mailserver:${MAILSERVER_DOCKER_TAG}
     container_name: mailserver
     restart: ${RESTART_MODE}
-    domainname: ${DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
-    hostname: ${HOSTNAME}
+    domainname: ${MAILSERVER_DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
+    hostname: ${MAILSERVER_HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:spam.${DOMAIN}
-      - traefik.backend.port=11334
+      - traefik.frontend.rule=Host:spam.${MAILSERVER_DOMAIN}
+      - traefik.port=11334
       - traefik.docker.network=http_network
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
     #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
@@ -79,12 +79,12 @@ services:
     image: hardware/postfixadmin
     container_name: postfixadmin
     restart: ${RESTART_MODE}
-    domainname: ${DOMAIN}
-    hostname: ${HOSTNAME}
+    domainname: ${MAILSERVER_DOMAIN}
+    hostname: ${MAILSERVER_HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:postfixadmin.${DOMAIN}
-      - traefik.backend.port=8888
+      - traefik.frontend.rule=Host:postfixadmin.${MAILSERVER_DOMAIN}
+      - traefik.port=8888
       - traefik.docker.network=http_network
     environment:
       - DBPASS=${DATABASE_USER_PASSWORD}
@@ -105,8 +105,8 @@ services:
     restart: ${RESTART_MODE}
     labels:
       - traefik.enable=true
-      - traefik.backend.port=8888
-      - traefik.frontend.rule=Host:webmail.${DOMAIN}
+      - traefik.port=8888
+      - traefik.frontend.rule=Host:webmail.${MAILSERVER_DOMAIN}
       - traefik.docker.network=http_network
     volumes:
       - ${VOLUMES_ROOT_PATH}/rainloop:/rainloop/data
@@ -131,7 +131,7 @@ services:
   #   volumes:
   #     - ${VOLUMES_ROOT_PATH}/nsd/conf:/etc/nsd
   #     - ${VOLUMES_ROOT_PATH}/nsd/zones:/zones
-  #     - ${VOLUMES_ROOT_PATH}/nsd/db:/var/db/nsd
+  #     - ${VOLUMES_ROOT_PATH}/nsd/db:/var/db/nsd
 
   # Database
   # https://github.com/docker-library/mariadb
@@ -142,7 +142,7 @@ services:
     restart: ${RESTART_MODE}
     # Info : These variables are ignored when the volume already exists (if databases was created before).
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=postfix
       - MYSQL_USER=postfix
       - MYSQL_PASSWORD=${DATABASE_USER_PASSWORD}
