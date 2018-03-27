@@ -739,13 +739,13 @@ plugin {
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.1
+- Rspamd 1.7.2
 - Fetchmail 6.3.26
 - ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.7.0.0
+- s6 2.7.1.1
 - Rsyslog 8.24.0
 - ManageSieve server
 
