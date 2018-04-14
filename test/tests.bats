@@ -1219,8 +1219,13 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking ssl: traefik cert works correctly" {
-  run docker exec mailserver_traefik_acme /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
+@test "checking ssl: traefik cert works correctly (acme v1)" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
+  assert_success
+}
+
+@test "checking ssl: traefik cert works correctly (acme v2)" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
   assert_success
 }
 
@@ -1243,38 +1248,75 @@ load 'test_helper/bats-assert/load'
 }
 
 #
-# traefik acme
+# traefik acme v1
 #
 
-@test "checking traefik acme: acme.json exist" {
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/acme/acme.json ]
+@test "checking traefik acme v1: acme.json exist" {
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/acme/acme.json ]
   assert_success
 }
 
-@test "checking traefik acme: dump.log doesn't exist" {
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/acme/dump.log ]
+@test "checking traefik acme v1: dump.log doesn't exist" {
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/acme/dump.log ]
   assert_failure
 }
 
-@test "checking traefik acme: all certificates were generated" {
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/cert.pem ]
+@test "checking traefik acme v1: all certificates were generated" {
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/live/mail.domain.tld/cert.pem ]
   assert_success
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/chain.pem ]
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/live/mail.domain.tld/chain.pem ]
   assert_success
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/fullchain.pem ]
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/live/mail.domain.tld/fullchain.pem ]
   assert_success
-  run docker exec mailserver_traefik_acme [ -f /etc/letsencrypt/live/mail.domain.tld/privkey.pem ]
+  run docker exec mailserver_traefik_acmev1 [ -f /etc/letsencrypt/live/mail.domain.tld/privkey.pem ]
   assert_success
 }
 
-@test "checking traefik acme: check private key" {
-  run docker exec mailserver_traefik_acme /bin/sh -c "openssl rsa -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem -check 2>/dev/null | head -n 1"
+@test "checking traefik acme v1: check private key" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "openssl rsa -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem -check 2>/dev/null | head -n 1"
   assert_success
   assert_output "RSA key ok"
 }
 
-@test "checking traefik acme: private key matches the certificate" {
-  run docker exec mailserver_traefik_acme /bin/sh -c "(openssl x509 -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/cert.pem | openssl md5 ; openssl rsa -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem | openssl md5) | uniq | wc -l"
+@test "checking traefik acme v1: private key matches the certificate" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "(openssl x509 -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/cert.pem | openssl md5 ; openssl rsa -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem | openssl md5) | uniq | wc -l"
+  assert_success
+  assert_output 1
+}
+
+#
+# traefik acme v2
+#
+
+@test "checking traefik acme v2: acme.json exist" {
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/acme/acme.json ]
+  assert_success
+}
+
+@test "checking traefik acme v2: dump.log doesn't exist" {
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/acme/dump.log ]
+  assert_failure
+}
+
+@test "checking traefik acme v2: all certificates were generated" {
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/live/mail.domain.tld/cert.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/live/mail.domain.tld/chain.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/live/mail.domain.tld/fullchain.pem ]
+  assert_success
+  run docker exec mailserver_traefik_acmev2 [ -f /etc/letsencrypt/live/mail.domain.tld/privkey.pem ]
+  assert_success
+}
+
+@test "checking traefik acme v2: check private key" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "openssl rsa -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem -check 2>/dev/null | head -n 1"
+  assert_success
+  assert_output "RSA key ok"
+}
+
+@test "checking traefik acme v2: private key matches the certificate" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "(openssl x509 -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/cert.pem | openssl md5 ; openssl rsa -noout -modulus -in /etc/letsencrypt/live/mail.domain.tld/privkey.pem | openssl md5) | uniq | wc -l"
   assert_success
   assert_output 1
 }
