@@ -680,6 +680,18 @@ load 'test_helper/bats-assert/load'
   assert_output "enabled = false;"
 }
 
+@test "checking rspamd: 2 addresses whitelisted in ecdsa configuration" {
+  run docker exec mailserver_ecdsa /bin/bash -c "grep '\"test@example.com\",\"another@domain.tld\"' /etc/rspamd/local.d/settings.conf | wc -l"
+  assert_success
+  assert_output 1
+}
+
+@test "checking rspamd: 1 address whitelisted in default configuration" {
+  run docker exec mailserver_default /bin/bash -c "grep 'postmaster@domain.tld' /etc/rspamd/local.d/settings.conf | wc -l"
+  assert_success
+  assert_output 1
+}
+
 #
 # accounts
 #
