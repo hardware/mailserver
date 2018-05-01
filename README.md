@@ -44,7 +44,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
 - [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
-- [Migration from 1.0 to 1.1-stable](#migration-from-1.0-to-1.1-stable)
+- [Migration from 1.0 to 1.1-stable](#migration-from-10-to-11)
 - [Community projects](#community-projects)
 - [Useful Thunderbird extensions](#some-useful-thunderbird-extensions-)
 - [Donation](#donation)
