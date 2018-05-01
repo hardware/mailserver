@@ -44,6 +44,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
 - [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
+- [Migration from 1.0 to 1.1-stable](#migration-from-1.0-to-1.1-stable)
 - [Community projects](#community-projects)
 - [Useful Thunderbird extensions](#some-useful-thunderbird-extensions-)
 - [Donation](#donation)
@@ -768,6 +769,14 @@ plugin {
 - s6 2.7.1.1
 - Rsyslog 8.24.0
 - ManageSieve server
+
+### Migration from 1.0 to 1.1
+
+If you still use 1.0 version (bundled with Spamassassin, Amavisd...etc) which was available with the `latest` tag, you can follow the migration steps here :
+
+https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-stable
+
+Or stay with `1.0-legacy` tag (not recommended).
 
 ### Community projects
 
