@@ -39,11 +39,13 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
 - [DNS resolver](#unbound-dns-resolver)
 - [PostgreSQL support](#postgresql-support)
+- [IPv6 support](#ipv6-support)
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
 - [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
+- [Migration from 1.0 to 1.1-stable](#migration-from-10-to-11)
 - [Community projects](#community-projects)
 - [Useful Thunderbird extensions](#some-useful-thunderbird-extensions-)
 - [Donation](#donation)
@@ -154,8 +156,9 @@ You can audit your mailserver with the following assessment services :
 :bulb: The reverse proxy used in this setup is [Traefik](https://traefik.io/), but you can use the solution of your choice (Nginx, Apache, Haproxy, Caddy, H2O...etc).
 
 ```bash
-# Create a new docker network for Traefik
+# Create a new docker network for Traefik (IPv4 only)
 docker network create http_network
+# If you want to support IPv6, please refer to [IPv6 support]
 
 # Create the required folders and files
 mkdir -p /mnt/docker/traefik/acme && cd /mnt/docker \
@@ -262,6 +265,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password or location of a file containing it | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
+| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted e-mail addresses separated by commas | *optional* | null
 | **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
@@ -629,6 +633,55 @@ postgres:
     - mail_network
 ```
 
+### IPv6 support
+
+If you want to support inbound IPv6 connections, you need to create a docker network with IPv6 enabled, otherwise, you may have some issues with docker internal networking.
+
+The procedure is quite simple:
+
+- Remove your old `http_network` (if you already have created it)
+
+```bash
+docker network rm http_network
+```
+
+- Choose a private ipv6 address range (/64)
+  - You can easily get a unique private IPv6 address range on [SimpleDNS website](https://simpledns.com/private-ipv6)
+
+- Create a docker network with IPv6 enabled
+
+```bash
+# Replace subnet mask with your own "Combined/CID"
+docker network create http_network --ipv6 --subnet "fd00:0000:0000:0000::/64"
+```
+
+- Append this to your `docker-compose.yml`
+
+```yml
+# IPv6NAT
+# https://github.com/robbertkl/docker-ipv6nat
+# https://hub.docker.com/r/robbertkl/ipv6nat/
+ipv6nat:
+  image: robbertkl/ipv6nat
+  container_name: ipv6nat
+  restart: ${RESTART_MODE}
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /lib/modules:/lib/modules:ro
+  depends_on:
+    - mailserver
+  cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
+  network_mode: "host"
+```
+
+- Create a record named `mail` of type `AAAA` with your **public** IPv6 address in your DNS provider.
+
+Done! This is all the configuration needed to enable inbound IPv6 support on this mailserver.
+
+You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/robbertkl/docker-ipv6nat) container mimics NAT for IPv6 on his page.
+
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 
 ```
@@ -767,6 +820,14 @@ plugin {
 - s6 2.7.1.1
 - Rsyslog 8.24.0
 - ManageSieve server
+
+### Migration from 1.0 to 1.1
+
+If you still use 1.0 version (bundled with Spamassassin, Amavisd...etc) which was available with the `latest` tag, you can follow the migration steps here :
+
+https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-stable
+
+Or stay with `1.0-legacy` tag (not recommended).
 
 ### Community projects
 

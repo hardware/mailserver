@@ -41,6 +41,7 @@ REDIS_PORT=${REDIS_PORT:-6379}
 REDIS_PASS=$([ -f "$REDIS_PASS" ] && cat "$REDIS_PASS" || echo "${REDIS_PASS:-}")
 REDIS_NUMB=${REDIS_NUMB:-0}
 RSPAMD_PASSWORD=$([ -f "$RSPAMD_PASSWORD" ] && cat "$RSPAMD_PASSWORD" || echo "${RSPAMD_PASSWORD:-}")
+WHITELIST_SPAM_ADDRESSES=${WHITELIST_SPAM_ADDRESSES:-}
 DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
@@ -620,6 +621,29 @@ if [ ${#modules[@]} -gt 0 ]; then
   for module in "${modules[@]}"; do
     echo "enabled = false;" > /etc/rspamd/local.d/"$module".conf
   done
+fi
+
+whitelist+=(${WHITELIST_SPAM_ADDRESSES//,/ })
+
+if [ ${#whitelist[@]} -gt 0 ]; then
+
+rcpts=""
+
+echo "[INFO] $WHITELIST_SPAM_ADDRESSES added to rspamd whitelist"
+for address in "${whitelist[@]}"; do
+  rcpts+="\"$address\","
+done
+
+cat > /etc/rspamd/local.d/settings.conf <<EOF
+settings {
+  whitelist {
+    priority = low;
+    rcpt = [${rcpts::-1}];
+    want_spam = yes;
+  }
+}
+EOF
+
 fi
 
 # CLAMD

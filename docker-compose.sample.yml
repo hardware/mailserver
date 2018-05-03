@@ -1,5 +1,12 @@
 version: "3"
 
+# IPv4 only
+# docker network create http_network
+
+# IPv4/IPv6 network
+# docker network create http_network --ipv6 --subnet "fd00:0000:0000:0000::/64"
+# Refer to https://github.com/hardware/mailserver/#ipv6-support for more information.
+
 networks:
   http_network:
     external: true
@@ -8,7 +15,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:1.5-alpine
+    image: traefik:1.6-alpine
     container_name: traefik
     restart: ${RESTART_MODE}
     ports:
