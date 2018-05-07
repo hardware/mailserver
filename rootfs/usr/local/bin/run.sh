@@ -298,7 +298,7 @@ grep -q "${DBHOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
   echo "[INFO] MariaDB/PostgreSQL hostname not found in /etc/hosts"
-  IP=$(dig A ${DBHOST} +short)
+  IP=$(dig A ${DBHOST} +short +search)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
     echo "${IP} ${DBHOST}" >> /etc/hosts
@@ -316,7 +316,7 @@ grep -q "${REDIS_HOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
   echo "[INFO] Redis hostname not found in /etc/hosts"
-  IP=$(dig A ${REDIS_HOST} +short)
+  IP=$(dig A ${REDIS_HOST} +short +search)
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
     echo "${IP} ${REDIS_HOST}" >> /etc/hosts
