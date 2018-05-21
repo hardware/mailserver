@@ -811,7 +811,7 @@ plugin {
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.3
+- Rspamd 1.7.4
 - Fetchmail 6.3.26
 - ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2
