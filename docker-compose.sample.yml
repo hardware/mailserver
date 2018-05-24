@@ -18,6 +18,23 @@ services:
     image: traefik:1.6-alpine
     container_name: traefik
     restart: ${RESTART_MODE}
+    command: 
+      --defaultEntryPoints='http,https'
+      --web
+      --web.address=:8080
+      --entryPoints='Name:http Address::80  Redirect.EntryPoint:https' 
+      --entryPoints='Name:https Address::443 TLS' 
+      --acme
+      --acme.email=${LE_MAIL}
+      --acme.storage=/certs/acme.json 
+      --acme.entryPoint=https 
+      --acme.ondemand=false
+      --acme.onhostrule=true
+      --acme.httpChallenge.entryPoint=http
+      --docker
+      --docker.domain=traefik
+      --docker.watch
+      --docker.exposedbydefault=false
     ports:
       - "80:80"
       - "443:443"
@@ -28,7 +45,6 @@ services:
       - traefik.docker.network=http_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${VOLUMES_ROOT_PATH}/traefik/traefik.toml:/traefik.toml:ro
       - ${VOLUMES_ROOT_PATH}/traefik/acme:/etc/traefik/acme
     networks:
       - http_network
