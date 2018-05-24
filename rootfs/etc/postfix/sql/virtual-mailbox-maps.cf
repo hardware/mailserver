@@ -1,8 +1,10 @@
-hosts    = {{ DBHOST }}:{{ DBPORT }}
-user     = {{ DBUSER }}
-password = {{ DBPASS }}
-dbname   = {{ DBNAME }}
+hosts    = {{ .DBHOST }}:{{ .DBPORT }}
+user     = {{ .DBUSER }}
+password = {{ .DBPASS }}
+dbname   = {{ .DBNAME }}
 
+{{ if eq .DBDRIVER "mysql" }}
 option_group = client
+{{ end }}
 
-query = SELECT maildir FROM mailbox WHERE username='%s' AND active = 1
+query = SELECT maildir FROM mailbox WHERE username='%s' AND active = TRUE

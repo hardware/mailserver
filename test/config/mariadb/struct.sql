@@ -1,8 +1,8 @@
--- MySQL dump 10.16  Distrib 10.1.19-MariaDB, for Linux (x86_64)
+-- MySQL dump 10.16  Distrib 10.2.14-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 127.0.0.1    Database: 127.0.0.1
+-- Host: localhost    Database: postfix
 -- ------------------------------------------------------
--- Server version	10.1.16-MariaDB-1~jessie
+-- Server version	10.2.14-MariaDB-10.2.14+maria~jessie
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,10 +25,14 @@ DROP TABLE IF EXISTS `admin`;
 CREATE TABLE `admin` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `superadmin` tinyint(1) NOT NULL DEFAULT '0',
+  `superadmin` tinyint(1) NOT NULL DEFAULT 0,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   `modified` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `phone` varchar(30) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `email_other` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `token` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `token_validity` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   PRIMARY KEY (`username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Admins';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -39,7 +43,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES ('admin@domain.tld','{SHA512-CRYPT}$6$Wt7uQEnB6HPP6mM0$lOP8IKtEUJKWSwczEC5/g6aYamkwh5rx3ztnRuqcRLJjGTXiLpUnxzUgy2rfNieH9C8x7M6Nr9q19SG6njUj//',1,'2016-11-28 08:53:31','2016-11-28 08:53:31',1);
+INSERT INTO `admin` VALUES ('admin@domain.tld','{SHA512-CRYPT}$6$Wt7uQEnB6HPP6mM0$lOP8IKtEUJKWSwczEC5/g6aYamkwh5rx3ztnRuqcRLJjGTXiLpUnxzUgy2rfNieH9C8x7M6Nr9q19SG6njUj//',1,'2016-11-28 08:53:31','2016-11-28 08:53:31',1,'','','','2000-01-01 00:00:00');
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -56,7 +60,7 @@ CREATE TABLE `alias` (
   `domain` varchar(255) NOT NULL,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   `modified` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`address`),
   KEY `domain` (`domain`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Aliases';
@@ -80,11 +84,11 @@ DROP TABLE IF EXISTS `alias_domain`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `alias_domain` (
-  `alias_domain` varchar(255) NOT NULL,
-  `target_domain` varchar(255) NOT NULL,
+  `alias_domain` varchar(255) NOT NULL DEFAULT '',
+  `target_domain` varchar(255) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   `modified` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`alias_domain`),
   KEY `active` (`active`),
   KEY `target_domain` (`target_domain`)
@@ -122,7 +126,7 @@ CREATE TABLE `config` (
 
 LOCK TABLES `config` WRITE;
 /*!40000 ALTER TABLE `config` DISABLE KEYS */;
-INSERT INTO `config` VALUES (1,'version','1835');
+INSERT INTO `config` VALUES (1,'version','1840');
 /*!40000 ALTER TABLE `config` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,15 +140,15 @@ DROP TABLE IF EXISTS `domain`;
 CREATE TABLE `domain` (
   `domain` varchar(255) NOT NULL,
   `description` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `aliases` int(10) NOT NULL DEFAULT '0',
-  `mailboxes` int(10) NOT NULL DEFAULT '0',
-  `maxquota` bigint(20) NOT NULL DEFAULT '0',
-  `quota` bigint(20) NOT NULL DEFAULT '0',
+  `aliases` int(10) NOT NULL DEFAULT 0,
+  `mailboxes` int(10) NOT NULL DEFAULT 0,
+  `maxquota` bigint(20) NOT NULL DEFAULT 0,
+  `quota` bigint(20) NOT NULL DEFAULT 0,
   `transport` varchar(255) NOT NULL,
-  `backupmx` tinyint(1) NOT NULL DEFAULT '0',
+  `backupmx` tinyint(1) NOT NULL DEFAULT 0,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   `modified` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`domain`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Domains';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -170,7 +174,7 @@ CREATE TABLE `domain_admins` (
   `username` varchar(255) NOT NULL,
   `domain` varchar(255) NOT NULL,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   KEY `username` (`username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Domain Admins';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -201,21 +205,21 @@ CREATE TABLE `fetchmail` (
   `src_user` varchar(255) NOT NULL,
   `src_password` varchar(255) NOT NULL,
   `src_folder` varchar(255) NOT NULL,
-  `poll_time` int(11) unsigned NOT NULL DEFAULT '10',
-  `fetchall` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `keep` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `poll_time` int(11) unsigned NOT NULL DEFAULT 10,
+  `fetchall` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `keep` tinyint(1) unsigned NOT NULL DEFAULT 0,
   `protocol` enum('POP3','IMAP','POP2','ETRN','AUTO') DEFAULT NULL,
-  `usessl` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `sslcertck` tinyint(1) NOT NULL DEFAULT '0',
+  `usessl` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `sslcertck` tinyint(1) NOT NULL DEFAULT 0,
   `sslcertpath` varchar(255) CHARACTER SET utf8 DEFAULT '',
   `sslfingerprint` varchar(255) DEFAULT '',
-  `extra_options` text,
-  `returned_text` text,
+  `extra_options` text DEFAULT NULL,
+  `returned_text` text DEFAULT NULL,
   `mda` varchar(255) NOT NULL,
   `date` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00',
   `created` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `active` tinyint(1) NOT NULL DEFAULT '0',
+  `modified` timestamp NOT NULL DEFAULT current_timestamp(),
+  `active` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -243,6 +247,8 @@ CREATE TABLE `log` (
   `domain` varchar(255) NOT NULL,
   `action` varchar(255) NOT NULL,
   `data` text NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   KEY `timestamp` (`timestamp`),
   KEY `domain_timestamp` (`domain`,`timestamp`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Log';
@@ -269,12 +275,16 @@ CREATE TABLE `mailbox` (
   `password` varchar(255) NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `maildir` varchar(255) NOT NULL,
-  `quota` bigint(20) NOT NULL DEFAULT '0',
+  `quota` bigint(20) NOT NULL DEFAULT 0,
   `local_part` varchar(255) NOT NULL,
   `domain` varchar(255) NOT NULL,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   `modified` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `phone` varchar(30) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `email_other` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `token` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `token_validity` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
   PRIMARY KEY (`username`),
   KEY `domain` (`domain`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Mailboxes';
@@ -286,7 +296,7 @@ CREATE TABLE `mailbox` (
 
 LOCK TABLES `mailbox` WRITE;
 /*!40000 ALTER TABLE `mailbox` DISABLE KEYS */;
-INSERT INTO `mailbox` VALUES ('john.doe@domain.tld','{SHA512-CRYPT}$6$v1LkarodHyGGmfoy$ZszVBzfEZ0CaVnYaBasgvaHJUCNfxwD/E0eNy3iuix56Vl1ZcuDvG9PVr9JRZx5k.7wp1nMb5M1V4aZXo2yfn0','John DOE','domain.tld/john.doe/',1024000,'john.doe','domain.tld','2016-11-28 08:56:47','2016-11-28 08:56:47',1),('sarah.connor@domain.tld','{SHA512-CRYPT}$6$ub.zCcyeaM7Mhs6S$rL4Yj2.Zsk8aFoF5l1mAddVrPo.UZ/1UrNwBC7UTBrX47cViSHo5eepEes6jMqC21P3cBm82adqJZvo91Ekme0','Sarah CONNOR','domain.tld/sarah.connor/',1024000,'sarah.connor','domain.tld','2016-11-28 08:57:51','2016-11-28 08:57:51',1);
+INSERT INTO `mailbox` VALUES ('john.doe@domain.tld','{SHA512-CRYPT}$6$v1LkarodHyGGmfoy$ZszVBzfEZ0CaVnYaBasgvaHJUCNfxwD/E0eNy3iuix56Vl1ZcuDvG9PVr9JRZx5k.7wp1nMb5M1V4aZXo2yfn0','John DOE','domain.tld/john.doe/',1024000,'john.doe','domain.tld','2016-11-28 08:56:47','2016-11-28 08:56:47',1,'','','','2000-01-01 00:00:00'),('sarah.connor@domain.tld','{SHA512-CRYPT}$6$ub.zCcyeaM7Mhs6S$rL4Yj2.Zsk8aFoF5l1mAddVrPo.UZ/1UrNwBC7UTBrX47cViSHo5eepEes6jMqC21P3cBm82adqJZvo91Ekme0','Sarah CONNOR','domain.tld/sarah.connor/',1024000,'sarah.connor','domain.tld','2016-11-28 08:57:51','2016-11-28 08:57:51',1,'','','','2000-01-01 00:00:00');
 /*!40000 ALTER TABLE `mailbox` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -300,7 +310,7 @@ DROP TABLE IF EXISTS `quota`;
 CREATE TABLE `quota` (
   `username` varchar(255) NOT NULL,
   `path` varchar(100) NOT NULL,
-  `current` bigint(20) NOT NULL DEFAULT '0',
+  `current` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`username`,`path`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -323,8 +333,8 @@ DROP TABLE IF EXISTS `quota2`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `quota2` (
   `username` varchar(100) NOT NULL,
-  `bytes` bigint(20) NOT NULL DEFAULT '0',
-  `messages` int(11) NOT NULL DEFAULT '0',
+  `bytes` bigint(20) NOT NULL DEFAULT 0,
+  `messages` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -351,13 +361,13 @@ CREATE TABLE `vacation` (
   `subject` varchar(255) CHARACTER SET utf8 NOT NULL,
   `body` text CHARACTER SET utf8 NOT NULL,
   `activefrom` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `activeuntil` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00',
+  `activeuntil` timestamp NOT NULL DEFAULT '2038-01-18 00:00:00',
   `cache` text NOT NULL,
   `domain` varchar(255) NOT NULL,
-  `interval_time` int(11) NOT NULL DEFAULT '0',
+  `interval_time` int(11) NOT NULL DEFAULT 0,
   `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `modified` timestamp NOT NULL DEFAULT current_timestamp(),
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`email`),
   KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Vacation';
@@ -381,8 +391,8 @@ DROP TABLE IF EXISTS `vacation_notification`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vacation_notification` (
   `on_vacation` varchar(255) CHARACTER SET latin1 NOT NULL,
-  `notified` varchar(255) CHARACTER SET latin1 NOT NULL,
-  `notified_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `notified` varchar(255) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `notified_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`on_vacation`,`notified`),
   CONSTRAINT `vacation_notification_pkey` FOREIGN KEY (`on_vacation`) REFERENCES `vacation` (`email`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Postfix Admin - Virtual Vacation Notifications';
@@ -396,10 +406,6 @@ LOCK TABLES `vacation_notification` WRITE;
 /*!40000 ALTER TABLE `vacation_notification` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vacation_notification` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'postfix'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -410,4 +416,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-28 10:02:24
+-- Dump completed on 2018-05-15  6:53:36

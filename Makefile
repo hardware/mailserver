@@ -11,18 +11,31 @@ build:
 	docker build -t $(NAME) .
 
 init:
-	-docker rm -f mariadb redis mailserver_default mailserver_reverse mailserver_ecdsa
+	-docker rm -f \
+		mariadb postgres redis \
+		mailserver_default mailserver_reverse mailserver_ecdsa \
+		mailserver_traefik_acmev1 mailserver_traefik_acmev2
+
 	sleep 2
 
 	docker run \
 		-d \
 		--name mariadb \
-		-e MYSQL_ROOT_PASSWORD=testpasswd \
+		-e MYSQL_RANDOM_ROOT_PASSWORD=yes \
 		-e MYSQL_DATABASE=postfix \
 		-e MYSQL_USER=postfix \
 		-e MYSQL_PASSWORD=testpasswd \
 		-v "`pwd`/test/config/mariadb":/docker-entrypoint-initdb.d \
 		-t mariadb:10.2
+
+	docker run \
+		-d \
+		--name postgres \
+		-e POSTGRES_DB=postfix \
+		-e POSTGRES_USER=postfix \
+		-e POSTGRES_PASSWORD=testpasswd \
+		-v "`pwd`/test/config/postgres":/docker-entrypoint-initdb.d \
+		-t postgres:10.3-alpine
 
 	docker run \
 		-d \
@@ -47,17 +60,21 @@ init:
 		-v "`pwd`/test/share/ssl/rsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.conf":/var/mail/postfix/custom.conf \
 		-v "`pwd`/test/share/dovecot/conf.d":/var/mail/dovecot/conf.d \
+		-v "`pwd`/test/share/clamav/unofficial-sigs/user.conf":/var/mail/clamav-unofficial-sigs/user.conf \
 		-h mail.domain.tld \
 		-t $(NAME)
 
 	docker run \
 		-d \
 		--name mailserver_reverse \
-		--link mariadb:mariadb \
+		--link postgres:postgres \
 		--link redis:redis \
 		-e FQDN=mail.domain.tld \
 		-e DOMAIN=domain.tld \
-		-e DBPASS=/tmp/passwd/mariadb \
+		-e DBDRIVER=pgsql \
+		-e DBHOST=postgres \
+		-e DBPORT=5432 \
+		-e DBPASS=/tmp/passwd/postgres \
 		-e REDIS_HOST=redis \
 		-e REDIS_PORT=6379 \
 		-e REDIS_PASS=/tmp/passwd/redis \
@@ -94,9 +111,40 @@ init:
 		-e VMAILGID=`id -g` \
 		-e DISABLE_CLAMAV=true \
 		-e DISABLE_RSPAMD_MODULE=rbl,mx_check,url_redirector \
+		-e WHITELIST_SPAM_ADDRESSES=test@example.com,another@domain.tld \
 		-e TESTING=true \
 		-v "`pwd`/test/share/ssl/ecdsa":/var/mail/ssl \
 		-v "`pwd`/test/share/postfix/custom.ecdsa.conf":/var/mail/postfix/custom.conf \
+		-h mail.domain.tld \
+		-t $(NAME)
+
+	docker run \
+		-d \
+		--name mailserver_traefik_acmev1 \
+		--link mariadb:mariadb \
+		--link redis:redis \
+		-e DBPASS=testpasswd \
+		-e RSPAMD_PASSWORD=testpasswd \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
+		-e TESTING=true \
+		-v "`pwd`/test/share/traefik/acme.v1.json":/etc/letsencrypt/acme/acme.json \
+		-h mail.domain.tld \
+		-t $(NAME)
+
+	docker run \
+		-d \
+		--name mailserver_traefik_acmev2 \
+		--link mariadb:mariadb \
+		--link redis:redis \
+		-e DBPASS=testpasswd \
+		-e RSPAMD_PASSWORD=testpasswd \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
+		-e DISABLE_CLAMAV=true \
+		-e TESTING=true \
+		-v "`pwd`/test/share/traefik/acme.v2.json":/etc/letsencrypt/acme/acme.json \
 		-h mail.domain.tld \
 		-t $(NAME)
 

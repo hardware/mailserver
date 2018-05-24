@@ -1,4 +1,4 @@
-FROM hardware/debian-mail-overlay:1.6.5
+FROM hardware/debian-mail-overlay:latest
 
 LABEL description "Simple and full-featured mail server using Docker" \
       maintainer="Hardware <contact@meshup.net>"
@@ -6,15 +6,14 @@ LABEL description "Simple and full-featured mail server using Docker" \
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
-    postfix postfix-mysql postfix-pcre libsasl2-modules \
-    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
-    fetchmail libdbi-perl libdbd-mysql-perl liblockfile-simple-perl \
-    clamav-daemon \
-    python-pip python-setuptools python-gpgme \
-    rsyslog dnsutils curl unbound \
+    postfix postfix-pgsql postfix-mysql postfix-pcre libsasl2-modules \
+    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pgsql dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
+    fetchmail libdbi-perl libdbd-pg-perl libdbd-mysql-perl liblockfile-simple-perl \
+    clamav clamav-daemon \
+    python-setuptools python-gpgme \
+    rsyslog dnsutils curl unbound jq rsync \
  && rm -rf /var/spool/postfix \
  && ln -s /var/mail/postfix/spool /var/spool/postfix \
- && pip install envtpl \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old

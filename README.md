@@ -13,7 +13,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Postfix** : a full set smtp email server
 - **Dovecot** : secure imap and pop3 email server
 - **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
-- **Clamav** : antivirus with automatic updates
+- **Clamav** : antivirus with automatic updates and third-party signature databases
 - **Zeyple** : automatic GPG encryption of all your e-mails
 - **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
 - **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
@@ -21,22 +21,52 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - **Postfixadmin** : web based administration interface
 - **Unbound**: recursive caching DNS resolver with DNSSEC support
 - **NSD** : authoritative DNS server with DNSSEC support
-- **Nginx** : web server with HTTP/2 and TLS 1.3 (DRAFT), statically linked against BoringSSL
-- **SSL** : lets encrypt, custom and self-signed certificates support
-- Supporting multiple virtual domains over MySQL backend
+- **Træfik** : modern HTTP reverse proxy
+- **SSL** : let's encrypt with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
+- Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
 
+### Summary
+
+- [System Requirements](#system-requirements)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment variables](#environment-variables)
+- [SSL certificates](#ssl-certificates)
+- [GPG encryption](#automatic-gpg-encryption-of-all-your-e-mails)
+- [Relaying from other networks](#relaying-from-other-networks)
+- [Third-party clamav signature databases](#third-party-clamav-signature-databases)
+- [DNS resolver](#unbound-dns-resolver)
+- [PostgreSQL support](#postgresql-support)
+- [IPv6 support](#ipv6-support)
+- [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
+- [Override postfix configuration](#override-postfix-configuration)
+- [Override dovecot configuration](#custom-configuration-for-dovecot)
+- [Rancher Catalog](#rancher-catalog)
+- [Ansible Playbooks](#ansible-playbooks)
+- [Migration from 1.0 to 1.1-stable](#migration-from-10-to-11)
+- [Community projects](#community-projects)
+- [Useful Thunderbird extensions](#some-useful-thunderbird-extensions-)
+- [Donation](#donation)
+
 ### System Requirements
 
-Please check, if your system meets the following minimum system requirements :
+Please check, if your system meets the following minimum requirements :
+
+#### With MariaDB/PostgreSQL and Redis on the same host :
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
-| Disk | 5 GiB (without emails) | 5 GiB (without emails) |
-| System | x86_64 | x86_64 |
+
+#### With MariaDB/PostgreSQL and Redis hosted on another server :
+
+| Type | Without ClamAV | With ClamAV |
+| ---- | -------------- | ----------- |
+| CPU | 1 GHz | 1 GHz |
+| RAM | 512 MiB | 1 GiB |
 
 ### Prerequisites
 
@@ -75,36 +105,34 @@ If you have a firewall, unblock the following ports, according to your needs :
 
 #### DNS setup
 
-I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server. This docker image is really easy to use.
+I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server.
 
-How to setup : [NSD initial configuration](https://github.com/hardware/mailserver/wiki/NSD-initial-configuration)
-
-#### Mandatory DNS records (A/MX) and reverse PTR :
+#### DNS records and reverse PTR :
 
 A correct DNS setup is required, this step is very important.
 
 | HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
 | -------- | ----- | ---- | -------- | ----- |
 | mail | IN | A/AAAA | any | 1.2.3.4 |
+| spam | IN | CNAME | any | mail.domain.tld. |
+| webmail | IN | CNAME | any | mail.domain.tld. |
+| postfixadmin | IN | CNAME | any | mail.domain.tld. |
 | @ | IN | MX | 10 | mail.domain.tld. |
-
-Make sure that the **PTR record** of your IP matches the FQDN of your mailserver host. This record is usually set in your web hosting interface.
-
-#### Recommended DNS records
-
-DKIM, SPF and DMARC are recommended to build a good reputation score.
-
-| HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
-| -------- | ----- | ---- | -------- | ----- |
 | @ | IN | TXT | any | "v=spf1 a mx ip4:SERVER_IPV4 ~all" |
 | mail._domainkey | IN | TXT | any | "v=DKIM1; k=rsa; p=YOUR DKIM Public Key" |
 | _dmarc | IN | TXT | any | "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject" |
 
-**Note:** The DKIM public key will be available on host after the container startup :
+**Notes:**
+
+* Make sure that the **PTR record** of your IP matches the FQDN (default : mail.domain.tld) of your mailserver host. This record is usually set in your web hosting interface.
+* DKIM, SPF and DMARC records are recommended to build a good reputation score.
+* The DKIM public key will be available on host after the container startup :
 
 ```
 /mnt/docker/mail/dkim/domain.tld/public.key
 ```
+
+To regenerate your public and private keys, remove the `/mnt/docker/mail/dkim/domain.tld` folder. By default a **1024-bit** key is generated, you can increase this size by setting the `OPENDKIM_KEY_LENGTH` environment variable with a higher value. Check your domain registrar support to verify that it supports a TXT record long enough for a key larger than 1024 bits.
 
 These DNS record will raise your trust reputation score and reduce abuse of your domain name. You can find more information here :
 
@@ -112,14 +140,6 @@ These DNS record will raise your trust reputation score and reduce abuse of your
 * http://www.opendkim.org/
 * https://dmarc.org/
 * http://arc-spec.org/
-
-**Some useful Thunderbird extensions** :
-
-* https://www.enigmail.net/
-* https://github.com/moisseev/rspamd-spamness
-* https://github.com/lieser/dkim_verifier
-
-[![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
 
 #### Testing
 
@@ -131,60 +151,58 @@ You can audit your mailserver with the following assessment services :
 
 ### Installation
 
-#### 1 - Pull the latest image from docker hub
+#### 1 - Prepare your environment
+
+:bulb: The reverse proxy used in this setup is [Traefik](https://traefik.io/), but you can use the solution of your choice (Nginx, Apache, Haproxy, Caddy, H2O...etc).
 
 ```bash
-# Pull from hub.docker.com
-docker pull hardware/mailserver:1.1-stable # Get the stable version (v1.1-stable branch)
-docker pull hardware/mailserver:1.1-latest # Get the latest version (master branch)
+# Create a new docker network for Traefik (IPv4 only)
+docker network create http_network
+# If you want to support IPv6, please refer to [IPv6 support]
 
-# or build it manually
-docker build -t hardware/mailserver https://github.com/hardware/mailserver.git#v1.1-stable
+# Create the required folders and files
+mkdir -p /mnt/docker/traefik/acme && cd /mnt/docker \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/docker-compose.sample.yml -o docker-compose.yml \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/sample.env -o .env \
+&& curl https://raw.githubusercontent.com/hardware/mailserver/master/traefik.sample.toml -o traefik/traefik.toml \
+&& touch traefik/acme/acme.json \
+&& chmod 600 docker-compose.yml .env traefik/traefik.toml traefik/acme/acme.json
 ```
 
-:warning: `latest` docker tag points to a **legacy** version until **january 2018** to not break the compatibility with old installations.
-
-:bulb: `1.1-latest` tag is the latest development build. These builds have been validated through the CI automation system but they are not meant for deployment in production.
-
-:bulb: For security reasons, you should regularly update all of your docker images.
-
-#### 2 - Get the latest docker-compose.yml
-
-Change your hostname and domain name, adapt to your needs : [docker-compose.sample.yml](https://github.com/hardware/mailserver/blob/master/docker-compose.sample.yml)
-
-Run the stack :
+Edit the `.env` and `traefik.toml`, adapt to your needs, then start all services :
 
 ```
 docker-compose up -d
 ```
 
-#### 3 - Reverse proxy setup
-
-I recommend you to use [wonderfall/boring-nginx](https://github.com/Wonderfall/dockerfiles/tree/master/boring-nginx) as a reverse proxy. Nginx is statically linked against BoringSSL, with embedded Brotli support, TLS 1.3, X25519, HTTP/2 and hardening standards.
-
-More information here : [Reverse proxy configuration](https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration)
-
-Notice : if you plan to use [Let's Encrypt as Certificate Authority](https://github.com/hardware/mailserver#ssl-certificates); be sure to request them before with the XATAZ way.
-
-#### 4 - Postfixadmin installation
+#### 2 - Postfixadmin installation
 
 PostfixAdmin is a web based interface used to manage mailboxes, virtual domains and aliases.
 
 * Docker image : https://github.com/hardware/postfixadmin
 * How to setup : [Postfixadmin initial configuration](https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration)
 
-#### 5 - Rainloop installation (optional)
+#### 3 - Rainloop installation (optional)
 
 Rainloop is a simple, modern and fast webmail with Sieve scripts support (filters and vacation message), GPG and a modern user interface.
 
 * Docker image : https://github.com/hardware/rainloop
 * How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
 
-#### 6 - Done, congratulation ! :tada:
+#### 4 - Done, congratulation ! :tada:
 
-At first launch, the container takes few minutes to generate SSL certificates (if needed), DKIM keypair and update clamav database, all of this takes some time (1/2 minutes).
+At first launch, the container takes few minutes to generate SSL certificates (if needed), DKIM keypair and update clamav database, all of this takes some time (1/2 minutes). This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.
 
-This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.
+**List of webservices available:**
+
+| Service | URI |
+| ------- | --- |
+| **Traefik dashboard** | https://mail.domain.tld/ |
+| **Rspamd dashboard** | https://spam.domain.tld/ |
+| **Administration** | https://postfixadmin.domain.tld/ |
+| **Webmail** | https://webmail.domain.tld/ |
+
+Traefik dashboard use a basic authentication (user:admin, password:12345), the password can be encoded in MD5, SHA1 and BCrypt. You can use [htpasswd ](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) to generate those ones. Users can be specified directly in the `traefik.toml` file. Rspamd dashboard use the password defined in your `docker-compose.yml`.
 
 You can check the startup logs with this command :
 
@@ -209,17 +227,23 @@ You can check the startup logs with this command :
 ...
 ```
 
+### Rancher Catalog
+
+![rancher-logo](https://i.imgur.com/R9AArJN.png)
+
+https://github.com/hardware/mailserver-rancher
+
+This catalog provides a basic template to easily deploy an email server based on [hardware/mailserver](https://github.com/hardware/mailserver) very quickly. To use it, just add this repository to your Rancher system as a catalog in `Admin > Settings` page and follow [the readme](https://github.com/hardware/mailserver-rancher/blob/master/README.md). This catalog has been initiated by [@MichelDiz](https://github.com/MichelDiz).
+
+![rancher-ui](https://i.imgur.com/kdJxAiN.png)
+
 ### Ansible Playbooks
 
 ![logo](https://i.imgur.com/tvTG8pN.png)
 
-If you use Ansible, I recommend you to go to see @ksylvan playbooks here : https://github.com/ksylvan/docker-mail-server
+If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/ksylvan) playbooks here : https://github.com/ksylvan/docker-mail-server
 
 ### Environment variables
-
-:warning: Use only ASCII printable characters in environment variables : https://en.wikipedia.org/wiki/ASCII#Printable_characters
-
-Github issue : https://github.com/hardware/mailserver/issues/118
 
 | Variable | Description | Type | Default value |
 | -------- | ----------- | ---- | ------------- |
@@ -228,11 +252,12 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
-| **DBHOST** | MariaDB instance ip/hostname | *optional* | mariadb
-| **DBPORT** | MariaDB instance port | *optional* | 3306
-| **DBUSER** | MariaDB database username | *optional* | postfix
-| **DBNAME** | MariaDB database name | *optional* | postfix
-| **DBPASS** | MariaDB database password or location of a file containing it | **required** | null
+| **DBDRIVER** | Database type: mysql, pgsql | *optional* | mysql
+| **DBHOST** | Database instance ip/hostname | *optional* | mariadb
+| **DBPORT** | Database instance port | *optional* | 3306
+| **DBUSER** | Database username | *optional* | postfix
+| **DBNAME** | Database name | *optional* | postfix
+| **DBPASS** | Database password or location of a file containing it | **required** | null
 | **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
 | **REDIS_PORT** | Redis instance port | *optional*  | 6379
 | **REDIS_PASS** | Redis database password or location of a file containing it | *optional* | null
@@ -240,6 +265,7 @@ Github issue : https://github.com/hardware/mailserver/issues/118
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password or location of a file containing it | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
+| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted e-mail addresses separated by commas | *optional* | null
 | **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
@@ -322,59 +348,136 @@ You can use this variable to allow other local containers to relay via the mails
 
 ### SSL certificates
 
-#### Let's Encrypt certificate authority
+#### Let's Encrypt certificates generated by Traefik
 
-This mail setup uses 4 domain names that should be covered by your new certificate :
-
-* **mail.domain.tld** (mandatory)
-* **postfixadmin.domain.tld** (recommended)
-* **spam.domain.tld** (recommended)
-* **webmail.domain.tld** (optional)
-
-To use the Let's Encrypt certificates, you can setup your `docker-compose.yml` like this :
+To use Let's Encrypt certificates generated by Traefik, mount a new docker volume like this :
 
 ```yml
 mailserver:
   image: hardware/mailserver
   volumes:
-    - /mnt/docker/nginx/certs:/etc/letsencrypt
+    - /mnt/docker/traefik/acme:/etc/letsencrypt/acme
     ...
+```
 
-nginx:
-  image: wonderfall/boring-nginx
+The startup script read the `acme.json`* file generated by Traefik and split into pem files all appropriate certificates (CN = mail.domain.tld).
+
+:bulb: *Compatible with both Traefik `>=1.5.0` and `1.6+` ACME json format, with **SAN** and **wildcard** certificates support.
+
+```
+docker logs -f mailserver
+
+[INFO] Search for SSL certificates generated by Traefik
+[INFO] acme.json found with ACME v2 format, dumping into pem files
+[INFO] Let's encrypt live directory found
+[INFO] Using /etc/letsencrypt/live/mail.domain.tld folder
+```
+
+Don't forget to add a new traefik frontend rule somewhere in your docker-compose.yml to generate a certificate for your mailserver FQDN (default : mail.domain.tld) subdomain.
+
+```yml
+# docker-compose.yml
+
+labels:
+  - traefik.frontend.rule=Host:mail.${DOMAIN}
+```
+
+Alternatively, you can specify your domains in the `traefik.toml` to generate a SAN certificate :
+
+```toml
+[acme]
+onHostRule = false
+
+[[acme.domains]]
+main = "domain.tld"
+sans = ["mail.domain.tld", "spam.domain.tld", "postfixadmin.domain.tld", "webmail.domain.tld"]
+```
+
+Or a wildcard certificate :
+
+:warning: ACME wildcard certificates can only be generated thanks to a `DNS-01` challenge.
+
+```toml
+[acme]
+onHostRule = false
+
+# https://docs.traefik.io/v1.6/configuration/acme/#dnschallenge
+[acme.dnsChallenge]
+provider = "your_dns_provider"
+delayBeforeCheck = 0
+
+[[acme.domains]]
+main = "*.domain.tld"
+```
+
+If the startup script does not find the appropriate SSL certificate and private key, look at Traefik's logs to see what's going on.
+
+```
+docker logs -f mailserver
+
+[INFO] Search for SSL certificates generated by Traefik
+[INFO] ...
+[INFO] ...
+[INFO] acme.json found with ACME v2 format, dumping into pem files
+[ERROR] The certificate for mail.domain.tld or the private key was not found !
+[INFO] Don't forget to add a new traefik frontend rule to generate a certificate for mail.domain.tld subdomain
+[INFO] Look /mnt/docker/traefik/acme/dump.log and 'docker logs traefik' for more information
+```
+
+```toml
+# traefik.toml
+
+[acme]
+acmeLogging = true
+```
+
+```
+docker-compose restart traefik && docker logs -f traefik
+```
+
+#### Custom certificates
+
+You can use Let's Encrypt or any other certification authority. Setup your `docker-compose.yml` like this :
+
+```yml
+mailserver:
+  image: hardware/mailserver
   volumes:
-    - /mnt/docker/nginx/certs:/certs
+    - /mnt/docker/ssl:/etc/letsencrypt
     ...
 ```
 
-And request the certificate with [xataz/letsencrypt](https://github.com/xataz/docker-letsencrypt) or [cerbot](https://certbot.eff.org/) :
+Request your certificates in `/mnt/docker/ssl/live/mail.domain.tld` with an [ACME client](https://letsencrypt.org/docs/client-options/) if you use Let's Encrypt, otherwise get your SSL certificates with the method provided by your CA and put everything needed in this directory.
 
+Required files in this folder :
+
+:bulb: If you only have the fullchain.pem and privkey.pem, the startup script extract automatically the cert.pem and chain.pem from fullchain.pem.
+
+| Filename | Description |
+|----------|-------------|
+| privkey.pem | Private key for the certificate |
+| cert.pem | Server certificate only |
+| chain.pem | Root and intermediate certificates only, excluding server certificate |
+| fullchain.pem | All certificates, including server certificate. This is concatenation of cert.pem and chain.pem |
+
+Example with [acme.sh](https://acme.sh) :
+
+```bash
+acme.sh --install-cert -d example.com \
+--ca-file        ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/chain.pem  \
+--cert-file      ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/cert.pem  \
+--key-file       ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/privkey.pem  \
+--fullchain-file ${VOLUMES_ROOT_PATH}/ssl/live/mail.domain.tld/fullchain.pem \
+--reloadcmd      "docker restart mailserver"
 ```
-docker-compose stop nginx
 
-docker run -it --rm \
-  -v /mnt/docker/nginx/certs:/etc/letsencrypt \
-  -p 80:80 -p 443:443 \
-  xataz/letsencrypt \
-    certonly --standalone \
-    --rsa-key-size 4096 \
-    --agree-tos \
-    -m contact@domain.tld \
-    -d mail.domain.tld \ # <--- Mail FQDN is the first domain name, very important !
-    -d webmail.domain.tld \
-    -d postfixadmin.domain.tld \
-    -d spam.domain.tld
+**Notes** :
 
-docker-compose up -d
-```
+* Important : When renewing certificates, you must restart the mailserver container.
 
-* Important : When renewing certificates, you must restart affected containers.
+* If you do not use your own trusted certificates or those generated by Traefik, a default self-signed certificate (RSA 4096 bits SHA2) is added here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
 
-* :warning: The common name of your ssl certifcate **MUST** be the same as your server's FQDN (for example, let's encrypt live subfolder name must be equal to **domainname** & **hostname** values of docker-compose file). Don't forget to add your FQDN in command above **in first position**.
-
-* If you do not use let's encrypt, a default self-signed certificate (RSA 4096 bits SHA2) is generated here : `/mnt/docker/mail/ssl/selfsigned/{cert.pem, privkey.pem}`.
-
-* If you have generated a ECDSA certificate with a curve other than `prime256v1` (NIST P-256), you need to change the Postfix TLS configuration because of a bug in OpenSSL 1.1.0. For example, if you use `secp384r1` elliptic curve with your ECDSA certificate, change the `tls_eecdh_strong_curve` value :
+* If you have generated a ECDSA certificate with a curve other than `prime256v1` (NIST P-256), you need to change the Postfix TLS configuration because of a change in OpenSSL >= 1.1.0. For example, if you use `secp384r1` elliptic curve with your ECDSA certificate, change the `tls_eecdh_strong_curve` value :
 
 ```ini
 # /mnt/docker/mail/postfix/custom.conf
@@ -387,31 +490,6 @@ Additional informations about this issue :
 * https://github.com/openssl/openssl/issues/2033
 * https://bugzilla.redhat.com/show_bug.cgi?id=1473971
 
-#### Another certificate authority (other than Let's Encrypt)
-
-Place all your certificates in `/mnt/docker/nginx/certs/live/mail.domain.tld`
-
-Required files in this folder :
-
-| Filename | Description |
-|----------|-------------|
-| privkey.pem | Private key for the certificate |
-| cert.pem | Server certificate only |
-| chain.pem | Root and intermediate certificates only, excluding server certificate |
-| fullchain.pem | All certificates, including server certificate. This is concatenation of cert.pem and chain.pem |
-
-Then mount the volume like this :
-
-```yml
-mailserver:
-  image: hardware/mailserver
-  volumes:
-    - /mnt/docker/nginx/certs:/etc/letsencrypt
-    ...
-```
-
-You must restart affected containers.
-
 #### Testing
 
 ```bash
@@ -423,6 +501,74 @@ openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
 
 # IMAP SSL/TLS - 993 port (IMAPS)
 openssl s_client -connect mail.domain.tld:993 -tlsextdebug
+```
+
+### Third-party clamav signature databases
+
+[Clamav-unofficial-sigs](https://github.com/extremeshok/clamav-unofficial-sigs) provides a simple way to download and update third-party signature databases provided by Sanesecurity, FOXHOLE, OITC, Scamnailer, BOFHLAND, CRDF, Porcupine, Securiteinfo, MalwarePatrol, Yara-Rules Project, etc.
+
+Readme : https://github.com/extremeshok/clamav-unofficial-sigs
+
+#### Required Ports
+
+| Software | Protocol | Port |
+| -------- | -------- | ---- |
+| Rsync | TCP | 873 |
+| Curl | TCP | 443 |
+
+#### Enable clamav-unofficial-sigs
+
+Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` directory to configure clamav-unofficial-sigs updater. This file override the default configuration specified in [os.conf](https://github.com/hardware/mailserver/blob/master/rootfs/etc/clamav/unofficial-sigs/os.conf) and [master.conf](https://github.com/hardware/mailserver/blob/master/rootfs/etc/clamav/unofficial-sigs/master.conf). Don't forget, once you have completed the configuration of this file, set the value of `user_configuration_complete` to `yes` otherwise the script will not be able to execute.
+
+```ini
+# /mnt/docker/mail/clamav-unofficial-sigs/user.conf
+
+# =========================
+# MalwarePatrol : https://www.malwarepatrol.net
+# MalwarePatrol 2016 (free) clamav signatures
+#
+# 1. Sign up for an account : https://www.malwarepatrol.net/signup-free.shtml
+# 2. You will receive an email containing your password/receipt number
+# 3. Login to your account at malwarePatrol
+# 4. In My Accountpage, choose the ClamAV list you will download. Free subscribers only get ClamAV Basic, commercial subscribers have access to ClamAV Extended. Do not use the agressive lists.
+# 5. In the download URL, you will see 3 parameters: receipt, product and list, enter them in the variables below.
+# malwarepatrol_receipt_code="YOUR-RECEIPT-NUMBER"
+# malwarepatrol_product_code="8"
+# malwarepatrol_list="clamav_basic"
+# malwarepatrol_free="yes"
+
+# =========================
+# SecuriteInfo : https://www.SecuriteInfo.com
+# SecuriteInfo 2015 free clamav signatures
+#
+# Usage of SecuriteInfo 2015 free clamav signatures : https://www.securiteinfo.com
+# - 1. Sign up for a free account : https://www.securiteinfo.com/clients/customers/signup
+# - 2. You will receive an email to activate your account and then a followup email with your login name
+# - 3. Login and navigate to your customer account : https://www.securiteinfo.com/clients/customers/account
+# - 4. Click on the Setup tab
+# - 5. You will need to get your unique identifier from one of the download links, they are individual for every user
+# - 5.1. The 128 character string is after the http://www.securiteinfo.com/get/signatures/
+# - 5.2. Example https://www.securiteinfo.com/get/signatures/your_unique_and_very_long_random_string_of_characters/securiteinfo.hdb
+#   Your 128 character authorisation signature would be : your_unique_and_very_long_random_string_of_characters
+# - 6. Enter the authorisation signature into the config securiteinfo_authorisation_signature: replacing YOUR-SIGNATURE-NUMBER with your authorisation signature from the link
+# securiteinfo_authorisation_signature="YOUR-SIGNATURE-NUMBER"
+
+# After you have completed the configuration of this file, set the value to "yes"
+user_configuration_complete="yes"
+```
+
+If the startup script detects this file, clamav-unofficial-sigs is automatically enabled and third-party databases downloaded under `/mnt/docker/mail/clamav` after clamav startup. Once the databases are downloaded, a SIGHUP signal is sent to clamav to load the received signatures :
+
+```
+docker logs -f mailserver
+
+[INFO] clamav-unofficial-sigs is enabled (user configuration found)
+[...]
+s6-supervise : clamav unofficial signature update running
+s6-supervise : virus database downloaded, spawning clamd process
+[...]
+clamd[xxxxxx]: SIGHUP caught: re-opening log file.
+s6-supervise : clamav unofficial signature update done
 ```
 
 ### Unbound DNS resolver
@@ -443,6 +589,98 @@ docker exec -ti mailserver unbound-control reload
 ```
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
+
+### PostgreSQL support
+
+PostgreSQL can be used instead of MariaDB. You have to make some changes in the original `docker-compose.yml` file to use this DBMS :
+
+```yml
+mailserver:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+postfixadmin:
+  environment:
+    - DBDRIVER=pgsql
+    - DBHOST=postgres
+    - DBPORT=5432
+  depends_on:
+    - postgres
+
+rainloop:
+  depends_on:
+    - postgres
+
+# Database
+# https://github.com/docker-library/postgres
+# https://postgresql.org/
+postgres:
+  image: postgres:10.3-alpine
+  container_name: postgres
+  restart: ${RESTART_MODE}
+  # Info : These variables are ignored when the volume already exists (if databases was created before).
+  environment:
+    - POSTGRES_DB=postfix
+    - POSTGRES_USER=postfix
+    - POSTGRES_PASSWORD=${DATABASE_USER_PASSWORD}
+  volumes:
+    - ${VOLUMES_ROOT_PATH}/pgsql/db:/var/lib/postgresql/data
+  networks:
+    - mail_network
+```
+
+### IPv6 support
+
+If you want to support inbound IPv6 connections, you need to create a docker network with IPv6 enabled, otherwise, you may have some issues with docker internal networking.
+
+The procedure is quite simple:
+
+- Remove your old `http_network` (if you already have created it)
+
+```bash
+docker network rm http_network
+```
+
+- Choose a private ipv6 address range (/64)
+  - You can easily get a unique private IPv6 address range on [SimpleDNS website](https://simpledns.com/private-ipv6)
+
+- Create a docker network with IPv6 enabled
+
+```bash
+# Replace subnet mask with your own "Combined/CID"
+docker network create http_network --ipv6 --subnet "fd00:0000:0000:0000::/64"
+```
+
+- Append this to your `docker-compose.yml`
+
+```yml
+# IPv6NAT
+# https://github.com/robbertkl/docker-ipv6nat
+# https://hub.docker.com/r/robbertkl/ipv6nat/
+ipv6nat:
+  image: robbertkl/ipv6nat
+  container_name: ipv6nat
+  restart: ${RESTART_MODE}
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /lib/modules:/lib/modules:ro
+  depends_on:
+    - mailserver
+  cap_add:
+    - NET_ADMIN
+    - SYS_MODULE
+  network_mode: "host"
+```
+
+- Create a record named `mail` of type `AAAA` with your **public** IPv6 address in your DNS provider.
+
+Done! This is all the configuration needed to enable inbound IPv6 support on this mailserver.
+
+You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/robbertkl/docker-ipv6nat) container mimics NAT for IPv6 on his page.
 
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 
@@ -465,6 +703,8 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    │     bytecode.cvd
    │     daily.cld
    │     main.cvd
+   ├──clamav-unofficial-sigs
+   │     user.conf
    ├──rspamd (Rspamd databases directory)
    │     rspamd.rrd
    |     stats.ucl
@@ -480,12 +720,7 @@ Documentation : https://www.unbound.net/documentation/unbound-control.html
    │  ├──domain.tld
    │  │     private.key
    │  │     public.key
-   │  ├──live (Let's Encrypt or other CA)
-   │  │  ├──mail.domain.tld
-   │  │  │     privkey.pem
-   │  │  │     cert.pem
-   │  │  │     chain.pem
-   │  │  │     fullchain.pem
+   ├──ssl
    │  ├──selfsigned (Auto-generated if no certificate found)
    │  │     cert.pem
    │  │     privkey.pem
@@ -574,21 +809,38 @@ plugin {
 
 ### Components
 
-- Postfix 3.1.4
+- Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.6.5
+- Rspamd 1.7.5
 - Fetchmail 6.3.26
-- ClamAV 0.99.2
-- Zeyple 1.2.1
+- ClamAV 0.99.4
+- Clamav Unofficial Sigs 5.6.2
+- Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.6.1.1
+- s6 2.7.1.1
 - Rsyslog 8.24.0
 - ManageSieve server
+
+### Migration from 1.0 to 1.1
+
+If you still use 1.0 version (bundled with Spamassassin, Amavisd...etc) which was available with the `latest` tag, you can follow the migration steps here :
+
+https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-stable
+
+Or stay with `1.0-legacy` tag (not recommended).
 
 ### Community projects
 
 - [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
 - [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
+
+### Some useful Thunderbird extensions :
+
+* https://www.enigmail.net/
+* https://github.com/moisseev/rspamd-spamness
+* https://github.com/lieser/dkim_verifier
+
+[![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
 
 ### Donation
 

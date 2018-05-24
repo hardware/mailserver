@@ -46,10 +46,10 @@ def encode_string(string):
 
 
 __title__ = 'Zeyple'
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 __author__ = 'Cédric Félizard'
 __license__ = 'AGPLv3+'
-__copyright__ = 'Copyright 2012-2017 Cédric Félizard'
+__copyright__ = 'Copyright 2012-2018 Cédric Félizard'
 
 
 class Zeyple:
@@ -115,9 +115,6 @@ class Zeyple:
             if key_id:
                 out_message = self._encrypt_message(in_message, key_id)
 
-                # Delete Content-Transfer-Encoding if present to default to
-                # "7bit" otherwise Thunderbird seems to hang in some cases.
-                del out_message["Content-Transfer-Encoding"]
             else:
                 logging.warn("No keys found, message will be sent unencrypted")
                 out_message = copy.copy(in_message)
@@ -138,6 +135,7 @@ class Zeyple:
             'Content-Description',
             "PGP/MIME version identification",
         )
+        del ret['MIME-Version']
         return ret
 
     def _get_encrypted_part(self, payload):
@@ -153,6 +151,7 @@ class Zeyple:
             'inline',
             filename='encrypted.asc',
         )
+        del ret['MIME-Version']
         return ret
 
     def _encrypt_message(self, in_message, key_id):
@@ -170,18 +169,26 @@ class Zeyple:
             payload = message.get_payload()
 
         else:
-            # get and decode payload according to the
-            # Content-Transfer-Encoding header
-            payload = in_message.get_payload(decode=True)
-            payload = encode_string(payload)
-
-            quoted_printable = email.charset.Charset('ascii')
-            quoted_printable.body_encoding = email.charset.QP
-
             message = email.mime.nonmultipart.MIMENonMultipart(
-                'text', 'plain', charset='utf-8'
+                in_message.get_content_maintype(),
+                in_message.get_content_subtype()
             )
-            message.set_payload(payload, charset=quoted_printable)
+            payload = encode_string(in_message.get_payload())
+            message.set_payload(payload)
+
+            # list of additional parameters in content-type
+            params = in_message.get_params()
+            if params:
+                # first item is the main/sub type so discard it
+                del params[0]
+                for param, value in params:
+                    message.set_param(param, value, "Content-Type", False)
+
+            encoding = in_message["Content-Transfer-Encoding"]
+            if encoding:
+                message.add_header("Content-Transfer-Encoding", encoding)
+
+            del message['MIME-Version']
 
             mixed = email.mime.multipart.MIMEMultipart(
                 'mixed',
@@ -210,7 +217,7 @@ class Zeyple:
                 'Content-Type',
                 'multipart/encrypted',
             )
-
+        del out_message['Content-Transfer-Encoding']
         out_message.set_param('protocol', 'application/pgp-encrypted')
         out_message.set_payload([version, encrypted])
 
@@ -235,12 +242,14 @@ class Zeyple:
     def _user_key(self, email):
         """Returns the GPG key for the given email address"""
         logging.info("Trying to encrypt for %s", email)
-        keys = [key for key in self.gpg.keylist(email)]
 
-        if keys:
-            key = keys.pop()  # NOTE: looks like keys[0] is the master key
-            key_id = key.subkeys[0].keyid
-            return key_id
+        # Explicit matching of email and uid.email necessary.
+        # Otherwise gpg.keylist will return a list of keys
+        # for searches like "n"
+        for key in self.gpg.keylist(email):
+            for uid in key.uids:
+                if uid.email == email:
+                    return key.subkeys[0].keyid
 
         return None
 
