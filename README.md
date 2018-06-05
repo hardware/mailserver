@@ -619,7 +619,7 @@ rainloop:
 # https://github.com/docker-library/postgres
 # https://postgresql.org/
 postgres:
-  image: postgres:10.3-alpine
+  image: postgres:10.4-alpine
   container_name: postgres
   restart: ${RESTART_MODE}
   # Info : These variables are ignored when the volume already exists (if databases was created before).
