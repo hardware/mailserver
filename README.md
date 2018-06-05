@@ -622,6 +622,7 @@ postgres:
   image: postgres:10.4-alpine
   container_name: postgres
   restart: ${RESTART_MODE}
+  stop_signal: SIGINT                 # Fast Shutdown mode
   # Info : These variables are ignored when the volume already exists (if databases was created before).
   environment:
     - POSTGRES_DB=postfix
