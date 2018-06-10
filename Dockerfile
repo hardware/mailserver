@@ -18,6 +18,13 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
  && apt-get clean \
  && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/debconf/*-old
 
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --retries=3 \
+  --start-period=1m \
+  CMD curl -f localhost:143 || exit 1
+
 EXPOSE 25 143 465 587 993 4190 11334
 COPY rootfs /
 RUN chmod +x /usr/local/bin /services/*/run /services/.s6-svscan/finish
