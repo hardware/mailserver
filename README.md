@@ -619,9 +619,10 @@ rainloop:
 # https://github.com/docker-library/postgres
 # https://postgresql.org/
 postgres:
-  image: postgres:10.3-alpine
+  image: postgres:10.4-alpine
   container_name: postgres
   restart: ${RESTART_MODE}
+  stop_signal: SIGINT                 # Fast Shutdown mode
   # Info : These variables are ignored when the volume already exists (if databases was created before).
   environment:
     - POSTGRES_DB=postfix
@@ -811,7 +812,7 @@ plugin {
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.4
+- Rspamd 1.7.5
 - Fetchmail 6.3.26
 - ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2

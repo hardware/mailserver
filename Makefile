@@ -35,7 +35,7 @@ init:
 		-e POSTGRES_USER=postfix \
 		-e POSTGRES_PASSWORD=testpasswd \
 		-v "`pwd`/test/config/postgres":/docker-entrypoint-initdb.d \
-		-t postgres:10.3-alpine
+		-t postgres:10.4-alpine
 
 	docker run \
 		-d \
