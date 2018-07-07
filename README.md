@@ -155,6 +155,8 @@ You can audit your mailserver with the following assessment services :
 
 :bulb: The reverse proxy used in this setup is [Traefik](https://traefik.io/), but you can use the solution of your choice (Nginx, Apache, Haproxy, Caddy, H2O...etc).
 
+:warning: This docker image may not work with some hardened Linux distribution using security-enhancing kernel patches like GrSecurity, please use a [supported platform](https://docs.docker.com/install/#supported-platforms).
+
 ```bash
 # Create a new docker network for Traefik (IPv4 only)
 docker network create http_network
@@ -812,7 +814,7 @@ plugin {
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.5
+- Rspamd 1.7.6
 - Fetchmail 6.3.26
 - ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2
