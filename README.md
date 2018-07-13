@@ -437,6 +437,18 @@ acmeLogging = true
 docker-compose restart traefik && docker logs -f traefik
 ```
 
+When SSL certificates are renewed, the mail server must be restarted. You can proceed as follows :
+
+1. Install incron `apt-get install incron`
+2. Add `root` user in `/etc/incron.allow`
+3. Create the following incron job with `incrontab -e` :
+
+```
+/mnt/docker/traefik/acme IN_MODIFY docker-compose -f /path/to/yml restart mailserver
+```
+
+This job trigger a restart of the mail server container when traefik's acme file is updated.
+
 #### Custom certificates
 
 You can use Let's Encrypt or any other certification authority. Setup your `docker-compose.yml` like this :
