@@ -571,7 +571,7 @@ Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` dir
 user_configuration_complete="yes"
 ```
 
-If the startup script detects this file, clamav-unofficial-sigs is automatically enabled and third-party databases downloaded under `/mnt/docker/mail/clamav` after clamav startup. Once the databases are downloaded, a SIGHUP signal is sent to clamav to load the received signatures :
+If the startup script detects this file, clamav-unofficial-sigs is automatically enabled and third-party databases downloaded under `/mnt/docker/mail/clamav` after clamav startup. Once the databases are downloaded, a SIGUSR2 signal is sent to clamav to reload the signature databases :
 
 ```
 docker logs -f mailserver
@@ -581,8 +581,9 @@ docker logs -f mailserver
 s6-supervise : clamav unofficial signature update running
 s6-supervise : virus database downloaded, spawning clamd process
 [...]
-clamd[xxxxxx]: SIGHUP caught: re-opening log file.
 s6-supervise : clamav unofficial signature update done
+clamd[xxxxxx]: Reading databases from /var/lib/clamav
+clamd[xxxxxx]: Database correctly reloaded (6812263 signatures)
 ```
 
 ### Unbound DNS resolver
