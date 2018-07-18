@@ -1,0 +1,46 @@
+Return-Path: <sarah.connor@domain.tld>
+Delivered-To: john.doe@domain.tld
+Received: from mail.domain.tld
+	by mail.domain.tld (Dovecot) with LMTP id edNuCu2rTltXKAAAIyBrWA
+	for <john.doe@domain.tld>; Wed, 18 Jul 2018 02:54:37 +0000
+Received: from mail.domain.tld (mail.domain.tld [IPv6:::1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mail.domain.tld (Postfix) with ESMTPS id 59C511680F
+	for <john.doe@domain.tld>; Wed, 18 Jul 2018 02:54:36 +0000 (UTC)
+Received: by mail.domain.tld with SMTP id p6-v6so2725008ljc.5
+        for <john.doe@domain.tld>; Tue, 17 Jul 2018 19:54:36 -0700 (PDT)
+MIME-Version: 1.0
+From: Sarah Connor <sarah.connor@domain.tld>
+Date: Tue, 17 Jul 2018 23:54:22 -0300
+Message-ID: <CADmvPVrrnCTuY-ZgJPgoS+QzTkoe=nncNpVoTEf-2=zp3Jt=eg@mail.gmail.com>
+Subject: test1
+To: john.doe@domain.tld
+Content-Type: multipart/mixed; boundary="000000000000c01a6a05713d2ecf"
+
+--000000000000c01a6a05713d2ecf
+Content-Type: multipart/alternative; boundary="000000000000c01a6805713d2ecd"
+
+--000000000000c01a6805713d2ecd
+Content-Type: text/plain; charset="UTF-8"
+
+test1
+
+--000000000000c01a6805713d2ecd
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">test1</div>
+
+--000000000000c01a6805713d2ecd--
+--000000000000c01a6a05713d2ecf
+Content-Type: text/plain; charset="US-ASCII"; name="test1.txt"
+Content-Disposition: attachment; filename="test1.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <f_jjqj9iai0>
+X-Attachment-Id: f_jjqj9iai0
+
+PCFET0NUWVBFIGh0bWw+DQo8aHRtbD4NCjxoZWFkPg0KPHRpdGxlPlNhbmVzZWN1cml0eTwvdGl0
+bGU+DQo8L2hlYWQ+DQoNCjxib2R5Pg0KPHA+Ym9keV9ycmc2M3VoajJ1Y3llY2NydXg3ZDgzYTRx
+ZDV1YTV2bmxnd2pwNmI2Zm1wenBvYnpqYWJmdGVodWhyYXhmYnl6enp6ejwvcD4NCjwvYm9keT4N
+Cg0KPC9odG1sPg0K
+--000000000000c01a6a05713d2ecf--
