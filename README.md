@@ -191,6 +191,13 @@ Rainloop is a simple, modern and fast webmail with Sieve scripts support (filter
 * Docker image : https://github.com/hardware/rainloop
 * How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
 
+#### 3bis - Afterlogic Webmail Lite installation (optional)
+
+According to your preference, you can use Afterlogic Webmail Lite as alternative.
+
+* Docker image : https://github.com/hardware/afterlogic-webmail-lite
+* How to setup : [Afterlogic Webmail Lite initial configuration](https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration)
+
 #### 4 - Done, congratulation ! :tada:
 
 At first launch, the container takes few minutes to generate SSL certificates (if needed), DKIM keypair and update clamav database, all of this takes some time (1/2 minutes). This image comes with a snake-oil self-signed certificate, please use your own trusted certificates. [See below](https://github.com/hardware/mailserver#ssl-certificates) for configuration.

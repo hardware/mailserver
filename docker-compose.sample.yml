@@ -124,6 +124,28 @@ services:
       - mail_network
       - http_network
 
+  # Alternative webmail (Optional)
+  # https://github.com/hardware/afterlogic-webmail-lite
+  # https://afterlogic.org/webmail-lite
+  # Configuration : https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration
+  # rainloop:
+  #   image: hardware/afterlogic-webmail-lite
+  #   container_name: afterlogic-webmail-lite
+  #   restart: ${RESTART_MODE}
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.port=8888
+  #     - traefik.frontend.rule=Host:webmail.${MAILSERVER_DOMAIN}
+  #     - traefik.docker.network=http_network
+  #   volumes:
+  #     - ${VOLUMES_ROOT_PATH}/afterlogic-webmail-lite:/afterlogic-webmail-lite/data
+  #   depends_on:
+  #     - mailserver
+  #     - mariadb
+  #   networks:
+  #     - mail_network
+  #     - http_network
+
   # Authoritative DNS server (Optional)
   # https://github.com/hardware/nsd-dnssec
   # https://www.nlnetlabs.nl/projects/nsd/
