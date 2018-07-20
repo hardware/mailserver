@@ -453,6 +453,10 @@ else
   mv /var/lib/dovecot /var/mail/dovecot
 fi
 
+if [ -d "/var/mail/dovecot/conf.d" ]; then
+  cp /var/mail/dovecot/conf.d/*.conf /etc/dovecot/conf.d/
+fi
+
 rm -rf /var/lib/clamav
 ln -s /var/mail/clamav /var/lib/clamav
 ln -s /var/mail/dovecot /var/lib/dovecot
