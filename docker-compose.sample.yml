@@ -128,7 +128,7 @@ services:
   # https://github.com/hardware/afterlogic-webmail-lite
   # https://afterlogic.org/webmail-lite
   # Configuration : https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration
-  # rainloop:
+  # afterlogic-webmail-lite:
   #   image: hardware/afterlogic-webmail-lite
   #   container_name: afterlogic-webmail-lite
   #   restart: ${RESTART_MODE}
