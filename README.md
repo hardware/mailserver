@@ -437,6 +437,18 @@ acmeLogging = true
 docker-compose restart traefik && docker logs -f traefik
 ```
 
+When SSL certificates are renewed, the mail server must be restarted. You can proceed as follows :
+
+1. Install incron `apt-get install incron`
+2. Add `root` user in `/etc/incron.allow`
+3. Create the following incron job with `incrontab -e` :
+
+```
+/mnt/docker/traefik/acme IN_MODIFY docker-compose -f /path/to/yml restart mailserver
+```
+
+This job trigger a restart of the mail server container when traefik's acme file is updated.
+
 #### Custom certificates
 
 You can use Let's Encrypt or any other certification authority. Setup your `docker-compose.yml` like this :
@@ -559,7 +571,7 @@ Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` dir
 user_configuration_complete="yes"
 ```
 
-If the startup script detects this file, clamav-unofficial-sigs is automatically enabled and third-party databases downloaded under `/mnt/docker/mail/clamav` after clamav startup. Once the databases are downloaded, a SIGHUP signal is sent to clamav to load the received signatures :
+If the startup script detects this file, clamav-unofficial-sigs is automatically enabled and third-party databases downloaded under `/mnt/docker/mail/clamav` after clamav startup. Once the databases are downloaded, a SIGUSR2 signal is sent to clamav to reload the signature databases :
 
 ```
 docker logs -f mailserver
@@ -569,8 +581,9 @@ docker logs -f mailserver
 s6-supervise : clamav unofficial signature update running
 s6-supervise : virus database downloaded, spawning clamd process
 [...]
-clamd[xxxxxx]: SIGHUP caught: re-opening log file.
 s6-supervise : clamav unofficial signature update done
+clamd[xxxxxx]: Reading databases from /var/lib/clamav
+clamd[xxxxxx]: Database correctly reloaded (6812263 signatures)
 ```
 
 ### Unbound DNS resolver
@@ -814,7 +827,7 @@ plugin {
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.6
+- Rspamd 1.7.7
 - Fetchmail 6.3.26
 - ClamAV 0.99.4
 - Clamav Unofficial Sigs 5.6.2
