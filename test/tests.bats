@@ -692,6 +692,21 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking rspamd: debug mode disabled (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c 'rspamadm configdump | grep -E "level = \"warning\";"'
+  assert_success
+}
+
+@test "checking rspamd: debug mode disabled (traefik_acmev1 configuration)" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c 'rspamadm configdump | grep -E "level = \"warning\";"'
+  assert_success
+}
+
+@test "checking rspamd: debug mode enabled (traefik_acmev2 configuration)" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c 'rspamadm configdump | grep -E "level = \"info\";"'
+  assert_success
+}
+
 #
 # accounts
 #
@@ -876,6 +891,24 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
+@test "checking postfix: verbose mode disabled (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "grep 'smtpd -v' /etc/postfix/master.cf | wc -l"
+  assert_success
+  assert_output 0
+}
+
+@test "checking postfix: verbose mode enabled (traefik_acmev1 configuration)" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "grep 'smtpd -v' /etc/postfix/master.cf | wc -l"
+  assert_success
+  assert_output 3
+}
+
+@test "checking postfix: verbose mode enabled (traefik_acmev2 configuration)" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "grep 'smtpd -v' /etc/postfix/master.cf | wc -l"
+  assert_success
+  assert_output 3
+}
+
 #
 # dovecot
 #
@@ -951,6 +984,69 @@ load 'test_helper/bats-assert/load'
 @test "checking dovecot: quota dict pgsql (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "doveconf dict sqlquota 2>/dev/null | grep 'pgsql'"
   assert_success
+}
+
+@test "checking dovecot: debug mode disabled (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "doveconf -h auth_verbose 2>/dev/null"
+  assert_success
+  assert_output "no"
+  run docker exec mailserver_default /bin/sh -c "doveconf -h auth_verbose_passwords 2>/dev/null"
+  assert_success
+  assert_output "no"
+  run docker exec mailserver_default /bin/sh -c "doveconf -h auth_debug 2>/dev/null"
+  assert_success
+  assert_output "no"
+  run docker exec mailserver_default /bin/sh -c "doveconf -h auth_debug_passwords 2>/dev/null"
+  assert_success
+  assert_output "no"
+  run docker exec mailserver_default /bin/sh -c "doveconf -h mail_debug 2>/dev/null"
+  assert_success
+  assert_output "no"
+  run docker exec mailserver_default /bin/sh -c "doveconf -h verbose_ssl 2>/dev/null"
+  assert_success
+  assert_output "no"
+}
+
+@test "checking dovecot: debug mode enabled (traefik_acmev1 configuration)" {
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h auth_verbose 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h auth_verbose_passwords 2>/dev/null"
+  assert_success
+  assert_output "sha1"
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h auth_debug 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h auth_debug_passwords 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h mail_debug 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev1 /bin/sh -c "doveconf -h verbose_ssl 2>/dev/null"
+  assert_success
+  assert_output "yes"
+}
+
+@test "checking dovecot: debug mode enabled (traefik_acmev2 configuration)" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h auth_verbose 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h auth_verbose_passwords 2>/dev/null"
+  assert_success
+  assert_output "sha1"
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h auth_debug 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h auth_debug_passwords 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h mail_debug 2>/dev/null"
+  assert_success
+  assert_output "yes"
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "doveconf -h verbose_ssl 2>/dev/null"
+  assert_success
+  assert_output "yes"
 }
 
 #

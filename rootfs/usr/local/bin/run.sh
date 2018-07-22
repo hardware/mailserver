@@ -30,6 +30,7 @@ DOMAIN=${DOMAIN:-$(hostname --domain)}
 VMAILUID=${VMAILUID:-1024}
 VMAILGID=${VMAILGID:-1024}
 VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
+DEBUG_MODE=${DEBUG_MODE:-false}
 DBDRIVER=${DBDRIVER:-mysql}
 DBHOST=${DBHOST:-mariadb}
 DBPORT=${DBPORT:-3306}
@@ -345,6 +346,24 @@ sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
 
 # ENABLE / DISABLE MAIL SERVER FEATURES
 # ---------------------------------------------------------------------------------------------
+
+# Enable Postfix, Dovecot and Rspamd verbose logging
+if [ "$DEBUG_MODE" != false ]; then
+  if [[ "$DEBUG_MODE" = *"postfix"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Postfix debug mode is enabled"
+    sed -i '/^s.*inet/ s/$/ -v/' /etc/postfix/master.cf
+  fi
+  if [[ "$DEBUG_MODE" = *"dovecot"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Dovecot debug mode is enabled"
+    sed -i 's/^#//g' /etc/dovecot/conf.d/10-logging.conf
+  fi
+  if [[ "$DEBUG_MODE" = *"rspamd"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Rspamd debug mode is enabled"
+    sed -i 's/warning/info/g' /etc/rspamd/local.d/logging.inc
+  fi
+else
+  echo "[INFO] Debug mode is disabled"
+fi
 
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then

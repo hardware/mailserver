@@ -123,6 +123,7 @@ init:
 		--name mailserver_traefik_acmev1 \
 		--link mariadb:mariadb \
 		--link redis:redis \
+		-e DEBUG_MODE=dovecot,postfix \
 		-e DBPASS=testpasswd \
 		-e RSPAMD_PASSWORD=testpasswd \
 		-e VMAILUID=`id -u` \
@@ -138,6 +139,7 @@ init:
 		--name mailserver_traefik_acmev2 \
 		--link mariadb:mariadb \
 		--link redis:redis \
+		-e DEBUG_MODE=true \
 		-e DBPASS=testpasswd \
 		-e RSPAMD_PASSWORD=testpasswd \
 		-e VMAILUID=`id -u` \
