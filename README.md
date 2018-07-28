@@ -34,6 +34,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Installation](#installation)
 - [Environment variables](#environment-variables)
 - [SSL certificates](#ssl-certificates)
+- [MTA-STS](#mta-sts)
 - [GPG encryption](#automatic-gpg-encryption-of-all-your-e-mails)
 - [Relaying from other networks](#relaying-from-other-networks)
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
@@ -525,6 +526,27 @@ openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
 # IMAP SSL/TLS - 993 port (IMAPS)
 openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 ```
+
+### MTA-STS
+
+MTA-STS is a new standard that makes it possible to send downgrade-resistant email over SMTP. In that sense, it is like an alternative to DANE but it does this by piggybacking on the browser Certificate Authority model, not DNSSEC.
+
+To enable Strict Transport Security on your mailserver configure the following things :
+
+1. Add a TLSRPT DNS TXT record at `_smtp._tls` on your domain, e.g. `_smtp._tls.domain.tld`, with something like `v=TLSRPTv1; rua=mailto:postmaster@domain.tld`.
+2. Add a MTA-STS DNS TXT record at `_mta-sts` on your domain, e.g. `_mta-sts.domain.tld`, with something like `v=STSv1; id=2018072801`.
+3. Add a subdomain `mta-sts` to your domain (note the lack of an underscore) and serve a policy file on `https://mta-sts.domain.tld/.well-known/mta-sts.txt`.
+
+Here is an example policy file:
+
+```
+version: STSv1
+mode: enforce
+max_age: 10368000
+mx: mail.domain.tld
+```
+
+Test your mail domain using a MTA-STS validator like [Hardenize](https://www.hardenize.com). You can also add your domain name in the [STARTTLS Policy List](https://starttls-everywhere.org/) maintained by [EFF](https://www.eff.org/).
 
 ### Third-party clamav signature databases
 
