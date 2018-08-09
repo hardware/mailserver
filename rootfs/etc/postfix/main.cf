@@ -95,7 +95,7 @@ smtpd_sasl_path                 = private/auth
 smtpd_sasl_security_options     = noanonymous
 smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
 smtpd_sasl_local_domain         = $mydomain
-smtpd_sasl_authenticated_header = yes
+smtpd_sasl_authenticated_header = no
 
 smtpd_sender_login_maps  = proxy:{{ .DBDRIVER }}:/etc/postfix/sql/sender-login-maps.cf
 broken_sasl_auth_clients = yes
