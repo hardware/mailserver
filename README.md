@@ -598,6 +598,9 @@ Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` dir
 # - 6. Enter the authorisation signature into the config securiteinfo_authorisation_signature: replacing YOUR-SIGNATURE-NUMBER with your authorisation signature from the link
 # securiteinfo_authorisation_signature="YOUR-SIGNATURE-NUMBER"
 
+# We disable Yara rules for now because they are broken with clamav releases > 0.100
+enable_yararules="no"
+
 # After you have completed the configuration of this file, set the value to "yes"
 user_configuration_complete="yes"
 ```
