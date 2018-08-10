@@ -564,6 +564,7 @@ Readme : https://github.com/extremeshok/clamav-unofficial-sigs
 #### Enable clamav-unofficial-sigs
 
 Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` directory to configure clamav-unofficial-sigs updater. This file override the default configuration specified in [os.conf](https://github.com/hardware/mailserver/blob/master/rootfs/etc/clamav/unofficial-sigs/os.conf) and [master.conf](https://github.com/hardware/mailserver/blob/master/rootfs/etc/clamav/unofficial-sigs/master.conf). Don't forget, once you have completed the configuration of this file, set the value of `user_configuration_complete` to `yes` otherwise the script will not be able to execute.
+As [Yara rules are broken with clamav ≥ 0.100](https://github.com/extremeshok/clamav-unofficial-sigs/issues/203), we disable Yara rules for now.
 
 ```ini
 # /mnt/docker/mail/clamav-unofficial-sigs/user.conf
@@ -599,6 +600,7 @@ Create your `user.conf` file under `/mnt/docker/mail/clamav-unofficial-sigs` dir
 # securiteinfo_authorisation_signature="YOUR-SIGNATURE-NUMBER"
 
 # We disable Yara rules for now because they are broken with clamav releases > 0.100
+yararulesproject_enabled="no"
 enable_yararules="no"
 
 # After you have completed the configuration of this file, set the value to "yes"
