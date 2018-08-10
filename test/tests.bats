@@ -381,6 +381,16 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
+@test "checking port (10025): internal port closed (default configuration)" {
+  run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10025"
+  assert_failure
+}
+
+@test "checking port (10025): internal port listening (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/sh -c "nc -z 127.0.0.1 10025"
+  assert_success
+}
+
 @test "checking port (10026): internal port listening (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10026"
   assert_success

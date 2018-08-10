@@ -378,7 +378,27 @@ if [ "$ENABLE_FETCHMAIL" = false ]; then
   echo "[INFO] Fetchmail forwarding is disabled"
   rm -f /etc/cron.d/fetchmail
 else
-  echo "[INFO] Fetchmail forwarding is enabled"
+
+echo "[INFO] Fetchmail forwarding is enabled"
+
+if [ "$TESTING" = true ]; then
+  rm -f /etc/cron.d/fetchmail
+fi
+
+# Fetchmail dedicated port (10025) with less restrictions
+# https://github.com/hardware/mailserver/issues/276
+cat >> /etc/postfix/master.cf <<EOF
+127.0.0.1:10025 inet  n       -       -       -       10      smtpd
+  -o content_filter=
+  -o receive_override_options=no_unknown_recipient_checks,no_header_body_checks,no_milters
+  -o smtpd_helo_restrictions=
+  -o smtpd_client_restrictions=
+  -o smtpd_sender_restrictions=
+  -o smtpd_recipient_restrictions=permit_mynetworks,reject
+  -o mynetworks=127.0.0.0/8,[::1]/128
+  -o smtpd_authorized_xforward_hosts=127.0.0.0/8,[::1]/128
+EOF
+
 fi
 
 # Disable automatic GPG encryption

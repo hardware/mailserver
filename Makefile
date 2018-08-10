@@ -91,6 +91,7 @@ init:
 		-e DISABLE_DNS_RESOLVER=true \
 		-e ENABLE_POP3=true \
 		-e ENABLE_ENCRYPTION=true \
+		-e ENABLE_FETCHMAIL=true \
 		-e OPENDKIM_KEY_LENGTH=4096 \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
