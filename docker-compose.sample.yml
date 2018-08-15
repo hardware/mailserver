@@ -60,7 +60,7 @@ services:
       - DBPASS=${DATABASE_USER_PASSWORD}       # MariaDB database password (required)
       - RSPAMD_PASSWORD=${RSPAMD_PASSWORD}     # Rspamd WebUI password (required)
     # - ADD_DOMAINS=aa.tld, www.bb.tld...      # Add additional domains separated by commas (needed for dkim keys etc.)
-    # - DEBUG_MODE=true                        # Enable Postfix, Dovecot and Rspamd verbose logging
+    # - DEBUG_MODE=true                        # Enable Postfix, Dovecot and Rspamd verbose logging
     # - ENABLE_POP3=true                       # Enable POP3 protocol
     # - ENABLE_FETCHMAIL=true                  # Enable fetchmail forwarding
     # - DISABLE_CLAMAV=true                    # Disable virus scanning
