@@ -149,6 +149,7 @@ You can audit your mailserver with the following assessment services :
 * https://www.mail-tester.com/
 * https://www.hardenize.com/
 * https://observatory.mozilla.org/
+* https://www.emailprivacytester.com/ (MUA side)
 
 ### Installation
 
