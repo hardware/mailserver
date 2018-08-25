@@ -283,7 +283,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
 | **DISABLE_SIGNING** | Disable DKIM/ARC signing | *optional* | false
 | **DISABLE_GREYLISTING** | Disable greylisting policy | *optional* | false
-| **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | false
+| **DISABLE_RATELIMITING** | Disable ratelimiting policy | *optional* | true
 | **DISABLE_DNS_RESOLVER** | Disable the local DNS resolver | *optional* | false
 | **ENABLE_POP3** | Enable POP3 protocol | *optional* | false
 | **ENABLE_FETCHMAIL** | Enable fetchmail forwarding | *optional* | false
