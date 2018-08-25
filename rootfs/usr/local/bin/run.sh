@@ -30,6 +30,7 @@ DOMAIN=${DOMAIN:-$(hostname --domain)}
 VMAILUID=${VMAILUID:-1024}
 VMAILGID=${VMAILGID:-1024}
 VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
+DEBUG_MODE=${DEBUG_MODE:-false}
 DBDRIVER=${DBDRIVER:-mysql}
 DBHOST=${DBHOST:-mariadb}
 DBPORT=${DBPORT:-3306}
@@ -47,7 +48,7 @@ DISABLE_CLAMAV=${DISABLE_CLAMAV:-false}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
 DISABLE_SIGNING=${DISABLE_SIGNING:-false}
 DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
-DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-false}
+DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-true}
 DISABLE_DNS_RESOLVER=${DISABLE_DNS_RESOLVER:-false}
 ENABLE_POP3=${ENABLE_POP3:-false}
 ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
@@ -346,6 +347,24 @@ sed -i -e "s/DOVECOT_MIN_PROCESS/${DOVECOT_MIN_PROCESS}/" \
 # ENABLE / DISABLE MAIL SERVER FEATURES
 # ---------------------------------------------------------------------------------------------
 
+# Enable Postfix, Dovecot and Rspamd verbose logging
+if [ "$DEBUG_MODE" != false ]; then
+  if [[ "$DEBUG_MODE" = *"postfix"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Postfix debug mode is enabled"
+    sed -i '/^s.*inet/ s/$/ -v/' /etc/postfix/master.cf
+  fi
+  if [[ "$DEBUG_MODE" = *"dovecot"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Dovecot debug mode is enabled"
+    sed -i 's/^#//g' /etc/dovecot/conf.d/10-logging.conf
+  fi
+  if [[ "$DEBUG_MODE" = *"rspamd"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Rspamd debug mode is enabled"
+    sed -i 's/warning/info/g' /etc/rspamd/local.d/logging.inc
+  fi
+else
+  echo "[INFO] Debug mode is disabled"
+fi
+
 # Disable virus check if asked
 if [ "$DISABLE_CLAMAV" = true ]; then
   echo "[INFO] ClamAV is disabled, service will not start"
@@ -359,7 +378,27 @@ if [ "$ENABLE_FETCHMAIL" = false ]; then
   echo "[INFO] Fetchmail forwarding is disabled"
   rm -f /etc/cron.d/fetchmail
 else
-  echo "[INFO] Fetchmail forwarding is enabled"
+
+echo "[INFO] Fetchmail forwarding is enabled"
+
+if [ "$TESTING" = true ]; then
+  rm -f /etc/cron.d/fetchmail
+fi
+
+# Fetchmail dedicated port (10025) with less restrictions
+# https://github.com/hardware/mailserver/issues/276
+cat >> /etc/postfix/master.cf <<EOF
+127.0.0.1:10025 inet  n       -       -       -       10      smtpd
+  -o content_filter=
+  -o receive_override_options=no_unknown_recipient_checks,no_header_body_checks,no_milters
+  -o smtpd_helo_restrictions=
+  -o smtpd_client_restrictions=
+  -o smtpd_sender_restrictions=
+  -o smtpd_recipient_restrictions=permit_mynetworks,reject
+  -o mynetworks=127.0.0.0/8,[::1]/128
+  -o smtpd_authorized_xforward_hosts=127.0.0.0/8,[::1]/128
+EOF
+
 fi
 
 # Disable automatic GPG encryption
@@ -607,6 +646,18 @@ adduser --quiet \
 
 # Setting the controller password
 PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password "${RSPAMD_PASSWORD}")
+
+if ! grep --quiet 'ssse3' /proc/cpuinfo; then
+  PASSWORD=$($PASSWORD | sed -n 2p)
+  echo "disable_hyperscan = true;" >> /etc/rspamd/local.d/options.inc
+  echo "[INFO] Missing SSSE3 CPU instructions, hyperscan is disabled"
+fi
+
+if [ -z "$PASSWORD" ]; then
+  echo "[ERROR] rspamadm pw : bad output"
+  exit 1
+fi
+
 sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
 
 # Set permissions

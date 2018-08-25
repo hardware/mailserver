@@ -60,12 +60,13 @@ services:
       - DBPASS=${DATABASE_USER_PASSWORD}       # MariaDB database password (required)
       - RSPAMD_PASSWORD=${RSPAMD_PASSWORD}     # Rspamd WebUI password (required)
     # - ADD_DOMAINS=aa.tld, www.bb.tld...      # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - DEBUG_MODE=true                        # Enable Postfix, Dovecot and Rspamd verbose logging
     # - ENABLE_POP3=true                       # Enable POP3 protocol
     # - ENABLE_FETCHMAIL=true                  # Enable fetchmail forwarding
+    # - DISABLE_RATELIMITING=false             # Enable ratelimiting policy
     # - DISABLE_CLAMAV=true                    # Disable virus scanning
     # - DISABLE_SIGNING=true                   # Disable DKIM/ARC signing
     # - DISABLE_GREYLISTING=true               # Disable greylisting policy
-    # - DISABLE_RATELIMITING=true              # Disable ratelimiting policy
     #
     # Full list : https://github.com/hardware/mailserver#environment-variables
     #
@@ -123,6 +124,28 @@ services:
     networks:
       - mail_network
       - http_network
+
+  # Alternative webmail (Optional)
+  # https://github.com/hardware/afterlogic-webmail-lite
+  # https://afterlogic.org/webmail-lite
+  # Configuration : https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration
+  # afterlogic-webmail-lite:
+  #   image: hardware/afterlogic-webmail-lite
+  #   container_name: afterlogic-webmail-lite
+  #   restart: ${RESTART_MODE}
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.port=8888
+  #     - traefik.frontend.rule=Host:webmail.${MAILSERVER_DOMAIN}
+  #     - traefik.docker.network=http_network
+  #   volumes:
+  #     - ${VOLUMES_ROOT_PATH}/afterlogic-webmail-lite:/afterlogic-webmail-lite/data
+  #   depends_on:
+  #     - mailserver
+  #     - mariadb
+  #   networks:
+  #     - mail_network
+  #     - http_network
 
   # Authoritative DNS server (Optional)
   # https://github.com/hardware/nsd-dnssec
