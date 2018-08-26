@@ -671,7 +671,7 @@ rainloop:
 # https://github.com/docker-library/postgres
 # https://postgresql.org/
 postgres:
-  image: postgres:10.4-alpine
+  image: postgres:10.5-alpine
   container_name: postgres
   restart: ${RESTART_MODE}
   stop_signal: SIGINT                 # Fast Shutdown mode
