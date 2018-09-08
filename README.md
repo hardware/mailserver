@@ -455,7 +455,7 @@ When SSL certificates are renewed, the mail server must be restarted. You can pr
 3. Create the following incron job with `incrontab -e` :
 
 ```
-/mnt/docker/traefik/acme IN_MODIFY docker-compose -f /path/to/yml restart mailserver
+/mnt/docker/traefik/acme/acme.json IN_MODIFY docker-compose -f /path/to/yml restart mailserver
 ```
 
 This job trigger a restart of the mail server container when traefik's acme file is updated.
