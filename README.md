@@ -455,7 +455,7 @@ When SSL certificates are renewed, the mail server must be restarted. You can pr
 3. Create the following incron job with `incrontab -e` :
 
 ```
-/mnt/docker/traefik/acme IN_MODIFY docker-compose -f /path/to/yml restart mailserver
+/mnt/docker/traefik/acme/acme.json IN_MODIFY docker-compose -f /path/to/yml restart mailserver
 ```
 
 This job trigger a restart of the mail server container when traefik's acme file is updated.
@@ -671,7 +671,7 @@ rainloop:
 # https://github.com/docker-library/postgres
 # https://postgresql.org/
 postgres:
-  image: postgres:10.4-alpine
+  image: postgres:10.5-alpine
   container_name: postgres
   restart: ${RESTART_MODE}
   stop_signal: SIGINT                 # Fast Shutdown mode
