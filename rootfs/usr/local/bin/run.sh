@@ -645,13 +645,12 @@ adduser --quiet \
         _rspamd
 
 # Setting the controller password
+PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password "${RSPAMD_PASSWORD}" | grep -v SSSE3)
 if ! grep --quiet 'ssse3' /proc/cpuinfo; then
-  PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password "${RSPAMD_PASSWORD}" | sed -n 2p)
-  grep -qiF 'disable_hyperscan' /etc/rspamd/local.d/options.inc || \
-  echo "disable_hyperscan = true;" >> /etc/rspamd/local.d/options.inc
+  if ! grep --quiet 'disable_hyperscan' /etc/rspamd/local.d/options.inc; then
+    echo "disable_hyperscan = true;" >> /etc/rspamd/local.d/options.inc
+  fi
   echo "[INFO] Missing SSSE3 CPU instructions, hyperscan is disabled"
-else
-  PASSWORD=$(rspamadm pw --quiet --encrypt --type pbkdf2 --password "${RSPAMD_PASSWORD}")
 fi
 
 if [ -z "$PASSWORD" ]; then
