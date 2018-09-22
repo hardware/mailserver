@@ -804,15 +804,29 @@ to find configuration options.
 Each line in the provided file will be loaded into Postfix. Create a new file here `/mnt/docker/mail/postfix/custom.conf`
 and add your custom options inside.
 
+To edit services in `master.cf` configuration file, SFP prefixes are available to indicate what you want to change.
+
+* `S|` = service entrie (service/type=value)
+* `F|` = service field (service/type/field=value)
+* `P|` = service parameter (service/type/parameter=value)
+
 Example :
 
 ```ini
 # /mnt/docker/mail/postfix/custom.conf
 
+# main.cf parameters
 smtpd_banner = $myhostname ESMTP MyGreatMailServer
 inet_protocols = ipv4
 delay_notice_recipient = admin@domain.tld
 delay_warning_time = 2h
+
+# master.cf services
+S|submission/inet=submission inet n       -       -       -       -       smtpd
+P|submission/inet/syslog_name=postfix/submission-custom
+P|submission/inet/smtpd_tls_security_level=may
+P|submission/inet/smtpd_tls_ciphers=medium
+F|smtp/unix/chroot=n
 ```
 
 ```

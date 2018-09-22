@@ -919,6 +919,12 @@ load 'test_helper/bats-assert/load'
   assert_output 3
 }
 
+@test "checking postfix: master.cf custom service parameter" {
+  run docker exec mailserver_default postconf -P submission/inet/syslog_name
+  assert_success
+  assert_output "submission/inet/syslog_name = postfix/submission-custom"
+}
+
 #
 # dovecot
 #

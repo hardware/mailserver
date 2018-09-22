@@ -285,8 +285,21 @@ if [ -f /var/mail/postfix/custom.conf ]; then
   # Ignore blank lines and comments
   sed -e '/^\s*$/d' -e '/^#/d' /var/mail/postfix/custom.conf | \
   while read line; do
-    echo "[INFO] Override : ${line}"
-    postconf -e "$line"
+    type=${line:0:2}
+    value=${line:2}
+    if [[ "$type" == 'S|' ]]; then
+      postconf -M "$value"
+      echo "[INFO] Override service entrie in master.cf : ${value}"
+    elif [[ "$type" == 'F|' ]]; then
+      postconf -F "$value"
+      echo "[INFO] Override service field in master.cf : ${value}"
+    elif [[ "$type" == 'P|' ]]; then
+      postconf -P "$value"
+      echo "[INFO] Override service parameter in master.cf : ${value}"
+    else
+      echo "[INFO] Override parameter in main.cf : ${line}"
+      postconf -e "$line"
+    fi
   done
   echo "[INFO] Custom Postfix configuration file loaded"
 fi
