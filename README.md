@@ -832,10 +832,15 @@ F|smtp/unix/chroot=n
 ```
 docker logs -f mailserver
 
-[INFO] Override : smtpd_banner = $myhostname ESMTP MyGreatMailServer
-[INFO] Override : inet_protocols = ipv4
-[INFO] Override : delay_notice_recipient = postmaster@domain.tld
-[INFO] Override : delay_warning_time = 2h
+[INFO] Override parameter in main.cf : smtpd_banner = $myhostname ESMTP MyGreatMailServer
+[INFO] Override parameter in main.cf : inet_protocols = ipv4
+[INFO] Override parameter in main.cf : delay_notice_recipient = admin@domain.tld
+[INFO] Override parameter in main.cf : delay_warning_time = 2h
+[INFO] Override service entrie in master.cf : submission/inet=submission inet n       -       -       -       -       smtpd
+[INFO] Override service parameter in master.cf : submission/inet/syslog_name=postfix/submission-custom
+[INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_security_level=may
+[INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_ciphers=medium
+[INFO] Override service field in master.cf : smtp/unix/chroot=n
 [INFO] Custom Postfix configuration file loaded
 ```
 
