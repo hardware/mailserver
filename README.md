@@ -44,6 +44,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
+- [Postfix Blacklist](#postfix-blacklist)
 - [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
 - [Migration from 1.0 to 1.1-stable](#migration-from-10-to-11)
@@ -742,6 +743,7 @@ You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/r
 └──mail
    ├──postfix
    |     custom.conf
+   |     sender_access
    |  ├──spool (Postfix queues directory)
    │  │     defer
    │  │     flush
@@ -867,6 +869,24 @@ plugin {
   quota_exceeded_message = You have exceeded your mailbox quota.
 
 }
+```
+
+### Postfix blacklist
+
+To block some senders or an entire domain, create a new file named `sender_access` in `/mnt/docker/mail/postfix`.
+
+```bash
+# /mnt/docker/mail/postfix/sender_access
+# Format : <address|domain> <action>
+
+domain.tld REJECT
+spam@domain2.tld REJECT
+```
+
+```
+docker logs -f mailserver
+
+NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Access denied
 ```
 
 ### Email client settings :

@@ -925,6 +925,11 @@ load 'test_helper/bats-assert/load'
   assert_output "submission/inet/syslog_name = postfix/submission-custom"
 }
 
+@test "checking postfix: sender access reject john.doe" {
+  run docker exec mailserver_default grep -i '<john.doe@domain.tld>: Sender address rejected: Access denied' /var/log/mail.log
+  assert_success
+}
+
 #
 # dovecot
 #

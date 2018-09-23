@@ -531,6 +531,14 @@ cp -f /etc/localtime /var/mail/postfix/spool/etc/localtime
 postmap /etc/postfix/header_checks
 postmap /etc/postfix/virtual
 
+if [ -s "/var/mail/postfix/sender_access" ]; then
+  echo "[INFO] sender_access file found, sender access check enabled"
+  cp /var/mail/postfix/sender_access /etc/postfix/sender_access
+  postmap /etc/postfix/sender_access
+else
+  sed -i '/check_sender_access/ s/^/#/' /etc/postfix/main.cf
+fi
+
 # Set permissions
 chgrp -R postdrop /var/mail/postfix/spool/public
 chgrp -R postdrop /var/mail/postfix/spool/maildrop
