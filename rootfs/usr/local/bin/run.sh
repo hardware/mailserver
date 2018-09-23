@@ -289,7 +289,7 @@ if [ -f /var/mail/postfix/custom.conf ]; then
     value=${line:2}
     if [[ "$type" == 'S|' ]]; then
       postconf -M "$value"
-      echo "[INFO] Override service entrie in master.cf : ${value}"
+      echo "[INFO] Override service entry in master.cf : ${value}"
     elif [[ "$type" == 'F|' ]]; then
       postconf -F "$value"
       echo "[INFO] Override service field in master.cf : ${value}"

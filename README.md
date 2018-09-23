@@ -806,7 +806,7 @@ and add your custom options inside.
 
 To edit services in `master.cf` configuration file, SFP prefixes are available to indicate what you want to change.
 
-* `S|` = service entrie (service/type=value)
+* `S|` = service entry (service/type=value)
 * `F|` = service field (service/type/field=value)
 * `P|` = service parameter (service/type/parameter=value)
 
@@ -836,7 +836,7 @@ docker logs -f mailserver
 [INFO] Override parameter in main.cf : inet_protocols = ipv4
 [INFO] Override parameter in main.cf : delay_notice_recipient = admin@domain.tld
 [INFO] Override parameter in main.cf : delay_warning_time = 2h
-[INFO] Override service entrie in master.cf : submission/inet=submission inet n       -       -       -       -       smtpd
+[INFO] Override service entry in master.cf : submission/inet=submission inet n       -       -       -       -       smtpd
 [INFO] Override service parameter in master.cf : submission/inet/syslog_name=postfix/submission-custom
 [INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_security_level=may
 [INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_ciphers=medium
