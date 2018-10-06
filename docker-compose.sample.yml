@@ -15,7 +15,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:1.6-alpine
+    image: traefik:1.7-alpine
     container_name: traefik
     restart: ${RESTART_MODE}
     ports:
