@@ -707,12 +707,10 @@ for address in "${whitelist[@]}"; do
 done
 
 cat > /etc/rspamd/local.d/settings.conf <<EOF
-settings {
-  whitelist {
-    priority = low;
-    rcpt = [${rcpts::-1}];
-    want_spam = yes;
-  }
+whitelist {
+  priority = low;
+  rcpt = [${rcpts::-1}];
+  want_spam = yes;
 }
 EOF
 
