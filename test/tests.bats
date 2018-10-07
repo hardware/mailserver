@@ -1516,3 +1516,21 @@ load 'test_helper/bats-assert/load'
   assert_failure
   assert_output --partial 'No such file or directory'
 }
+
+@test "checking logs: /var/log/mail.err in mailserver_ecdsa does not exist" {
+  run docker exec mailserver_ecdsa cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
+
+@test "checking logs: /var/log/mail.err in mailserver_traefik_acmev1 does not exist" {
+  run docker exec mailserver_traefik_acmev1 cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
+
+@test "checking logs: /var/log/mail.err in mailserver_traefik_acmev2 does not exist" {
+  run docker exec mailserver_traefik_acmev2 cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
