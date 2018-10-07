@@ -31,7 +31,6 @@ email = "{{ EMAIL }}"
 storage = "/etc/traefik/acme/acme.json"
 entryPoint = "https"
 onHostRule = true
-onDemand = false
   [acme.tlsChallenge]
 
 [docker]
