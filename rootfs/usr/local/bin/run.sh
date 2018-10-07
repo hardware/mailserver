@@ -374,6 +374,11 @@ if [ "$DEBUG_MODE" != false ]; then
     echo "[INFO] Rspamd debug mode is enabled"
     sed -i 's/warning/info/g' /etc/rspamd/local.d/logging.inc
   fi
+  if [[ "$DEBUG_MODE" = *"Unbound"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Unbound debug mode is enabled"
+    sed -i -e 's/verbosity: 0/verbosity: 2/g' \
+           -e 's/logfile: \/dev\/null/logfile: ""/g' /etc/unbound/unbound.conf
+  fi
 else
   echo "[INFO] Debug mode is disabled"
 fi

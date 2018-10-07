@@ -1347,6 +1347,16 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking unbound: debug mode enabled" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "unbound-control status | grep 'verbosity: 2'"
+  assert_success
+}
+
+@test "checking unbound: debug mode disabled" {
+  run docker exec mailserver_default /bin/sh -c "unbound-control status | grep 'verbosity: 0'"
+  assert_success
+}
+
 #
 # ssl
 #
