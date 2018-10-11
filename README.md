@@ -70,6 +70,8 @@ Please check, if your system meets the following minimum requirements :
 | CPU | 1 GHz | 1 GHz |
 | RAM | 512 MiB | 1 GiB |
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Prerequisites
 
 #### Cleaning
@@ -151,6 +153,8 @@ You can audit your mailserver with the following assessment services :
 * https://www.hardenize.com/
 * https://observatory.mozilla.org/
 * https://www.emailprivacytester.com/ (MUA side)
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Installation
 
@@ -239,6 +243,8 @@ You can check the startup logs with this command :
 ...
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Rancher Catalog
 
 ![rancher-logo](https://i.imgur.com/R9AArJN.png)
@@ -249,11 +255,15 @@ This catalog provides a basic template to easily deploy an email server based on
 
 ![rancher-ui](https://i.imgur.com/kdJxAiN.png)
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Ansible Playbooks
 
 ![logo](https://i.imgur.com/tvTG8pN.png)
 
 If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/ksylvan) playbooks here : https://github.com/ksylvan/docker-mail-server
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Environment variables
 
@@ -299,6 +309,8 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 * Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
 * Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Automatic GPG encryption of all your e-mails
 
@@ -352,6 +364,8 @@ docker exec -ti mailserver encryption.sh ...
 
 Documentation : https://www.gnupg.org/documentation/manuals/gnupg/Operational-GPG-Commands.html
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Relaying from other networks
 
 The **RELAY_NETWORKS** is a space separated list of additional IP addresses and subnets (in CIDR notation) which the mailserver relays without authentication. Hostnames are possible, but generally disadvised. IPv6 addresses must be surrounded by square brackets. You can also specify an absolut path to a file with IPs and networks so you can keep it on a mounted volume. Note that the file is not monitored for changes.
@@ -359,6 +373,8 @@ The **RELAY_NETWORKS** is a space separated list of additional IP addresses and 
 You can use this variable to allow other local containers to relay via the mailserver. Typically you would set this to the IP range of the default docker bridge (172.17.0.0/16) or the default network of your compose. If you are unable to determine, you might just add all RFC 1918 addresses `192.168.0.0/16 172.16.0.0/12 10.0.0.0/8`
 
 :warning: A value like `0.0.0.0/0` will turn your mailserver into an open relay!
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### SSL certificates
 
@@ -529,6 +545,8 @@ openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
 openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### MTA-STS
 
 MTA-STS is a new standard that makes it possible to send downgrade-resistant email over SMTP. In that sense, it is like an alternative to DANE but it does this by piggybacking on the browser Certificate Authority model, not DNSSEC.
@@ -549,6 +567,8 @@ mx: mail.domain.tld
 ```
 
 Test your mail domain using a MTA-STS validator like [Hardenize](https://www.hardenize.com). You can also add your domain name in the [STARTTLS Policy List](https://starttls-everywhere.org/) maintained by [EFF](https://www.eff.org/).
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Third-party clamav signature databases
 
@@ -624,6 +644,8 @@ clamd[xxxxxx]: Reading databases from /var/lib/clamav
 clamd[xxxxxx]: Database correctly reloaded (6812263 signatures)
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Unbound DNS resolver
 
 Unbound is a validating, recursive, and caching DNS resolver inside the container, you can control it with the remote server control utility.
@@ -642,6 +664,8 @@ docker exec -ti mailserver unbound-control reload
 ```
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### PostgreSQL support
 
@@ -686,6 +710,8 @@ postgres:
   networks:
     - mail_network
 ```
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### IPv6 support
 
@@ -735,6 +761,8 @@ ipv6nat:
 Done! This is all the configuration needed to enable inbound IPv6 support on this mailserver.
 
 You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/robbertkl/docker-ipv6nat) container mimics NAT for IPv6 on his page.
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 
@@ -797,6 +825,8 @@ You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/r
    │  │  │  │     rainloop.user.sieve (if using rainloop webmail)
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Override postfix configuration
 
 Postfix default configuration can be overrided providing a custom configuration file at postfix format. This can be
@@ -846,6 +876,8 @@ docker logs -f mailserver
 [INFO] Custom Postfix configuration file loaded
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Custom configuration for dovecot
 
 Sometimes you might want to add additional configuration parameters or override the default ones. You can do so by placing configuration files to the persistent folder `/mnt/docker/mail/dovecot/conf.d`.
@@ -871,6 +903,8 @@ plugin {
 }
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Postfix blacklist
 
 To block some senders or an entire domain, create a new file named `sender_access` in `/mnt/docker/mail/postfix`.
@@ -889,6 +923,8 @@ docker logs -f mailserver
 NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Access denied
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Email client settings :
 
 - IMAP/SMTP username : user@domain.tld
@@ -898,6 +934,8 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 - SMTP port : 587
 - IMAP Encryption protocol : SSL/TLS
 - SMTP Encryption protocol : STARTTLS
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Components
 
@@ -913,6 +951,8 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 - Rsyslog 8.24.0
 - ManageSieve server
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Migration from 1.0 to 1.1
 
 If you still use 1.0 version (bundled with Spamassassin, Amavisd...etc) which was available with the `latest` tag, you can follow the migration steps here :
@@ -921,10 +961,14 @@ https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-sta
 
 Or stay with `1.0-legacy` tag (not recommended).
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Community projects
 
 - [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
 - [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Some useful Thunderbird extensions :
 
@@ -933,6 +977,8 @@ Or stay with `1.0-legacy` tag (not recommended).
 * https://github.com/lieser/dkim_verifier
 
 [![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Donation
 
