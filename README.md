@@ -1,4 +1,8 @@
-## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## hardware/mailserver
+
+### Chat & questions
+
+[![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Build
 
@@ -8,21 +12,21 @@
 
 [![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-latest.svg)](https://microbadger.com/images/hardware/mailserver:1.1-latest) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
 
-Simple and full-featured mail server as a set of multiple docker images includes :
+**hardware/mailserver** is a simple and full-featured mail server build as a set of multiple docker images, including:
 
-- **Postfix** : a full set smtp email server
-- **Dovecot** : secure imap and pop3 email server
+- **Postfix** : a full-set smtp email server
+- **Dovecot** : secure IMAP and POP3 email server
 - **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
 - **Clamav** : antivirus with automatic updates and third-party signature databases
-- **Zeyple** : automatic GPG encryption of all your e-mails
-- **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
-- **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
+- **Zeyple** : automatic GPG encryption of all your emails
+- **Sieve** : email filtering (vacation auto-responder, auto-forward, etc...)
+- **Fetchmail** : fetch emails from external IMAP/POP3 server into local mailbox
 - **Rainloop** : web based email client
-- **Postfixadmin** : web based administration interface
+- **Postfixadmin** : web-based administration interface
 - **Unbound**: recursive caching DNS resolver with DNSSEC support
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Træfik** : modern HTTP reverse proxy
-- **SSL** : let's encrypt with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
+- **SSL** : _let's encrypt_ with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
 - Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
@@ -35,7 +39,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Environment variables](#environment-variables)
 - [SSL certificates](#ssl-certificates)
 - [MTA-STS](#mta-sts)
-- [GPG encryption](#automatic-gpg-encryption-of-all-your-e-mails)
+- [GPG encryption](#automatic-gpg-encryption-of-all-your-emails)
 - [Relaying from other networks](#relaying-from-other-networks)
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
 - [DNS resolver](#unbound-dns-resolver)
@@ -288,7 +292,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password or location of a file containing it | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
-| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted e-mail addresses separated by commas | *optional* | null
+| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted email addresses separated by commas | *optional* | null
 | **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
@@ -312,7 +316,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-### Automatic GPG encryption of all your e-mails
+### Automatic GPG encryption of all your emails
 
 #### How does it work ?
 
