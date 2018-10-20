@@ -161,6 +161,7 @@ smtpd_sender_restrictions=
     reject_non_fqdn_sender,
     reject_unknown_sender_domain,
     reject_sender_login_mismatch,
+    reject_unlisted_sender,
     reject_rhsbl_sender dbl.spamhaus.org,
     check_sender_access hash:/etc/postfix/sender_access
 
