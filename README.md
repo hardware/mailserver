@@ -1,4 +1,8 @@
-## hardware/mailserver [![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## hardware/mailserver
+
+### Chat & questions
+
+[![](https://badges.gitter.im/hardware-mailserver/Lobby.svg)](https://gitter.im/hardware-mailserver/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Build
 
@@ -8,21 +12,21 @@
 
 [![](https://images.microbadger.com/badges/image/hardware/mailserver:1.1-stable.svg)](https://microbadger.com/images/hardware/mailserver:1.1-stable) [![](https://img.shields.io/docker/automated/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/builds/) [![](https://img.shields.io/docker/pulls/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/docker/stars/hardware/mailserver.svg)](https://hub.docker.com/r/hardware/mailserver/) [![](https://img.shields.io/badge/bitcoin-donate-green.svg)](https://keybase.io/hardware)
 
-Simple and full-featured mail server as a set of multiple docker images includes :
+**hardware/mailserver** is a simple and full-featured mail server build as a set of multiple docker images, including:
 
-- **Postfix** : a full set smtp email server
-- **Dovecot** : secure imap and pop3 email server
+- **Postfix** : a full-set smtp email server
+- **Dovecot** : secure IMAP and POP3 email server
 - **Rspamd** : anti-spam filter with SPF, DKIM, DMARC, ARC, ratelimit and greylisting capabilities
 - **Clamav** : antivirus with automatic updates and third-party signature databases
-- **Zeyple** : automatic GPG encryption of all your e-mails
-- **Sieve** : email filtering (vacation auto-responder, auto-forward...etc)
-- **Fetchmail** : fetch e-mails from external IMAP/POP3 server into local mailbox
+- **Zeyple** : automatic GPG encryption of all your emails
+- **Sieve** : email filtering (vacation auto-responder, auto-forward, etc...)
+- **Fetchmail** : fetch emails from external IMAP/POP3 server into local mailbox
 - **Rainloop** : web based email client
-- **Postfixadmin** : web based administration interface
+- **Postfixadmin** : web-based administration interface
 - **Unbound**: recursive caching DNS resolver with DNSSEC support
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Træfik** : modern HTTP reverse proxy
-- **SSL** : let's encrypt with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
+- **SSL** : _let's encrypt_ with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
 - Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
@@ -35,7 +39,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Environment variables](#environment-variables)
 - [SSL certificates](#ssl-certificates)
 - [MTA-STS](#mta-sts)
-- [GPG encryption](#automatic-gpg-encryption-of-all-your-e-mails)
+- [GPG encryption](#automatic-gpg-encryption-of-all-your-emails)
 - [Relaying from other networks](#relaying-from-other-networks)
 - [Third-party clamav signature databases](#third-party-clamav-signature-databases)
 - [DNS resolver](#unbound-dns-resolver)
@@ -44,6 +48,7 @@ Simple and full-featured mail server as a set of multiple docker images includes
 - [Persistent files and folders](#persistent-files-and-folders-in-mntdockermail-docker-volume)
 - [Override postfix configuration](#override-postfix-configuration)
 - [Override dovecot configuration](#custom-configuration-for-dovecot)
+- [Postfix Blacklist](#postfix-blacklist)
 - [Rancher Catalog](#rancher-catalog)
 - [Ansible Playbooks](#ansible-playbooks)
 - [Migration from 1.0 to 1.1-stable](#migration-from-10-to-11)
@@ -68,6 +73,8 @@ Please check, if your system meets the following minimum requirements :
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 512 MiB | 1 GiB |
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Prerequisites
 
@@ -150,6 +157,8 @@ You can audit your mailserver with the following assessment services :
 * https://www.hardenize.com/
 * https://observatory.mozilla.org/
 * https://www.emailprivacytester.com/ (MUA side)
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Installation
 
@@ -238,6 +247,8 @@ You can check the startup logs with this command :
 ...
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Rancher Catalog
 
 ![rancher-logo](https://i.imgur.com/R9AArJN.png)
@@ -248,11 +259,15 @@ This catalog provides a basic template to easily deploy an email server based on
 
 ![rancher-ui](https://i.imgur.com/kdJxAiN.png)
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Ansible Playbooks
 
 ![logo](https://i.imgur.com/tvTG8pN.png)
 
 If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/ksylvan) playbooks here : https://github.com/ksylvan/docker-mail-server
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Environment variables
 
@@ -262,7 +277,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **VMAILGID** | vmail group id | *optional* | 1024
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
-| **DEBUG_MODE** | Enable Postfix, Dovecot and Rspamd verbose logging | *optional* | false
+| **DEBUG_MODE** | Enable Postfix, Dovecot, Rspamd and Unbound verbose logging | *optional* | false
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
 | **DBDRIVER** | Database type: mysql, pgsql | *optional* | mysql
 | **DBHOST** | Database instance ip/hostname | *optional* | mariadb
@@ -277,7 +292,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **RSPAMD_PASSWORD** | Rspamd WebUI and controller password or location of a file containing it | **required** | null
 | **ADD_DOMAINS** | Add additional domains to the mailserver separated by commas (needed for dkim keys etc.) | *optional* | null
 | **RELAY_NETWORKS** | Additional IPs or networks the mailserver relays without authentication | *optional* | null
-| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted e-mail addresses separated by commas | *optional* | null
+| **WHITELIST_SPAM_ADDRESSES** | List of whitelisted email addresses separated by commas | *optional* | null
 | **DISABLE_RSPAMD_MODULE** | List of disabled modules separated by commas | *optional* | null
 | **DISABLE_CLAMAV** | Disable virus scanning | *optional* | false
 | **DISABLE_SIEVE** | Disable ManageSieve protocol | *optional* | false
@@ -291,7 +306,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
-* Use **DEBUG_MODE** to enable the debug mode. Switch to `true` to enable verbose logging for `postfix`, `dovecot` and `rspamd`. To debug components separately, use this syntax : `DEBUG_MODE=postfix,rspamd`.
+* Use **DEBUG_MODE** to enable the debug mode. Switch to `true` to enable verbose logging for `postfix`, `dovecot`, `rspamd` and `Unbound`. To debug components separately, use this syntax : `DEBUG_MODE=postfix,rspamd`.
 * **VMAIL_SUBDIR** is the mail location subdirectory name `/var/mail/vhosts/%domain/%user/$subdir`. For more information, read this : https://wiki.dovecot.org/VirtualUsers/Home
 * **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
 * Currently, only a single **RECIPIENT_DELIMITER** is supported. Support for multiple delimiters will arrive with Dovecot v2.3.
@@ -299,7 +314,9 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 * Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
 * Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
 
-### Automatic GPG encryption of all your e-mails
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
+### Automatic GPG encryption of all your emails
 
 #### How does it work ?
 
@@ -351,6 +368,8 @@ docker exec -ti mailserver encryption.sh ...
 
 Documentation : https://www.gnupg.org/documentation/manuals/gnupg/Operational-GPG-Commands.html
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Relaying from other networks
 
 The **RELAY_NETWORKS** is a space separated list of additional IP addresses and subnets (in CIDR notation) which the mailserver relays without authentication. Hostnames are possible, but generally disadvised. IPv6 addresses must be surrounded by square brackets. You can also specify an absolut path to a file with IPs and networks so you can keep it on a mounted volume. Note that the file is not monitored for changes.
@@ -358,6 +377,8 @@ The **RELAY_NETWORKS** is a space separated list of additional IP addresses and 
 You can use this variable to allow other local containers to relay via the mailserver. Typically you would set this to the IP range of the default docker bridge (172.17.0.0/16) or the default network of your compose. If you are unable to determine, you might just add all RFC 1918 addresses `192.168.0.0/16 172.16.0.0/12 10.0.0.0/8`
 
 :warning: A value like `0.0.0.0/0` will turn your mailserver into an open relay!
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### SSL certificates
 
@@ -528,6 +549,8 @@ openssl s_client -connect mail.domain.tld:587 -starttls smtp -tlsextdebug
 openssl s_client -connect mail.domain.tld:993 -tlsextdebug
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### MTA-STS
 
 MTA-STS is a new standard that makes it possible to send downgrade-resistant email over SMTP. In that sense, it is like an alternative to DANE but it does this by piggybacking on the browser Certificate Authority model, not DNSSEC.
@@ -548,6 +571,8 @@ mx: mail.domain.tld
 ```
 
 Test your mail domain using a MTA-STS validator like [Hardenize](https://www.hardenize.com). You can also add your domain name in the [STARTTLS Policy List](https://starttls-everywhere.org/) maintained by [EFF](https://www.eff.org/).
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Third-party clamav signature databases
 
@@ -623,6 +648,8 @@ clamd[xxxxxx]: Reading databases from /var/lib/clamav
 clamd[xxxxxx]: Database correctly reloaded (6812263 signatures)
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Unbound DNS resolver
 
 Unbound is a validating, recursive, and caching DNS resolver inside the container, you can control it with the remote server control utility.
@@ -641,6 +668,8 @@ docker exec -ti mailserver unbound-control reload
 ```
 
 Documentation : https://www.unbound.net/documentation/unbound-control.html
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### PostgreSQL support
 
@@ -685,6 +714,8 @@ postgres:
   networks:
     - mail_network
 ```
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### IPv6 support
 
@@ -735,6 +766,8 @@ Done! This is all the configuration needed to enable inbound IPv6 support on thi
 
 You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/robbertkl/docker-ipv6nat) container mimics NAT for IPv6 on his page.
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Persistent files and folders in /mnt/docker/mail Docker volume
 
 ```
@@ -742,6 +775,7 @@ You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/r
 └──mail
    ├──postfix
    |     custom.conf
+   |     sender_access
    |  ├──spool (Postfix queues directory)
    │  │     defer
    │  │     flush
@@ -795,6 +829,8 @@ You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/r
    │  │  │  │     rainloop.user.sieve (if using rainloop webmail)
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Override postfix configuration
 
 Postfix default configuration can be overrided providing a custom configuration file at postfix format. This can be
@@ -804,26 +840,47 @@ to find configuration options.
 Each line in the provided file will be loaded into Postfix. Create a new file here `/mnt/docker/mail/postfix/custom.conf`
 and add your custom options inside.
 
+To edit services in `master.cf` configuration file, SFP prefixes are available to indicate what you want to change.
+
+* `S|` = service entry (service/type=value)
+* `F|` = service field (service/type/field=value)
+* `P|` = service parameter (service/type/parameter=value)
+
 Example :
 
 ```ini
 # /mnt/docker/mail/postfix/custom.conf
 
+# main.cf parameters
 smtpd_banner = $myhostname ESMTP MyGreatMailServer
 inet_protocols = ipv4
 delay_notice_recipient = admin@domain.tld
 delay_warning_time = 2h
+
+# master.cf services
+S|submission/inet=submission inet n       -       -       -       -       smtpd
+P|submission/inet/syslog_name=postfix/submission-custom
+P|submission/inet/smtpd_tls_security_level=may
+P|submission/inet/smtpd_tls_ciphers=medium
+F|smtp/unix/chroot=n
 ```
 
 ```
 docker logs -f mailserver
 
-[INFO] Override : smtpd_banner = $myhostname ESMTP MyGreatMailServer
-[INFO] Override : inet_protocols = ipv4
-[INFO] Override : delay_notice_recipient = postmaster@domain.tld
-[INFO] Override : delay_warning_time = 2h
+[INFO] Override parameter in main.cf : smtpd_banner = $myhostname ESMTP MyGreatMailServer
+[INFO] Override parameter in main.cf : inet_protocols = ipv4
+[INFO] Override parameter in main.cf : delay_notice_recipient = admin@domain.tld
+[INFO] Override parameter in main.cf : delay_warning_time = 2h
+[INFO] Override service entry in master.cf : submission/inet=submission inet n       -       -       -       -       smtpd
+[INFO] Override service parameter in master.cf : submission/inet/syslog_name=postfix/submission-custom
+[INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_security_level=may
+[INFO] Override service parameter in master.cf : submission/inet/smtpd_tls_ciphers=medium
+[INFO] Override service field in master.cf : smtp/unix/chroot=n
 [INFO] Custom Postfix configuration file loaded
 ```
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Custom configuration for dovecot
 
@@ -850,6 +907,28 @@ plugin {
 }
 ```
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
+### Postfix blacklist
+
+To block some senders or an entire domain, create a new file named `sender_access` in `/mnt/docker/mail/postfix`.
+
+```bash
+# /mnt/docker/mail/postfix/sender_access
+# Format : <address|domain> <action>
+
+domain.tld REJECT
+spam@domain2.tld REJECT
+```
+
+```
+docker logs -f mailserver
+
+NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Access denied
+```
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Email client settings :
 
 - IMAP/SMTP username : user@domain.tld
@@ -860,19 +939,23 @@ plugin {
 - IMAP Encryption protocol : SSL/TLS
 - SMTP Encryption protocol : STARTTLS
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Components
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.7.9
+- Rspamd 1.8.0
 - Fetchmail 6.3.26
 - ClamAV 0.100.1
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.7.1.1
+- s6 2.7.2.1
 - Rsyslog 8.24.0
 - ManageSieve server
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Migration from 1.0 to 1.1
 
@@ -882,10 +965,14 @@ https://github.com/hardware/mailserver/wiki/Migrating-from-1.0-stable-to-1.1-sta
 
 Or stay with `1.0-legacy` tag (not recommended).
 
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
 ### Community projects
 
 - [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
 - [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Some useful Thunderbird extensions :
 
@@ -894,6 +981,8 @@ Or stay with `1.0-legacy` tag (not recommended).
 * https://github.com/lieser/dkim_verifier
 
 [![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
 ### Donation
 

@@ -919,6 +919,17 @@ load 'test_helper/bats-assert/load'
   assert_output 3
 }
 
+@test "checking postfix: master.cf custom service parameter" {
+  run docker exec mailserver_default postconf -P submission/inet/syslog_name
+  assert_success
+  assert_output "submission/inet/syslog_name = postfix/submission-custom"
+}
+
+@test "checking postfix: sender access reject john.doe" {
+  run docker exec mailserver_default grep -i '<john.doe@domain.tld>: Sender address rejected: Access denied' /var/log/mail.log
+  assert_success
+}
+
 #
 # dovecot
 #
@@ -1336,6 +1347,16 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
+@test "checking unbound: debug mode enabled" {
+  run docker exec mailserver_traefik_acmev2 /bin/sh -c "unbound-control status | grep 'verbosity: 2'"
+  assert_success
+}
+
+@test "checking unbound: debug mode disabled" {
+  run docker exec mailserver_default /bin/sh -c "unbound-control status | grep 'verbosity: 0'"
+  assert_success
+}
+
 #
 # ssl
 #
@@ -1502,6 +1523,24 @@ load 'test_helper/bats-assert/load'
 
 @test "checking logs: /var/log/mail.err in mailserver_reverse does not exist" {
   run docker exec mailserver_reverse cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
+
+@test "checking logs: /var/log/mail.err in mailserver_ecdsa does not exist" {
+  run docker exec mailserver_ecdsa cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
+
+@test "checking logs: /var/log/mail.err in mailserver_traefik_acmev1 does not exist" {
+  run docker exec mailserver_traefik_acmev1 cat /var/log/mail.err
+  assert_failure
+  assert_output --partial 'No such file or directory'
+}
+
+@test "checking logs: /var/log/mail.err in mailserver_traefik_acmev2 does not exist" {
+  run docker exec mailserver_traefik_acmev2 cat /var/log/mail.err
   assert_failure
   assert_output --partial 'No such file or directory'
 }

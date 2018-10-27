@@ -1,0 +1,13 @@
+HELO mailserver
+AUTH PLAIN AGpvaG4uZG9lQGRvbWFpbi50bGQAdGVzdHBhc3N3ZDEy
+MAIL FROM: john.doe@domain.tld
+RCPT TO: sarah.connor@domain.tld
+DATA
+From: Docker Mail Server <john.doe@domain.tld>
+To: Existing Local User <sarah.connor@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message
+Test:internal-rejected-user-to-existing-user
+
+.
+QUIT

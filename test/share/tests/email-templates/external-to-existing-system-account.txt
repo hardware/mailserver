@@ -6,7 +6,7 @@ From: Docker Mail Server <user@example.com>
 To: Local Account <root>
 Date: Sat, 28 Nov 2016 12:00:00 +0200
 Subject: Test Message
-This is a test mail.
+Test:external-to-existing-system-account
 
 .
 QUIT

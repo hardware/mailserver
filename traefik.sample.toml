@@ -31,9 +31,7 @@ email = "{{ EMAIL }}"
 storage = "/etc/traefik/acme/acme.json"
 entryPoint = "https"
 onHostRule = true
-onDemand = false
-  [acme.httpChallenge]
-  entryPoint = "http"
+  [acme.tlsChallenge]
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"

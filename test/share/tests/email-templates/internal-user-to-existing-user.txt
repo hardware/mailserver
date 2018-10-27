@@ -7,7 +7,7 @@ From: Docker Mail Server <sarah.connor@domain.tld>
 To: Existing Local User <john.doe@domain.tld>
 Date: Sat, 28 Nov 2016 12:00:00 +0200
 Subject: Test Message
-This is a test mail.
+Test:internal-user-to-existing-user
 
 .
 QUIT

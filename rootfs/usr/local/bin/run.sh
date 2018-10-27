@@ -285,8 +285,21 @@ if [ -f /var/mail/postfix/custom.conf ]; then
   # Ignore blank lines and comments
   sed -e '/^\s*$/d' -e '/^#/d' /var/mail/postfix/custom.conf | \
   while read line; do
-    echo "[INFO] Override : ${line}"
-    postconf -e "$line"
+    type=${line:0:2}
+    value=${line:2}
+    if [[ "$type" == 'S|' ]]; then
+      postconf -M "$value"
+      echo "[INFO] Override service entry in master.cf : ${value}"
+    elif [[ "$type" == 'F|' ]]; then
+      postconf -F "$value"
+      echo "[INFO] Override service field in master.cf : ${value}"
+    elif [[ "$type" == 'P|' ]]; then
+      postconf -P "$value"
+      echo "[INFO] Override service parameter in master.cf : ${value}"
+    else
+      echo "[INFO] Override parameter in main.cf : ${line}"
+      postconf -e "$line"
+    fi
   done
   echo "[INFO] Custom Postfix configuration file loaded"
 fi
@@ -360,6 +373,11 @@ if [ "$DEBUG_MODE" != false ]; then
   if [[ "$DEBUG_MODE" = *"rspamd"* || "$DEBUG_MODE" = true ]]; then
     echo "[INFO] Rspamd debug mode is enabled"
     sed -i 's/warning/info/g' /etc/rspamd/local.d/logging.inc
+  fi
+  if [[ "$DEBUG_MODE" = *"Unbound"* || "$DEBUG_MODE" = true ]]; then
+    echo "[INFO] Unbound debug mode is enabled"
+    sed -i -e 's/verbosity: 0/verbosity: 2/g' \
+           -e 's/logfile: \/dev\/null/logfile: ""/g' /etc/unbound/unbound.conf
   fi
 else
   echo "[INFO] Debug mode is disabled"
@@ -517,6 +535,14 @@ cp -f /etc/localtime /var/mail/postfix/spool/etc/localtime
 # Build header_checks and virtual index files
 postmap /etc/postfix/header_checks
 postmap /etc/postfix/virtual
+
+if [ -s "/var/mail/postfix/sender_access" ]; then
+  echo "[INFO] sender_access file found, sender access check enabled"
+  cp /var/mail/postfix/sender_access /etc/postfix/sender_access
+  postmap /etc/postfix/sender_access
+else
+  sed -i '/check_sender_access/ s/^/#/' /etc/postfix/main.cf
+fi
 
 # Set permissions
 chgrp -R postdrop /var/mail/postfix/spool/public
@@ -686,12 +712,10 @@ for address in "${whitelist[@]}"; do
 done
 
 cat > /etc/rspamd/local.d/settings.conf <<EOF
-settings {
-  whitelist {
-    priority = low;
-    rcpt = [${rcpts::-1}];
-    want_spam = yes;
-  }
+whitelist {
+  priority = low;
+  rcpt = [${rcpts::-1}];
+  want_spam = yes;
 }
 EOF
 
