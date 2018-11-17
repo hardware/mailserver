@@ -1,3 +1,36 @@
+#!/bin/bash
+
+echo "[INFO] Setting up container"
+
+export RECIPIENT_DELIMITER
+export FETCHMAIL_INTERVAL
+export RELAY_NETWORKS
+export PASSWORD_SCHEME
+
+TESTING=${TESTING:-false}
+DEBUG_MODE=${DEBUG_MODE:-false}
+
+ADD_DOMAINS=${ADD_DOMAINS:-}
+
+DBPASS=$([ -f "$DBPASS" ] && cat "$DBPASS" || echo "${DBPASS:-}")
+RSPAMD_PASSWORD=$([ -f "$RSPAMD_PASSWORD" ] && cat "$RSPAMD_PASSWORD" || echo "${RSPAMD_PASSWORD:-}")
+WHITELIST_SPAM_ADDRESSES=${WHITELIST_SPAM_ADDRESSES:-}
+OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-1024}
+
+DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
+DISABLE_SIEVE=${DISABLE_SIEVE:-false}
+DISABLE_SIGNING=${DISABLE_SIGNING:-false}
+DISABLE_GREYLISTING=${DISABLE_GREYLISTING:-false}
+DISABLE_RATELIMITING=${DISABLE_RATELIMITING:-true}
+
+ENABLE_POP3=${ENABLE_POP3:-false}
+ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL:-false}
+ENABLE_ENCRYPTION=${ENABLE_ENCRYPTION:-false}
+
+RECIPIENT_DELIMITER=${RECIPIENT_DELIMITER:-"+"}
+FETCHMAIL_INTERVAL=${FETCHMAIL_INTERVAL:-10}
+RELAY_NETWORKS=${RELAY_NETWORKS:-}
+PASSWORD_SCHEME=${PASSWORD_SCHEME:-"SHA512-CRYPT"}
 
 # SSL CERTIFICATES
 # ---------------------------------------------------------------------------------------------
@@ -181,7 +214,9 @@ _envtpl /etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
+
 _envtpl /etc/postfixadmin/fetchmail.conf
+
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
 _envtpl /etc/dovecot/conf.d/10-mail.conf
@@ -189,9 +224,11 @@ _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/dovecot/conf.d/90-quota.conf
+
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/settings.conf
 _envtpl /etc/rspamd/local.d/statistic.conf
+
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning.sh
@@ -713,3 +750,5 @@ EOF
 done
 
 chmod +x /services/*/finish
+
+echo "[INFO] Finished container setup"
