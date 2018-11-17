@@ -45,7 +45,17 @@ _normalize_certs() {
   fi
 }
 
-if [ "$1" = "update_certs" ]; then
+if [ "$1" = "watch" ]; then
+  echo "[INFO] Checking for watchable SSL certificates"
+  if [ -f "$ACME_FILE" ]; then
+    exec watcher.py "$ACME_PATH"
+  elif [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
+    exec watcher.py "$LETS_ENCRYPT_LIVE_PATH"
+  else
+    echo "[INFO] No watchable SSL certificate mounts - disabling SSL watcher"
+  fi
+
+elif [ "$1" = "update_certs" ]; then
   mkdir -p "$LIVE_CERT_PATH"
   rm -rf "$LIVE_CERT_PATH/*"
 
@@ -135,6 +145,12 @@ if [ "$1" = "update_certs" ]; then
   else
     sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
   fi
+
+elif [ "$1" = "reload" ]; then
+  echo "[INFO] Updating SSL certificates and reloading"
+  exec "$0" update_certs -n
+  exec s6-svc -r /services/postfix
+  exec s6-svc -r /services/dovecot
 
 else
   echo "[ERROR] Unrecognized command '$1'"

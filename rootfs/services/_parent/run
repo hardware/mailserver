@@ -10,6 +10,7 @@
 # 6. cron      (job scheduler)
 # 7. freshclam (clamav database updater)
 # 8. clamd     (antivirus, is launched after database update)
+# 9. watcher   (watches for cert file changes)
 
 s6-svc -u /services/rsyslogd && s6-svwait -u /services/rsyslogd
 s6-svc -u /services/unbound  && [ "$DISABLE_DNS_RESOLVER" = true ] || s6-svwait -u /services/unbound
@@ -27,6 +28,8 @@ if [ "$DISABLE_CLAMAV" = false ]; then
   fi
   s6-svwait -u /services/clamd
 fi
+
+s6-svc -u /services/cert_watcher
 
 sleep 2
 logger -p mail.info "s6-supervise : (_parent) all my wonderful children have started, i can die in peace :)"
