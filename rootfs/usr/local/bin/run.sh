@@ -95,6 +95,7 @@ ACME_FILE="$ACME_PATH"/acme.json
 ACME_DUMP="$ACME_PATH"/dump.log
 CERT_TEMP_PATH=/tmp/ssl
 LETS_ENCRYPT_LIVE_PATH=/etc/letsencrypt/live/"$FQDN"
+RENEWED_CERTIFICATE=false
 
 if [ -f "$ACME_FILE" ]; then
 
@@ -131,10 +132,12 @@ if [ -f "$ACME_FILE" ]; then
     mv -f "$CERT_TEMP_PATH"/certs/"$FQDN".crt "$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
     mv -f "$CERT_TEMP_PATH"/private/"$FQDN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
     rm -rf "$CERT_TEMP_PATH" "$ACME_DUMP"
+    RENEWED_CERTIFICATE=true
   elif [ -e "$CERT_TEMP_PATH"/certs/"$DOMAIN".crt ] && [ -e "$CERT_TEMP_PATH"/private/"$DOMAIN".key ]; then
     mv -f "$CERT_TEMP_PATH"/certs/"$DOMAIN".crt "$LETS_ENCRYPT_LIVE_PATH"/fullchain.pem
     mv -f "$CERT_TEMP_PATH"/private/"$DOMAIN".key "$LETS_ENCRYPT_LIVE_PATH"/privkey.pem
     rm -rf "$CERT_TEMP_PATH" "$ACME_DUMP"
+    RENEWED_CERTIFICATE=true
   else
     echo "[ERROR] The certificate for ${FQDN} or the private key was not found !"
     echo "[INFO] Don't forget to add a new traefik frontend rule to generate a certificate for ${FQDN} subdomain"
@@ -166,7 +169,7 @@ if [ -d "$LETS_ENCRYPT_LIVE_PATH" ]; then
     exit 1
   fi
 
-  if [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
+  if [ "$RENEWED_CERTIFICATE" = true ] || [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
     if [ ! -e "$FULLCHAIN" ]; then
       echo "[ERROR] No fullchain found in $LETS_ENCRYPT_LIVE_PATH !"
       exit 1
