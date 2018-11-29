@@ -1,0 +1,16 @@
+hosts           = {{ .LDAP_HOST }}
+ldap_version    = 3
+auth_bind       = yes
+dn              = {{ .LDAP_BIND_DN }}
+dnpass          = {{ .LDAP_BIND_PW }}
+base            = {{ .LDAP_MAILBOX_SEARCH_BASE }}
+scope           = {{ .LDAP_MAILBOX_SEARCH_SCOPE }}
+deref           = never
+
+user_attrs = quota=quota=maildir:storage
+user_attrs = quota=quota=maildir:storage=%$B
+user_filter = (&(objectClass=VirtualMailAccount)(accountActive=TRUE)(mail=%u))
+
+pass_attrs = mail,userPassword
+pass_filter = (&(objectClass=VirtualMailAccount)(accountActive=TRUE)(mail=%u))
+#default_pass_scheme = MD5

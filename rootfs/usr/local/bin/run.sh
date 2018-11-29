@@ -61,9 +61,94 @@ FETCHMAIL_INTERVAL=${FETCHMAIL_INTERVAL:-10}
 RELAY_NETWORKS=${RELAY_NETWORKS:-}
 PASSWORD_SCHEME=${PASSWORD_SCHEME:-"SHA512-CRYPT"}
 
-if [ -z "$DBPASS" ]; then
-  echo "[ERROR] MariaDB/PostgreSQL database password must be set !"
-  exit 1
+export LDAP_ENABLED
+export LDAP_HOST
+export LDAP_TLS_ENABLED
+export LDAP_TLS_CA_FILE
+export LDAP_TLS_FORCE
+export LDAP_BIND
+export LDAP_BIND_DN
+export LDAP_BIND_PW
+export LDAP_DEFAULT_SEARCH_BASE
+export LDAP_DEFAULT_SEARCH_SCOPE
+
+export LDAP_DOMAIN_SEARCH_BASE
+export LDAP_DOMAIN_SEARCH_SCOPE
+export LDAP_DOMAIN_FILTER
+export LDAP_DOMAIN_ATTRIBUTE
+export LDAP_DOMAIN_FORMAT
+
+export LDAP_MAILBOX_SEARCH_BASE
+export LDAP_MAILBOX_SEARCH_SCOPE
+export LDAP_MAILBOX_FILTER
+export LDAP_MAILBOX_ATTRIBUTE
+export LDAP_MAILBOX_FORMAT
+
+export LDAP_ALIAS_SEARCH_BASE
+export LDAP_ALIAS_SEARCH_SCOPE
+export LDAP_ALIAS_FILTER
+export LDAP_ALIAS_ATTRIBUTE
+export LDAP_ALIAS_FORMAT
+
+export LDAP_SENDER_SEARCH_BASE
+export LDAP_SENDER_SEARCH_SCOPE
+export LDAP_SENDER_FILTER
+export LDAP_SENDER_ATTRIBUTE
+export LDAP_SENDER_FORMAT
+
+LDAP_ENABLED=${LDAP_ENABLED:-false}
+LDAP_HOST=${LDAP_HOST:-ldap}
+LDAP_TLS_ENABLED=${LDAP_TLS_ENABLED:-false}
+LDAP_TLS_CA_FILE=${LDAP_TLS_CA_FILE:-""}
+LDAP_TLS_FORCE=${LDAP_TLS_FORCE:-false}
+LDAP_BIND=${LDAP_BIND:-true}
+LDAP_BIND_DN=${LDAP_BIND_DN:-}
+LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
+LDAP_DEFAULT_SEARCH_BASE=${LDAP_SEARCH_BASE:-}
+LDAP_DEFAULT_SEARCH_SCOPE=${LDAP_SEARCH_SCOPE:-"subtree"}
+
+LDAP_DOMAIN_SEARCH_BASE=${LDAP_DOMAIN_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+LDAP_DOMAIN_SEARCH_SCOPE=${LDAP_DOMAIN_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+LDAP_DOMAIN_FILTER=${LDAP_DOMAIN_FILTER:-}
+LDAP_DOMAIN_ATTRIBUTE=${LDAP_DOMAIN_ATTRIBUTE:-}
+LDAP_DOMAIN_FORMAT=${LDAP_DOMAIN_FORMAT:-}
+
+LDAP_MAILBOX_SEARCH_BASE=${LDAP_MAILBOX_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+LDAP_MAILBOX_SEARCH_SCOPE=${LDAP_MAILBOX_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+LDAP_MAILBOX_FILTER=${LDAP_MAILBOX_FILTER:-}
+LDAP_MAILBOX_ATTRIBUTE=${LDAP_MAILBOX_ATTRIBUTE:-}
+LDAP_MAILBOX_FORMAT=${LDAP_MAILBOX_FORMAT:-}
+
+LDAP_ALIAS_SEARCH_BASE=${LDAP_ALIAS_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+LDAP_ALIAS_SEARCH_SCOPE=${LDAP_ALIAS_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+LDAP_ALIAS_FILTER=${LDAP_ALIAS_FILTER:-}
+LDAP_ALIAS_ATTRIBUTE=${LDAP_ALIAS_ATTRIBUTE:-}
+LDAP_ALIAS_FORMAT=${LDAP_ALIAS_FORMAT:-}
+
+LDAP_SENDER_SEARCH_BASE=${LDAP_MAILBOX_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+LDAP_SENDER_SEARCH_SCOPE=${LDAP_MAILBOX_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+LDAP_SENDER_FILTER=${LDAP_MAILBOX_FILTER:-}
+LDAP_SENDER_ATTRIBUTE=${LDAP_MAILBOX_ATTRIBUTE:-}
+LDAP_SENDER_FORMAT=${LDAP_SENDER_FORMAT:-}
+
+
+
+if [ "$LDAP_ENABLED" = true ]; then
+  if [ "$LDAP_BIND" = true ]; then
+    if [ -z "$LDAP_BIND_DN" ]; then
+      echo "[ERROR] LDAP_BIND_ED must be set !"
+      exit 1
+    fi
+    if [ -z "$LDAP_BIND_PW" ]; then
+      echo "[ERROR] LDAP_BIND_PW must be set !"
+      exit 1
+    fi
+  fi
+else
+  if [ -z "$DBPASS" ]; then
+    echo "[ERROR] MariaDB/PostgreSQL database password must be set !"
+    exit 1
+  fi
 fi
 
 if [ -z "$RSPAMD_PASSWORD" ]; then
@@ -257,6 +342,7 @@ _envtpl() {
 _envtpl /etc/postfix/main.cf
 _envtpl /etc/postfix/virtual
 _envtpl /etc/postfix/header_checks
+
 _envtpl /etc/postfix/sql/sender-login-maps.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-domains.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-maps.cf
@@ -264,9 +350,17 @@ _envtpl /etc/postfix/sql/virtual-alias-domain-mailbox-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
+
+_envtpl /etc/postfix/ldap/sender-login-maps.cf
+_envtpl /etc/postfix/ldap/virtual-mailbox-domains.cf
+_envtpl /etc/postfix/ldap/virtual-mailbox-maps.cf
+_envtpl /etc/postfix/ldap/virtual-alias-maps.cf
+
 _envtpl /etc/postfixadmin/fetchmail.conf
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
+_envtpl /etc/dovecot/dovecot-ldap.conf.ext
+_envtpl /etc/dovecot/conf.d/10-auth.conf
 _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
@@ -310,22 +404,42 @@ fi
 # DATABASES HOSTNAME CHECKING
 # ---------------------------------------------------------------------------------------------
 
-# Check mariadb/postgres hostname
-grep -q "${DBHOST}" /etc/hosts
+if [ "$LDAP_ENABLED" = true ]; then
+  # Check LDAP hostname
+  grep -q "${LDAP_HOST}" /etc/hosts
 
-if [ $? -ne 0 ]; then
-  echo "[INFO] MariaDB/PostgreSQL hostname not found in /etc/hosts"
-  IP=$(dig A ${DBHOST} +short +search)
-  if [ -n "$IP" ]; then
-    echo "[INFO] Container IP found, adding a new record in /etc/hosts"
-    echo "${IP} ${DBHOST}" >> /etc/hosts
+  if [ $? -ne 0 ]; then
+    echo "[INFO] LDAP hostname not found in /etc/hosts"
+    IP=$(dig A ${LDAP_HOST} +short +search)
+    if [ -n "$IP" ]; then
+      echo "[INFO] Container IP found, adding a new record in /etc/hosts"
+      echo "${IP} ${LDAP_HOST}" >> /etc/hosts
+    else
+      echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+      echo "[ERROR] Check your LDAP_HOST environment variable"
+      exit 1
+    fi
   else
-    echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
-    echo "[ERROR] Check your DBHOST environment variable"
-    exit 1
-  fi
+    echo "[INFO] LDAP hostname found in /etc/hosts"
+ fi
 else
-  echo "[INFO] MariaDB/PostgreSQL hostname found in /etc/hosts"
+  # Check mariadb/postgres hostname
+  grep -q "${DBHOST}" /etc/hosts
+
+  if [ $? -ne 0 ]; then
+    echo "[INFO] MariaDB/PostgreSQL hostname not found in /etc/hosts"
+    IP=$(dig A ${DBHOST} +short +search)
+    if [ -n "$IP" ]; then
+      echo "[INFO] Container IP found, adding a new record in /etc/hosts"
+      echo "${IP} ${DBHOST}" >> /etc/hosts
+    else
+      echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
+      echo "[ERROR] Check your DBHOST environment variable"
+      exit 1
+    fi
+  else
+    echo "[INFO] MariaDB/PostgreSQL hostname found in /etc/hosts"
+ fi
 fi
 
 # Check redis hostname
