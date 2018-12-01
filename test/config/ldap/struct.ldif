@@ -1,0 +1,36 @@
+# LDIF Export for dc=domain,dc=tld
+
+version: 1
+
+# Entry 1: o=mx,dc=domain,dc=tld
+dn: o=mx,dc=domain,dc=tld
+o: mx
+objectclass: organization
+objectclass: top
+
+# Entry 2: cn=John Doe,o=mx,dc=domain,dc=tld
+dn: cn=John Doe,o=mx,dc=domain,dc=tld
+cn: John Doe
+givenname: John
+mail: john.doe@domain.tld
+postOfficeBox: postmaster@domain.tld
+postOfficeBox: hostmaster@domain.tld
+telephoneNumber: 1024000
+objectclass: inetOrgPerson
+objectclass: top
+sn: Doe
+uid: john.doe@domain.tld
+userpassword: {SSHA}yOhC1Q7ATNYWB6lfThPj7+KeWPSdQR9r
+
+# Entry 3: cn=Sarah CONNOR,o=mx,dc=domain,dc=tld
+dn: cn=Sarah CONNOR,o=mx,dc=domain,dc=tld
+cn: Sarah CONNOR
+givenname: Sarah
+mail: sarah.connor@domain.tld
+telephoneNumber: 2048000
+objectclass: inetOrgPerson
+objectclass: top
+sn: Doe
+uid: john.doe@domain.tld
+userpassword: {SSHA}yOhC1Q7ATNYWB6lfThPj7+KeWPSdQR9r
+
