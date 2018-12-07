@@ -945,7 +945,7 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.8.0
+- Rspamd 1.8.1
 - Fetchmail 6.3.26
 - ClamAV 0.100.1
 - Clamav Unofficial Sigs 5.6.2
