@@ -1,0 +1,4 @@
+a1 LOGIN john.doe@domain.tld*john.connor@domain.tld testpasswd2
+a2 LIST "" "*"
+a3 EXAMINE INBOX
+a5 LOGOUT

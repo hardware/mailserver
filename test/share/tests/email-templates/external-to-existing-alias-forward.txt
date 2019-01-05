@@ -1,0 +1,12 @@
+HELO mail.example.com
+MAIL FROM: user@example.com
+RCPT TO: postmaster@domain.tld
+DATA
+From: Docker Mail Server <user@example.com>
+To: Existing Local Alias <postmaster@domain.tld>
+Date: Sat, 28 Nov 2016 12:00:00 +0200
+Subject: Test Message 2
+Test:external-to-existing-alias2
+
+.
+QUIT

@@ -117,7 +117,9 @@ virtual_transport       = lmtp:unix:private/dovecot-lmtp
 {{ if eq .LDAP_ENABLED "true" }}
 virtual_mailbox_domains = ldap:/etc/postfix/ldap/virtual-mailbox-domains.cf
 virtual_mailbox_maps    = ldap:/etc/postfix/ldap/virtual-mailbox-maps.cf
-virtual_alias_maps      = ldap:/etc/postfix/ldap/virtual-alias-maps.cf
+virtual_alias_maps      = ldap:/etc/postfix/ldap/virtual-alias-maps.cf,{{ if ne .LDAP_FORWARD_ATTRIBUTE "" }}
+                          ldap:/etc/postfix/ldap/virtual-forward-maps.cf,{{ end }}{{ if ne .LDAP_GROUP_ATTRIBUTE "" }}
+                          ldap:/etc/postfix/ldap/virtual-group-maps.cf,{{ end }}
                           hash:/etc/postfix/virtual
 {{ else }}
 virtual_mailbox_domains = proxy:{{ .DBDRIVER }}:/etc/postfix/sql/virtual-mailbox-domains.cf

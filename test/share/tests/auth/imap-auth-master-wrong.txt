@@ -1,0 +1,2 @@
+a1 LOGIN sarah.connor@domain.tld*john.connor@domain.tld testpasswd12
+a5 LOGOUT
