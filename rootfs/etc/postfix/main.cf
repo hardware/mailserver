@@ -154,13 +154,17 @@ smtpd_relay_restrictions=
 
 # * reject_non_fqdn_sender : Reject when the MAIL FROM address is not in fully-qualified domain form
 # * reject_unknown_sender_domain : Reject when the MAIL FROM domain has no DNS MX, no DNS A record or a malformed MX record
-# * reject_sender_login_mismatch: Reject when the client is not (SASL) logged in as that MAIL FROM address owner or when the client is (SASL) logged in, but the client login name doesn't own the MAIL FROM address
+# * reject_authenticated_sender_login_mismatch : Reject when the client is (SASL) logged in, but the client login name doesn't own the MAIL FROM address
+# * permit_mynetworks : Permit the request when the client IP address matches any trusted network
+# * reject_unauthenticated_sender_login_mismatch : Reject when the client is not (SASL) logged in as that MAIL FROM address owner
 # * reject_rhsbl_sender : Reject when the MAIL FROM domain is blacklisted in dbl.spamhaus.org
 
 smtpd_sender_restrictions=
     reject_non_fqdn_sender,
     reject_unknown_sender_domain,
-    reject_sender_login_mismatch,
+    reject_authenticated_sender_login_mismatch,
+    permit_mynetworks,
+    reject_unauthenticated_sender_login_mismatch,
     reject_unlisted_sender,
     reject_rhsbl_sender dbl.spamhaus.org,
     check_sender_access hash:/etc/postfix/sender_access
