@@ -38,14 +38,13 @@ class CertFilesHandler(FileSystemEventHandler):
     def on_any_event(self, event):
         if event.is_directory:
             return
+        print("[INFO] Watched Event %s" % repr(event))
         self.reload_certificates()
 
     @debounce(3)
     def reload_certificates(self):
         status = subprocess.call(['certs_helper.sh', 'reload'])
-        if status == 0:
-            print("[INFO] Mail server reloaded")
-        else:
+        if status != 0:
             print("[INFO] Failed to reload certs")
 
 
