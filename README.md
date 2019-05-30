@@ -971,6 +971,7 @@ Or stay with `1.0-legacy` tag (not recommended).
 
 - [ksylvan/docker-mail-server](https://github.com/ksylvan/docker-mail-server) : Ansible playbooks to easily deploy hardware/mailserver.
 - [rubentrancoso/mailserver-quicksetup](https://github.com/rubentrancoso/mailserver-quicksetup) : Automatic hardware/mailserver deployment on a digitalocean droplet.
+- [NickBusey/HomelabOS](https://gitlab.com/NickBusey/HomelabOS) - Automatic deployment on home servers with bastion host relay
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
