@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$DISABLE_SSL_WATCH" = true ]; then
+  exit 0
+fi
+
+logger -p mail.info "s6-supervise : spawning SSL watcher process"
+exec certs_helper.sh watch &> /dev/stdout

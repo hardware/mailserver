@@ -108,6 +108,8 @@ fi
 # SETUP CONFIG FILES
 # ---------------------------------------------------------------------------------------------
 
+certs_helper.sh update_certs
+
 # Make sure that configuration is only run once
 if [ ! -f "/etc/configuration_built" ]; then
   touch "/etc/configuration_built"
