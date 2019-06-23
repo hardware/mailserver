@@ -117,8 +117,9 @@ init:
 		--name mailserver_ldap \
 		--link openldap \
 		--link redis:redis \
-		-e LDAP_ENABLED=true \
-		-e LDAP_HOST=openldap \
+		-e DBDRIVER=ldap \
+		-e DBHOST=openldap \
+		-e DBPORT=389 \
 		-e LDAP_BIND_DN="cn=admin,dc=domain,dc=tld" \
 		-e LDAP_BIND_PW="testpasswd" \
 		-e LDAP_DEFAULT_SEARCH_BASE="o=mx,dc=domain,dc=tld" \
@@ -162,8 +163,9 @@ init:
 		--name mailserver_ldap2 \
 		--link openldap \
 		--link redis:redis \
-		-e LDAP_ENABLED=true \
-		-e LDAP_HOST=openldap \
+		-e DBDRIVER=ldap \
+		-e DBHOST=openldap \
+		-e DBPORT=389 \
 		-e LDAP_BIND_DN="cn=admin,dc=domain,dc=tld" \
 		-e LDAP_BIND_PW="testpasswd" \
 		-e LDAP_DEFAULT_SEARCH_BASE="o=mx,dc=domain,dc=tld" \

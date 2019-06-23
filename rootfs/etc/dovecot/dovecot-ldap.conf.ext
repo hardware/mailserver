@@ -1,4 +1,4 @@
-hosts           = {{ .LDAP_HOST }}
+hosts           = {{ .DBHOST }}:{{ .DBPORT }}
 ldap_version    = 3
 {{ if eq .LDAP_BIND "true" }}
 auth_bind       = yes

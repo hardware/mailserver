@@ -1,4 +1,4 @@
-server_host = {{ .LDAP_HOST }}
+server_host = {{ .DBHOST }}:{{ .DBPORT }}
 version = 3
 
 {{ if eq .LDAP_TLS_ENABLED "true" }}
