@@ -16,7 +16,6 @@ networks:
 services:
   traefik:
     image: traefik:1.7-alpine
-    container_name: traefik
     restart: ${RESTART_MODE}
     ports:
       - "80:80"
@@ -35,7 +34,6 @@ services:
 
   mailserver:
     image: hardware/mailserver:${MAILSERVER_DOCKER_TAG}
-    container_name: mailserver
     restart: ${RESTART_MODE}
     domainname: ${MAILSERVER_DOMAIN}                    # Mail server A/MX/FQDN & reverse PTR = mail.domain.tld.
     hostname: ${MAILSERVER_HOSTNAME}
@@ -85,7 +83,6 @@ services:
   # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
   postfixadmin:
     image: hardware/postfixadmin
-    container_name: postfixadmin
     restart: ${RESTART_MODE}
     domainname: ${MAILSERVER_DOMAIN}
     hostname: ${MAILSERVER_HOSTNAME}
@@ -109,7 +106,6 @@ services:
   # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
   rainloop:
     image: hardware/rainloop
-    container_name: rainloop
     restart: ${RESTART_MODE}
     labels:
       - traefik.enable=true
@@ -131,7 +127,6 @@ services:
   # Configuration : https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration
   # afterlogic-webmail-lite:
   #   image: hardware/afterlogic-webmail-lite
-  #   container_name: afterlogic-webmail-lite
   #   restart: ${RESTART_MODE}
   #   labels:
   #     - traefik.enable=true
@@ -153,7 +148,6 @@ services:
   # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
   # nsd:
   #   image: hardware/nsd-dnssec
-  #   container_name: nsd
   #   restart: ${RESTART_MODE}
   #   ports:
   #     - "53:53"
@@ -168,7 +162,6 @@ services:
   # https://mariadb.org/
   mariadb:
     image: mariadb:10.2
-    container_name: mariadb
     restart: ${RESTART_MODE}
     # Info : These variables are ignored when the volume already exists (if databases was created before).
     environment:
@@ -186,7 +179,6 @@ services:
   # https://redis.io/
   redis:
     image: redis:4.0-alpine
-    container_name: redis
     restart: ${RESTART_MODE}
     command: redis-server --appendonly yes
     volumes:
