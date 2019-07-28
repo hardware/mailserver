@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     fetchmail libdbi-perl libdbd-pg-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav clamav-daemon \
     python-setuptools python-gpgme \
-    rsyslog dnsutils curl unbound jq rsync \
+    rsyslog curl unbound jq rsync \
     inotify-tools \
  && rm -rf /var/spool/postfix \
  && ln -s /var/mail/postfix/spool /var/spool/postfix \
