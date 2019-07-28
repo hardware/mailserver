@@ -92,7 +92,7 @@ grep -q "${REDIS_HOST}" /etc/hosts
 
 if [ $? -ne 0 ]; then
   echo "[INFO] Redis hostname not found in /etc/hosts"
-  IP=$(dig A ${REDIS_HOST} +short +search)
+  IP=$(getent hosts "${REDIS_HOST}" | awk '{ print $1 }')
   if [ -n "$IP" ]; then
     echo "[INFO] Container IP found, adding a new record in /etc/hosts"
     echo "${IP} ${REDIS_HOST}" >> /etc/hosts
