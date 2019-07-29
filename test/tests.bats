@@ -1342,7 +1342,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking unbound: testing DNSSEC validation" {
-  run docker exec mailserver_default /bin/sh -c "dig com. SOA +nocmd +noall +dnssec +comments | grep 'flags: qr rd ra ad' | wc -l"
+  run docker exec mailserver_default /bin/sh -c "apt-get install -y dnsutils && dig com. SOA +nocmd +noall +dnssec +comments | grep 'flags: qr rd ra ad' | wc -l"
   assert_success
   assert_output 1
 }
