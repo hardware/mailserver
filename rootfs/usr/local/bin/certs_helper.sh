@@ -116,7 +116,7 @@ elif [ "$1" = "update_certs" ]; then
       echo "[INFO] Let's encrypt live directory found"
       echo "[INFO] Using $LETS_ENCRYPT_LIVE_PATH folder"
 
-      cp -RT "$LETS_ENCRYPT_LIVE_PATH/." "$NORMALIZED_CERT_PATH"
+      cp -RLT "$LETS_ENCRYPT_LIVE_PATH/." "$NORMALIZED_CERT_PATH"
 
     else
       echo "[INFO] No Let's encrypt live directory found"
