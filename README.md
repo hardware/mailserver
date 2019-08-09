@@ -45,7 +45,7 @@
     - [Cleaning](#cleaning)
     - [Ports](#ports)
     - [DNS setup](#dns-setup)
-    - [DNS records and reverse PTR :](#dns-records-and-reverse-ptr)
+    - [DNS records and reverse PTR](#dns-records-and-reverse-ptr)
     - [Testing](#testing)
   - [Installation](#installation)
     - [1 - Prepare your environment](#1---prepare-your-environment)
@@ -57,7 +57,7 @@
   - [Ansible Playbooks](#ansible-playbooks)
   - [Environment variables](#environment-variables)
   - [Automatic GPG encryption of all your emails](#automatic-gpg-encryption-of-all-your-emails)
-    - [How does it work ?](#how-does-it-work)
+    - [How does it work ?](#how-does-it-work-)
     - [Enable automatic GPG encryption](#enable-automatic-gpg-encryption)
     - [Import your public key](#import-your-public-key)
     - [Import all recipients public keys](#import-all-recipients-public-keys)
@@ -79,11 +79,11 @@
   - [Override postfix configuration](#override-postfix-configuration)
   - [Custom configuration for dovecot](#custom-configuration-for-dovecot)
   - [Postfix blacklist](#postfix-blacklist)
-  - [Email client settings :](#email-client-settings)
+  - [Email client settings](#email-client-settings)
   - [Components](#components)
   - [Migration from 1.0 to 1.1](#migration-from-10-to-11)
   - [Community projects](#community-projects)
-  - [Some useful Thunderbird extensions :](#some-useful-thunderbird-extensions)
+  - [Some useful Thunderbird extensions](#some-useful-thunderbird-extensions)
   - [Donation](#donation)
 
 ### System Requirements
@@ -145,7 +145,7 @@ If you have a firewall, unblock the following ports, according to your needs :
 
 I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server.
 
-#### DNS records and reverse PTR :
+#### DNS records and reverse PTR
 
 A correct DNS setup is required, this step is very important.
 
@@ -960,7 +960,7 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-### Email client settings :
+### Email client settings
 
 - IMAP/SMTP username : user@domain.tld
 - Incoming IMAP server : mail.domain.tld (your FQDN)
@@ -1006,7 +1006,7 @@ Or stay with `1.0-legacy` tag (not recommended).
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-### Some useful Thunderbird extensions :
+### Some useful Thunderbird extensions
 
 * https://www.enigmail.net/
 * https://github.com/moisseev/rspamd-spamness
