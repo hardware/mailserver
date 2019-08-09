@@ -976,13 +976,13 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.8.3
+- Rspamd 1.9.4
 - Fetchmail 6.3.26
-- ClamAV 0.100.1
+- ClamAV 0.100.3
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.7.2.1
+- s6 2.8.0.1
 - Rsyslog 8.24.0
 - ManageSieve server
 
