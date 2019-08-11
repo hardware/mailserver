@@ -39,8 +39,8 @@
   - [Docker image](#docker-image)
   - [Summary](#summary)
   - [System Requirements](#system-requirements)
-    - [With MariaDB/PostgreSQL and Redis on the same host :](#with-mariadbpostgresql-and-redis-on-the-same-host)
-    - [With MariaDB/PostgreSQL and Redis hosted on another server :](#with-mariadbpostgresql-and-redis-hosted-on-another-server)
+    - [With MariaDB/PostgreSQL and Redis on the same host](#with-mariadbpostgresql-and-redis-on-the-same-host)
+    - [With MariaDB/PostgreSQL and Redis hosted on another server](#with-mariadbpostgresql-and-redis-hosted-on-another-server)
   - [Prerequisites](#prerequisites)
     - [Cleaning](#cleaning)
     - [Ports](#ports)
@@ -90,14 +90,14 @@
 
 Please check, if your system meets the following minimum requirements :
 
-#### With MariaDB/PostgreSQL and Redis on the same host :
+#### With MariaDB/PostgreSQL and Redis on the same host
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
 
-#### With MariaDB/PostgreSQL and Redis hosted on another server :
+#### With MariaDB/PostgreSQL and Redis hosted on another server
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
@@ -499,18 +499,6 @@ acmeLogging = true
 ```
 docker-compose restart traefik && docker logs -f traefik
 ```
-
-When SSL certificates are renewed, the mail server must be restarted. You can proceed as follows :
-
-1. Install incron `apt-get install incron`
-2. Add `root` user in `/etc/incron.allow`
-3. Create the following incron job with `incrontab -e` :
-
-```
-/mnt/docker/traefik/acme/acme.json IN_MODIFY docker-compose -f /path/to/yml restart mailserver
-```
-
-This job trigger a restart of the mail server container when traefik's acme file is updated.
 
 #### Custom certificates
 
@@ -1015,9 +1003,3 @@ Or stay with `1.0-legacy` tag (not recommended).
 [![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
-
-### Donation
-
-My Bitcoin address : **1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg**
-
-This address is [signed cryptographically](https://keybase.io/hardware/sigchain#6f79301eac777d7aad942bdf2c32171e1e8f59694ea7125e7973a4f3ed4539d90f) to prove that it belongs to **me**. https://keybase.io/hardware

@@ -60,40 +60,40 @@ load 'test_helper/bats-assert/load'
 # processes (default configuration)
 #
 
-@test "checking process: s6        (default configuration)" {
+@test "checking process: s6           (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
-@test "checking process: rsyslog   (default configuration)" {
+@test "checking process: rsyslog      (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   assert_success
 }
 
-@test "checking process: cron      (default configuration)" {
+@test "checking process: cron         (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   assert_success
 }
 
-@test "checking process: postfix   (default configuration)" {
+@test "checking process: postfix      (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   assert_success
-  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -s'"
   assert_success
 }
 
-@test "checking process: dovecot   (default configuration)" {
+@test "checking process: dovecot      (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   assert_success
 }
 
-@test "checking process: rspamd    (default configuration)" {
+@test "checking process: rspamd       (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -104,65 +104,71 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking process: clamd     (default configuration)" {
+@test "checking process: clamd        (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
   assert_success
 }
 
-@test "checking process: freshclam (default configuration)" {
+@test "checking process: freshclam    (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
   assert_success
 }
 
-@test "checking process: unbound   (default configuration)" {
+@test "checking process: unbound      (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
   assert_success
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_success
 }
 
+@test "checking process: cert_watcher (default configuration)" {
+  run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise cert_watcher'"
+  assert_success
+}
+
+
 #
 # processes (reverse configuration)
 #
 
-@test "checking process: s6        (reverse configuration)" {
+@test "checking process: s6           (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
-@test "checking process: rsyslog   (reverse configuration)" {
+@test "checking process: rsyslog      (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   assert_success
 }
 
-@test "checking process: cron      (reverse configuration)" {
+@test "checking process: cron         (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   assert_success
 }
 
-@test "checking process: postfix   (reverse configuration)" {
+@test "checking process: postfix      (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   assert_success
-  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -s'"
   assert_success
 }
 
-@test "checking process: dovecot   (reverse configuration)" {
+@test "checking process: dovecot      (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   assert_success
 }
 
-@test "checking process: rspamd    (reverse configuration)" {
+@test "checking process: rspamd       (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -173,25 +179,30 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking process: clamd     (reverse configuration)" {
+@test "checking process: clamd        (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
   assert_failure
 }
 
-@test "checking process: freshclam (reverse configuration)" {
+@test "checking process: freshclam    (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
   assert_failure
 }
 
-@test "checking process: unbound   (reverse configuration)" {
+@test "checking process: unbound      (reverse configuration)" {
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
   assert_success
   run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_failure
+}
+
+@test "checking process: cert_watcher (reverse configuration)" {
+  run docker exec mailserver_reverse /bin/bash -c "ps aux --forest | grep '[s]6-supervise cert_watcher'"
+  assert_success
 }
 
 #
@@ -201,10 +212,10 @@ load 'test_helper/bats-assert/load'
 @test "checking process: 9 cron tasks to reset all the process counters" {
   run docker exec mailserver_default /bin/bash -c "cat /etc/cron.d/counters | wc -l"
   assert_success
-  assert_output 9
+  assert_output 10
   run docker exec mailserver_reverse /bin/bash -c "cat /etc/cron.d/counters | wc -l"
   assert_success
-  assert_output 9
+  assert_output 10
 }
 
 @test "checking process: no service restarted (default configuration)" {
@@ -235,6 +246,9 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_default cat /tmp/counters/unbound
   assert_success
   assert_output 0
+  run docker exec mailserver_default cat /tmp/counters/cert_watcher
+  assert_success
+  assert_output 0
 }
 
 @test "checking process: no service restarted (reverse configuration)" {
@@ -263,6 +277,9 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 0
   run docker exec mailserver_reverse cat /tmp/counters/unbound
+  assert_success
+  assert_output 0
+  run docker exec mailserver_reverse cat /tmp/counters/cert_watcher
   assert_success
   assert_output 0
 }
@@ -381,7 +398,7 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking port (10025): internal port closed (default configuration)" {
+@test "checking port (10025): internal port closed    (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10025"
   assert_failure
 }
@@ -776,7 +793,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking dkim: control the size of the RSA key pair (4096bits)" {
-  run docker exec mailserver_reverse /bin/bash -c "openssl rsa -in /var/mail/dkim/domain.tld/private.key -text -noout | grep -i 'Private-Key: (4096 bit)'"
+  run docker exec mailserver_reverse /bin/bash -c "openssl rsa -in /var/mail/dkim/domain.tld/private.key -text -noout | grep -i 'Private-Key: (4096 bit, 2 primes)'"
   assert_success
 }
 
@@ -934,11 +951,6 @@ load 'test_helper/bats-assert/load'
 # dovecot
 #
 
-@test "checking dovecot: existing ssl-parameters file" {
-  run docker exec mailserver_default [ -f /var/mail/dovecot/ssl-parameters.dat ]
-  assert_success
-}
-
 @test "checking dovecot: existing instances file" {
   run docker exec mailserver_default [ -f /var/mail/dovecot/instances ]
   assert_success
@@ -982,7 +994,7 @@ load 'test_helper/bats-assert/load'
 @test "checking dovecot: login_greeting value (reverse configuration)" {
   run docker exec mailserver_reverse /bin/sh -c "doveconf -h login_greeting 2>/dev/null"
   assert_success
-  assert_output "Dovecot ready."
+  assert_output "Dovecot (Debian) ready."
 }
 
 @test "checking dovecot: mail_max_userip_connections imap value" {
@@ -1169,98 +1181,98 @@ load 'test_helper/bats-assert/load'
 # zeyple
 #
 
-@test "checking zeyple: 4 messages delivered via zeyple service" {
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'delivered via zeyple service' /var/log/mail.log | wc -l"
-  assert_success
-  assert_output 4
-}
+# @test "checking zeyple: 4 messages delivered via zeyple service" {
+#   run docker exec mailserver_reverse /bin/sh -c "grep -i 'delivered via zeyple service' /var/log/mail.log | wc -l"
+#   assert_success
+#   assert_output 4
+# }
 
-@test "checking zeyple: 'processing outgoing message' 4 times in logs" {
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Processing outgoing message' /var/log/zeyple.log | wc -l"
-  assert_success
-  assert_output 4
-}
+# @test "checking zeyple: 'processing outgoing message' 4 times in logs" {
+#   run docker exec mailserver_reverse /bin/sh -c "grep -i 'Processing outgoing message' /var/log/zeyple.log | wc -l"
+#   assert_success
+#   assert_output 4
+# }
 
-@test "checking zeyple: zeyple.py exist (reverse configuration)" {
-  run docker exec mailserver_reverse [ -f /usr/local/bin/zeyple.py ]
-  assert_success
-}
+# @test "checking zeyple: zeyple.py exist (reverse configuration)" {
+#   run docker exec mailserver_reverse [ -f /usr/local/bin/zeyple.py ]
+#   assert_success
+# }
 
-@test "checking zeyple: zeyple.log exist (reverse configuration)" {
-  run docker exec mailserver_reverse [ -f /var/log/zeyple.log ]
-  assert_success
-}
+# @test "checking zeyple: zeyple.log exist (reverse configuration)" {
+#   run docker exec mailserver_reverse [ -f /var/log/zeyple.log ]
+#   assert_success
+# }
 
-@test "checking zeyple: zeyple.log doesn't exist (default configuration)" {
-  run docker exec mailserver_default [ -f /var/log/zeyple.log ]
-  assert_failure
-}
+# @test "checking zeyple: zeyple.log doesn't exist (default configuration)" {
+#   run docker exec mailserver_default [ -f /var/log/zeyple.log ]
+#   assert_failure
+# }
 
-@test "checking zeyple: pubring.kbx exist (reverse configuration)" {
-  run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/pubring.kbx ]
-  assert_success
-}
+# @test "checking zeyple: pubring.kbx exist (reverse configuration)" {
+#   run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/pubring.kbx ]
+#   assert_success
+# }
 
-@test "checking zeyple: pubring.kbx doesn't exist (default configuration)" {
-  run docker exec mailserver_default [ -f /var/mail/zeyple/keys/pubring.kbx ]
-  assert_failure
-}
+# @test "checking zeyple: pubring.kbx doesn't exist (default configuration)" {
+#   run docker exec mailserver_default [ -f /var/mail/zeyple/keys/pubring.kbx ]
+#   assert_failure
+# }
 
-@test "checking zeyple: trustdb.gpg exist (reverse configuration)" {
-  run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/trustdb.gpg ]
-  assert_success
-}
+# @test "checking zeyple: trustdb.gpg exist (reverse configuration)" {
+#   run docker exec mailserver_reverse [ -f /var/mail/zeyple/keys/trustdb.gpg ]
+#   assert_success
+# }
 
-@test "checking zeyple: trustdb.gpg doesn't exist (default configuration)" {
-  run docker exec mailserver_default [ -f /var/mail/zeyple/keys/trustdb.gpg ]
-  assert_failure
-}
+# @test "checking zeyple: trustdb.gpg doesn't exist (default configuration)" {
+#   run docker exec mailserver_default [ -f /var/mail/zeyple/keys/trustdb.gpg ]
+#   assert_failure
+# }
 
-@test "checking zeyple: content_filter value (default configuration)" {
-  run docker exec mailserver_default /bin/sh -c "postconf -h content_filter"
-  assert_success
-  assert_output ""
-}
+# @test "checking zeyple: content_filter value (default configuration)" {
+#   run docker exec mailserver_default /bin/sh -c "postconf -h content_filter"
+#   assert_success
+#   assert_output ""
+# }
 
-@test "checking zeyple: content_filter value (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/sh -c "postconf -h content_filter"
-  assert_success
-  assert_output "zeyple"
-}
+# @test "checking zeyple: content_filter value (reverse configuration)" {
+#   run docker exec mailserver_reverse /bin/sh -c "postconf -h content_filter"
+#   assert_success
+#   assert_output "zeyple"
+# }
 
-@test "checking zeyple: user zeyple doesn't exist (default configuration)" {
-  run docker exec mailserver_default /bin/sh -c "id -u zeyple"
-  assert_failure
-}
+# @test "checking zeyple: user zeyple doesn't exist (default configuration)" {
+#   run docker exec mailserver_default /bin/sh -c "id -u zeyple"
+#   assert_failure
+# }
 
-@test "checking zeyple: user zeyple exist (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/sh -c "id -u zeyple"
-  assert_success
-}
+# @test "checking zeyple: user zeyple exist (reverse configuration)" {
+#   run docker exec mailserver_reverse /bin/sh -c "id -u zeyple"
+#   assert_success
+# }
 
-@test "checking zeyple: retrieve john doe gpg key in public keyring" {
-  run docker exec mailserver_reverse /bin/sh -c "s6-setuidgid zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
-  assert_success
-  assert_output 1
-}
+# @test "checking zeyple: retrieve john doe gpg key in public keyring" {
+#   run docker exec mailserver_reverse /bin/sh -c "s6-setuidgid zeyple gpg --homedir /var/mail/zeyple/keys --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+#   assert_success
+#   assert_output 1
+# }
 
-@test "checking zeyple: retrieve john doe gpg key in public keyring (using custom script)" {
-  run docker exec mailserver_reverse /bin/sh -c "encryption.sh --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
-  assert_success
-  assert_output 1
-}
+# @test "checking zeyple: retrieve john doe gpg key in public keyring (using custom script)" {
+#   run docker exec mailserver_reverse /bin/sh -c "encryption.sh --with-colons --list-keys | grep 'John Doe (test key) <john.doe@domain.tld>' | wc -l"
+#   assert_success
+#   assert_output 1
+# }
 
-@test "checking zeyple: 3 emails encrypted in john.doe folder" {
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'multipart/encrypted' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
-  assert_success
-  assert_output 3
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'BEGIN PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
-  assert_success
-  assert_output 3
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'END PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
-  assert_success
-  assert_output 3
-}
+# @test "checking zeyple: 3 emails encrypted in john.doe folder" {
+#   run docker exec mailserver_reverse /bin/sh -c "grep -i 'multipart/encrypted' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+#   assert_success
+#   assert_output 3
+#   run docker exec mailserver_reverse /bin/sh -c "grep -i 'BEGIN PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+#   assert_success
+#   assert_output 3
+#   run docker exec mailserver_reverse /bin/sh -c "grep -i 'END PGP MESSAGE' /var/mail/vhosts/domain.tld/john.doe/subdir/new/* | wc -l"
+#   assert_success
+#   assert_output 3
+# }
 
 #
 # unbound

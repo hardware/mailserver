@@ -1,8 +1,3 @@
 #!/bin/bash
-
-# Perform nice termination of Postfix, releasing resources and saving state
-trap "{ postfix stop; exit 0; }" EXIT
-
 logger -p mail.info "s6-supervise : spawning postfix process"
-postfix -c /etc/postfix start
-sleep infinity
+exec postfix -c /etc/postfix start-fg &>/dev/null

@@ -2,7 +2,7 @@
 
 ACME_PATH=/etc/letsencrypt/acme
 ACME_FILE="$ACME_PATH"/acme.json
-SSL_MOUNT_PATH=/var/mail/ssl/
+SSL_MOUNT_PATH=/var/mail/ssl
 ACME_DUMP="$SSL_MOUNT_PATH"/acme_dump.log
 SELFSIGNED_PATH="$SSL_MOUNT_PATH"/selfsigned
 CERT_TEMP_PATH=/tmp/ssl
@@ -28,11 +28,6 @@ _normalize_certs() {
   fi
 
   if [ "$RENEWED_CERTIFICATE" = true ] || [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
-    # if [ ! -e "$FULLCHAIN" ]; then
-    #   echo "[ERROR] No fullchain found in $SSL_DIR !"
-    #   exit 1
-    # fi
-
     if [ -e "$FULLCHAIN" ]; then
       # Extract cert.pem and chain.pem from fullchain.pem
       # Used for containous/traefik and jwilder/nginx-proxy

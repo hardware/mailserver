@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
     dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pgsql dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
     fetchmail libdbi-perl libdbd-pg-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav clamav-daemon \
-    python-setuptools python-gpgme \
+    python-setuptools \
     rsyslog dnsutils curl unbound jq rsync \
     inotify-tools \
  && rm -rf /var/spool/postfix \

@@ -7,3 +7,4 @@
 00 00 * * * root echo 0 > /tmp/counters/rspamd
 00 00 * * * root echo 0 > /tmp/counters/rsyslogd
 00 00 * * * root echo 0 > /tmp/counters/unbound
+00 00 * * * root echo 0 > /tmp/counters/cert_watcher
