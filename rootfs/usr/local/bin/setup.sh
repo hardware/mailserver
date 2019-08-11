@@ -444,6 +444,10 @@ find /var/mail/vhosts ! -user vmail -print0 | xargs -0 -r chown vmail:vmail
 # Avoid file_dotlock_open function exception
 rm -f /var/mail/dovecot/instances
 
+if [ -f "/var/mail/dovecot/ssl-parameters.dat" ]; then
+  mv /var/mail/dovecot/ssl-parameters.dat /var/mail/dovecot/ssl-parameters.dat.backup
+fi
+
 # UNBOUND
 # ---------------------------------------------------------------------------------------------
 
