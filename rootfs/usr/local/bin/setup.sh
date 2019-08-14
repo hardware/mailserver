@@ -611,6 +611,10 @@ chmod +x /usr/local/bin/*
 chown -R vmail:vmail /var/mail/dkim
 chmod 444 /var/mail/dkim/*/{private.key,public.key}
 
+# Ensure that hashes are calculated because Postfix require directory
+# to be set up like this in order to find CA certificates.
+c_rehash /etc/ssl/certs &>/dev/null
+
 # S6 WATCHDOG
 # ---------------------------------------------------------------------------------------------
 

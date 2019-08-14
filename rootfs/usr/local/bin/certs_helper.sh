@@ -146,13 +146,6 @@ elif [ "$1" = "update_certs" ]; then
   rm -rf "$LIVE_CERT_PATH/*"
   cp -RT "$NORMALIZED_CERT_PATH/." "$LIVE_CERT_PATH"
 
-  # Comment CAfile directives if Let's Encrypt CA is not used
-  if [ -f "$LIVE_CERT_PATH"/chain.pem ]; then
-    sed -i '/^#\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^#//' /etc/postfix/main.cf
-  else
-    sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
-  fi
-
 elif [ "$1" = "reload" ]; then
   echo "[INFO] Updating SSL certificates and reloading"
   if "$0" update_certs -n; then

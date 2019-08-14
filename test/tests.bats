@@ -1384,7 +1384,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking ssl: let's encrypt cert works correctly" {
-  run docker exec mailserver_reverse /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 10 (certificate has expired)'"
+  run docker exec mailserver_reverse /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
   assert_success
 }
 
@@ -1401,9 +1401,7 @@ load 'test_helper/bats-assert/load'
 @test "checking ssl: default configuration is correct" {
   run docker exec mailserver_default /bin/sh -c "grep '/ssl' /etc/postfix/main.cf | wc -l"
   assert_success
-  assert_output 3
-  run docker exec mailserver_default /bin/sh -c "grep '#smtp_tls_CAfile' /etc/postfix/main.cf"
-  assert_success
+  assert_output 4
   run docker exec mailserver_default /bin/sh -c "grep '/ssl' /etc/dovecot/conf.d/10-ssl.conf | wc -l"
   assert_success
   assert_output 2
@@ -1412,7 +1410,7 @@ load 'test_helper/bats-assert/load'
 @test "checking ssl: let's encrypt configuration is correct" {
   run docker exec mailserver_reverse /bin/sh -c "grep '/ssl' /etc/postfix/main.cf | wc -l"
   assert_success
-  assert_output 3
+  assert_output 4
   run docker exec mailserver_reverse /bin/sh -c "grep '/ssl' /etc/dovecot/conf.d/10-ssl.conf | wc -l"
   assert_success
   assert_output 2
