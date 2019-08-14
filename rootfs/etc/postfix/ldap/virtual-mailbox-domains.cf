@@ -1,0 +1,35 @@
+server_host = {{ .DBHOST }}:{{ .DBPORT }}
+version = 3
+
+{{ if eq .LDAP_TLS_ENABLED "true" }}
+start_tls = yes
+{{ else }}
+start_tls = no
+{{ end }}
+
+{{ if ne .LDAP_TLS_CA_FILE "" }}
+tls_ca_cert_file = {{ .LDAP_TLS_CA_FILE }}
+{{ end }}
+
+{{ if eq .LDAP_TLS_FORCE "true" }}
+tls_require_cert = true
+{{ end }}
+
+{{ if eq .LDAP_BIND "true" }}
+bind = yes
+bind_dn = {{ .LDAP_BIND_DN }}
+bind_pw = {{ .LDAP_BIND_PW }}
+{{ else }}
+bind = no
+{{ end }}
+
+
+search_base = {{ .LDAP_DOMAIN_SEARCH_BASE }}
+scope = {{ .LDAP_DOMAIN_SEARCH_SCOPE }}
+
+query_filter = {{ .LDAP_DOMAIN_FILTER }}
+result_attribute = {{ .LDAP_DOMAIN_ATTRIBUTE }}
+
+{{ if ne .LDAP_DOMAIN_FORMAT "" }}
+result_format = {{ .LDAP_DOMAIN_FORMAT }}
+{{ end }}

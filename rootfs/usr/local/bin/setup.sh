@@ -77,6 +77,131 @@ for domain in "${domains[@]}"; do
 
 done
 
+
+# LDAP SUPPORT
+# ---------------------------------------------------------------------------------------------
+
+if [ "$DBDRIVER" = "ldap" ]; then
+  export LDAP_TLS_ENABLED
+  export LDAP_TLS_CA_FILE
+  export LDAP_TLS_FORCE
+#  export LDAP_BIND
+#  export LDAP_BIND_DN
+#  export LDAP_BIND_PW
+  export LDAP_DEFAULT_SEARCH_BASE
+  export LDAP_DEFAULT_SEARCH_SCOPE
+
+  export LDAP_DOMAIN_SEARCH_BASE
+  export LDAP_DOMAIN_SEARCH_SCOPE
+  export LDAP_DOMAIN_FILTER
+  export LDAP_DOMAIN_ATTRIBUTE
+  export LDAP_DOMAIN_FORMAT
+
+  export LDAP_MAILBOX_SEARCH_BASE
+  export LDAP_MAILBOX_SEARCH_SCOPE
+  export LDAP_MAILBOX_FILTER
+  export LDAP_MAILBOX_ATTRIBUTE
+  export LDAP_MAILBOX_FORMAT
+
+  export LDAP_ALIAS_SEARCH_BASE
+  export LDAP_ALIAS_SEARCH_SCOPE
+  export LDAP_ALIAS_FILTER
+  export LDAP_ALIAS_ATTRIBUTE
+  export LDAP_ALIAS_FORMAT
+
+  export LDAP_FORWARD_SEARCH_BASE
+  export LDAP_FORWARD_SEARCH_SCOPE
+  export LDAP_FORWARD_FILTER
+  export LDAP_FORWARD_ATTRIBUTE
+  export LDAP_FORWARD_FORMAT
+
+  export LDAP_GROUP_SEARCH_BASE
+  export LDAP_GROUP_SEARCH_SCOPE
+  export LDAP_GROUP_FILTER
+  export LDAP_GROUP_ATTRIBUTE
+  export LDAP_GROUP_FORMAT
+
+  export LDAP_SENDER_SEARCH_BASE
+  export LDAP_SENDER_SEARCH_SCOPE
+  export LDAP_SENDER_FILTER
+  export LDAP_SENDER_ATTRIBUTE
+  export LDAP_SENDER_FORMAT
+
+  export LDAP_DOVECOT_USER_ATTRS
+  export LDAP_DOVECOT_USER_FILTER
+  export LDAP_DOVECOT_PASS_ATTRS
+  export LDAP_DOVECOT_PASS_FILTER
+  export LDAP_DOVECOT_ITERATE_ATTRS
+  export LDAP_DOVECOT_ITERATE_FILTER
+
+  export LDAP_MASTER_USER_ENABLED
+  export LDAP_MASTER_USER_SEPARATOR
+  export LDAP_MASTER_USER_SEARCH_BASE
+  export LDAP_MASTER_USER_SEARCH_SCOPE
+  export LDAP_DOVECOT_MASTER_PASS_ATTRS
+  export LDAP_DOVECOT_MASTER_PASS_FILTER
+
+  LDAP_TLS_ENABLED=${LDAP_TLS_ENABLED:-false}
+  LDAP_TLS_CA_FILE=${LDAP_TLS_CA_FILE:-""}
+  LDAP_TLS_FORCE=${LDAP_TLS_FORCE:-false}
+#  LDAP_BIND=${LDAP_BIND:-true}
+#  LDAP_BIND_DN=${LDAP_BIND_DN:-}
+#  LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
+  LDAP_DEFAULT_SEARCH_BASE=${LDAP_DEFAULT_SEARCH_BASE:-}
+  LDAP_DEFAULT_SEARCH_SCOPE=${LDAP_DEFAULT_SEARCH_SCOPE:-"sub"}
+
+  LDAP_DOMAIN_SEARCH_BASE=${LDAP_DOMAIN_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_DOMAIN_SEARCH_SCOPE=${LDAP_DOMAIN_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_DOMAIN_FILTER=${LDAP_DOMAIN_FILTER:-}
+  LDAP_DOMAIN_ATTRIBUTE=${LDAP_DOMAIN_ATTRIBUTE:-}
+  LDAP_DOMAIN_FORMAT=${LDAP_DOMAIN_FORMAT:-}
+
+  LDAP_MAILBOX_SEARCH_BASE=${LDAP_MAILBOX_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_MAILBOX_SEARCH_SCOPE=${LDAP_MAILBOX_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_MAILBOX_FILTER=${LDAP_MAILBOX_FILTER:-}
+  LDAP_MAILBOX_ATTRIBUTE=${LDAP_MAILBOX_ATTRIBUTE:-}
+  LDAP_MAILBOX_FORMAT=${LDAP_MAILBOX_FORMAT:-}
+
+  LDAP_ALIAS_SEARCH_BASE=${LDAP_ALIAS_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_ALIAS_SEARCH_SCOPE=${LDAP_ALIAS_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_ALIAS_FILTER=${LDAP_ALIAS_FILTER:-}
+  LDAP_ALIAS_ATTRIBUTE=${LDAP_ALIAS_ATTRIBUTE:-}
+  LDAP_ALIAS_FORMAT=${LDAP_ALIAS_FORMAT:-}
+
+  LDAP_FORWARD_SEARCH_BASE=${LDAP_FORWARD_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_FORWARD_SEARCH_SCOPE=${LDAP_FORWARD_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_FORWARD_FILTER=${LDAP_FORWARD_FILTER:-}
+  LDAP_FORWARD_ATTRIBUTE=${LDAP_FORWARD_ATTRIBUTE:-}
+  LDAP_FORWARD_FORMAT=${LDAP_FORWARD_FORMAT:-}
+
+  LDAP_GROUP_SEARCH_BASE=${LDAP_GROUP_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_GROUP_SEARCH_SCOPE=${LDAP_GROUP_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_GROUP_FILTER=${LDAP_GROUP_FILTER:-}
+  LDAP_GROUP_ATTRIBUTE=${LDAP_GROUP_ATTRIBUTE:-}
+  LDAP_GROUP_FORMAT=${LDAP_GROUP_FORMAT:-}
+
+  LDAP_SENDER_SEARCH_BASE=${LDAP_SENDER_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_SENDER_SEARCH_SCOPE=${LDAP_SENDER_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_SENDER_FILTER=${LDAP_SENDER_FILTER:-}
+  LDAP_SENDER_ATTRIBUTE=${LDAP_SENDER_ATTRIBUTE:-}
+  LDAP_SENDER_FORMAT=${LDAP_SENDER_FORMAT:-}
+
+  LDAP_DOVECOT_USER_ATTRS=${LDAP_DOVECOT_USER_ATTRS:-}
+  LDAP_DOVECOT_USER_FILTER=${LDAP_DOVECOT_USER_FILTER:-}
+  LDAP_DOVECOT_PASS_ATTRS=${LDAP_DOVECOT_PASS_ATTRS:-}
+  LDAP_DOVECOT_PASS_FILTER=${LDAP_DOVECOT_PASS_FILTER:-}
+  LDAP_DOVECOT_ITERATE_ATTRS=${LDAP_DOVECOT_ITERATE_ATTRS:-}
+  LDAP_DOVECOT_ITERATE_FILTER=${LDAP_DOVECOT_ITERATE_FILTER:-}
+
+  LDAP_MASTER_USER_ENABLED=${LDAP_MASTER_USER_ENABLED:-"false"}
+  LDAP_MASTER_USER_SEPARATOR=${LDAP_MASTER_USER_SEPARATOR:-"*"}
+  LDAP_MASTER_USER_SEARCH_BASE=${LDAP_MASTER_USER_SEARCH_BASE:-"${LDAP_DEFAULT_SEARCH_BASE}"}
+  LDAP_MASTER_USER_SEARCH_SCOPE=${LDAP_MASTER_USER_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
+  LDAP_DOVECOT_MASTER_USER_ATTRS=${LDAP_DOVECOT_USER_ATTRS:-}
+  LDAP_DOVECOT_MASTER_USER_FILTER=${LDAP_DOVECOT_USER_FILTER:-}
+
+fi
+
 # ENVIRONMENT VARIABLES TEMPLATING
 # ---------------------------------------------------------------------------------------------
 
@@ -95,6 +220,7 @@ _envtpl() {
 _envtpl /etc/postfix/main.cf
 _envtpl /etc/postfix/virtual
 _envtpl /etc/postfix/header_checks
+
 _envtpl /etc/postfix/sql/sender-login-maps.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-domains.cf
 _envtpl /etc/postfix/sql/virtual-mailbox-maps.cf
@@ -103,15 +229,29 @@ _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
 
+_envtpl /etc/postfix/ldap/sender-login-maps.cf
+_envtpl /etc/postfix/ldap/virtual-mailbox-domains.cf
+_envtpl /etc/postfix/ldap/virtual-mailbox-maps.cf
+_envtpl /etc/postfix/ldap/virtual-alias-maps.cf
+_envtpl /etc/postfix/ldap/virtual-forward-maps.cf
+_envtpl /etc/postfix/ldap/virtual-group-maps.cf
+
 _envtpl /etc/postfixadmin/fetchmail.conf
 
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
+
+_envtpl /etc/dovecot/dovecot-ldap.conf.ext
+_envtpl /etc/dovecot/dovecot-ldap-master.conf.ext
+
+_envtpl /etc/dovecot/conf.d/10-auth.conf
 _envtpl /etc/dovecot/conf.d/10-mail.conf
 _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/dovecot/conf.d/90-quota.conf
+
+_envtpl /etc/dovecot/conf.d/auth-ldap.conf.ext
 
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/settings.conf

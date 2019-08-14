@@ -1,0 +1,70 @@
+# LDIF Export for dc=domain,dc=tld
+#
+#
+
+version: 1
+
+# Entry 1: o=mx,dc=domain,dc=tld
+dn: o=mx,dc=domain,dc=tld
+o: mx
+objectclass: organization
+objectclass: top
+
+# Entry 2: cn=John Doe,o=mx,dc=domain,dc=tld
+dn: cn=John Doe,o=mx,dc=domain,dc=tld
+cn: John Doe
+givenname: John
+mail: john.doe@domain.tld
+mailalias: postmaster@domain.tld
+mailuserquota: 1024000
+objectclass: mailAccount
+objectclass: inetOrgPerson
+objectclass: top
+sn: Doe
+uid: john.doe@domain.tld
+userpassword: {SSHA}yOhC1Q7ATNYWB6lfThPj7+KeWPSdQR9r
+
+# Entry 3: cn=Sarah CONNOR,o=mx,dc=domain,dc=tld
+dn: cn=Sarah CONNOR,o=mx,dc=domain,dc=tld
+cn: Sarah CONNOR
+givenname: Sarah
+mail: sarah.connor@domain.tld
+mailuserquota: 2048000
+objectclass: mailAccount
+objectclass: inetOrgPerson
+objectclass: top
+sn: Doe
+uid: john.doe@domain.tld
+userpassword: {SSHA}yOhC1Q7ATNYWB6lfThPj7+KeWPSdQR9r
+
+# Entry 4: cn=John Connor,o=mx,dc=domain,dc=tld
+# Password: testpasswd2
+dn: cn=John Connor,o=mx,dc=domain,dc=tld
+cn: John Connor
+givenname: John
+mail: john.connor@domain.tld
+mailalias: postmaster@domain.tld
+mailuserquota: 4096000
+objectclass: mailAccount
+objectclass: inetOrgPerson
+objectclass: top
+sn: Connor
+uid: john.connor@domain.tld
+st: john.doe@domain.tld
+userpassword: {SSHA}pj0lbUl25POUi1Y0ELY/I5utY5/LKDsU
+
+# Entry 5: mailalias=hostmaster@domain.tld,o=mx,dc=domain,dc=tld
+dn: mailalias=hostmaster@domain.tld,o=mx,dc=domain,dc=tld
+mail: john.doe@domain.tld
+mail: john.connor@domain.tld
+mailalias: hostmaster@domain.tld
+objectclass: mailAlias
+objectclass: top
+
+# Entry 5: mail=group@domain.tld,o=mx,dc=domain,dc=tld
+dn: mail=group@domain.tld,o=mx,dc=domain,dc=tld
+mail: group@domain.tld
+objectclass: account
+objectclass: mailGroup
+objectclass: top
+uid: john.doe@domain.tld

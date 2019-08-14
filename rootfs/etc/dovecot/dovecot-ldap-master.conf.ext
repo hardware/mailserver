@@ -1,0 +1,21 @@
+hosts           = {{ .DBHOST }}:{{ .DBPORT }}
+ldap_version    = 3
+{{ if eq .LDAP_BIND "true" }}
+auth_bind       = yes
+dn              = {{ .LDAP_BIND_DN }}
+dnpass          = {{ .LDAP_BIND_PW }}
+{{ else }}
+auth_bind       = no
+{{ end }}
+base            = {{ .LDAP_MASTER_USER_SEARCH_BASE }}
+{{ if eq .LDAP_MASTER_USER_SEARCH_SCOPE "sub" }}
+scope           = subtree
+{{ else if eq .LDAP_MASTER_USER_SEARCH_SCOPE "base" }}
+scope           = base
+{{ else if eq .LDAP_MASTER_USER_SEARCH_SCOPE "one" }}
+scope           = onelevel
+{{ end }}
+deref           = never
+
+pass_attrs = {{ .LDAP_DOVECOT_MASTER_PASS_ATTRS }}
+pass_filter = {{ .LDAP_DOVECOT_MASTER_PASS_FILTER }}
