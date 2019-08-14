@@ -116,6 +116,12 @@ if [ ! -f "/etc/configuration_built" ]; then
   setup.sh
 fi
 
+# Unrecoverable errors detection
+if [ -f "/etc/setup-error" ]; then
+  echo "[ERROR] One or more unrecoverable errors have occurred during initial setup. See above to find the cause."
+  exit 1
+fi
+
 # LAUNCH ALL SERVICES
 # ---------------------------------------------------------------------------------------------
 

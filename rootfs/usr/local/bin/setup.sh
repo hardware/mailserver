@@ -232,9 +232,9 @@ if [ "$ENABLE_ENCRYPTION" = false ]; then
 else
   # echo "[INFO] Automatic GPG encryption is enabled"
   sed -i '/content_filter/ s/^/#/' /etc/postfix/main.cf
-  echo "[WARNING] Zeyple support has been temporarily disabled in the master branch following the Debian 10 update. Please, use the stable docker tag (1.1-stable) until the issue fixed. More information here : https://github.com/hardware/mailserver/issues/393"
+  echo "[ERROR] Zeyple support has been temporarily disabled in the master branch following the Debian 10 update. Please, use the stable docker tag (1.1-stable) until the issue fixed. More information here : https://github.com/hardware/mailserver/issues/393"
   if [ "$TESTING" = false ]; then
-    exit 1
+    touch /etc/setup-error
   fi
 fi
 
@@ -494,7 +494,7 @@ fi
 
 if [ -z "$PASSWORD" ]; then
   echo "[ERROR] rspamadm pw : bad output"
-  exit 1
+  touch /etc/setup-error
 fi
 
 sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
