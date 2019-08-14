@@ -39,13 +39,13 @@
   - [Docker image](#docker-image)
   - [Summary](#summary)
   - [System Requirements](#system-requirements)
-    - [With MariaDB/PostgreSQL and Redis on the same host :](#with-mariadbpostgresql-and-redis-on-the-same-host)
-    - [With MariaDB/PostgreSQL and Redis hosted on another server :](#with-mariadbpostgresql-and-redis-hosted-on-another-server)
+    - [With MariaDB/PostgreSQL and Redis on the same host](#with-mariadbpostgresql-and-redis-on-the-same-host)
+    - [With MariaDB/PostgreSQL and Redis hosted on another server](#with-mariadbpostgresql-and-redis-hosted-on-another-server)
   - [Prerequisites](#prerequisites)
     - [Cleaning](#cleaning)
     - [Ports](#ports)
     - [DNS setup](#dns-setup)
-    - [DNS records and reverse PTR :](#dns-records-and-reverse-ptr)
+    - [DNS records and reverse PTR](#dns-records-and-reverse-ptr)
     - [Testing](#testing)
   - [Installation](#installation)
     - [1 - Prepare your environment](#1---prepare-your-environment)
@@ -57,7 +57,7 @@
   - [Ansible Playbooks](#ansible-playbooks)
   - [Environment variables](#environment-variables)
   - [Automatic GPG encryption of all your emails](#automatic-gpg-encryption-of-all-your-emails)
-    - [How does it work ?](#how-does-it-work)
+    - [How does it work ?](#how-does-it-work-)
     - [Enable automatic GPG encryption](#enable-automatic-gpg-encryption)
     - [Import your public key](#import-your-public-key)
     - [Import all recipients public keys](#import-all-recipients-public-keys)
@@ -80,25 +80,25 @@
   - [Override postfix configuration](#override-postfix-configuration)
   - [Custom configuration for dovecot](#custom-configuration-for-dovecot)
   - [Postfix blacklist](#postfix-blacklist)
-  - [Email client settings :](#email-client-settings)
+  - [Email client settings](#email-client-settings)
   - [Components](#components)
   - [Migration from 1.0 to 1.1](#migration-from-10-to-11)
   - [Community projects](#community-projects)
-  - [Some useful Thunderbird extensions :](#some-useful-thunderbird-extensions)
+  - [Some useful Thunderbird extensions](#some-useful-thunderbird-extensions)
   - [Donation](#donation)
 
 ### System Requirements
 
 Please check, if your system meets the following minimum requirements :
 
-#### With MariaDB/PostgreSQL and Redis on the same host :
+#### With MariaDB/PostgreSQL and Redis on the same host
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
 | CPU | 1 GHz | 1 GHz |
 | RAM | 1.5 GiB | 2 GiB |
 
-#### With MariaDB/PostgreSQL and Redis hosted on another server :
+#### With MariaDB/PostgreSQL and Redis hosted on another server
 
 | Type | Without ClamAV | With ClamAV |
 | ---- | -------------- | ----------- |
@@ -146,7 +146,7 @@ If you have a firewall, unblock the following ports, according to your needs :
 
 I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dnssec) as an authoritative name server with DNSSEC capabilities. NSD is an authoritative only, high performance, simple and open source name server.
 
-#### DNS records and reverse PTR :
+#### DNS records and reverse PTR
 
 A correct DNS setup is required, this step is very important.
 
@@ -560,18 +560,6 @@ acmeLogging = true
 ```
 docker-compose restart traefik && docker logs -f traefik
 ```
-
-When SSL certificates are renewed, the mail server must be restarted. You can proceed as follows :
-
-1. Install incron `apt-get install incron`
-2. Add `root` user in `/etc/incron.allow`
-3. Create the following incron job with `incrontab -e` :
-
-```
-/mnt/docker/traefik/acme/acme.json IN_MODIFY docker-compose -f /path/to/yml restart mailserver
-```
-
-This job trigger a restart of the mail server container when traefik's acme file is updated.
 
 #### Custom certificates
 
@@ -1082,7 +1070,7 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-### Email client settings :
+### Email client settings
 
 - IMAP/SMTP username : user@domain.tld
 - Incoming IMAP server : mail.domain.tld (your FQDN)
@@ -1098,13 +1086,13 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.8.3
+- Rspamd 1.9.4
 - Fetchmail 6.3.26
-- ClamAV 0.100.1
+- ClamAV 0.100.3
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.7.2.1
+- s6 2.8.0.1
 - Rsyslog 8.24.0
 - ManageSieve server
 
@@ -1128,7 +1116,7 @@ Or stay with `1.0-legacy` tag (not recommended).
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-### Some useful Thunderbird extensions :
+### Some useful Thunderbird extensions
 
 * https://www.enigmail.net/
 * https://github.com/moisseev/rspamd-spamness
@@ -1137,9 +1125,3 @@ Or stay with `1.0-legacy` tag (not recommended).
 [![](https://i.imgur.com/Em7M8F0.png)](https://i.imgur.com/Em7M8F0.png)
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
-
-### Donation
-
-My Bitcoin address : **1LwRr6jvzPHnZsxjk6u3wcfP555ZeC47Tg**
-
-This address is [signed cryptographically](https://keybase.io/hardware/sigchain#6f79301eac777d7aad942bdf2c32171e1e8f59694ea7125e7973a4f3ed4539d90f) to prove that it belongs to **me**. https://keybase.io/hardware

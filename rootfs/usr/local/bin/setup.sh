@@ -370,7 +370,12 @@ if [ "$ENABLE_ENCRYPTION" = false ]; then
   echo "[INFO] Automatic GPG encryption is disabled"
   sed -i '/content_filter/ s/^/#/' /etc/postfix/main.cf
 else
-  echo "[INFO] Automatic GPG encryption is enabled"
+  # echo "[INFO] Automatic GPG encryption is enabled"
+  sed -i '/content_filter/ s/^/#/' /etc/postfix/main.cf
+  echo "[ERROR] Zeyple support has been temporarily disabled in the master branch following the Debian 10 update. Please, use the stable docker tag (1.1-stable) until the issue fixed. More information here : https://github.com/hardware/mailserver/issues/393"
+  if [ "$TESTING" = false ]; then
+    touch /etc/setup-error
+  fi
 fi
 
 # Enable ManageSieve protocol
@@ -433,8 +438,6 @@ if [ "$TESTING" = true ]; then
   # Disable dkim and arc signing locally
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/dkim_signing.conf
   sed -i 's|\(sign_local.*=\).*|\1 false;|' /etc/rspamd/local.d/arc.conf
-  # Speed up dovecot startup with smaller dh params
-  sed -i 's|\(ssl_dh_parameters_length.*=\).*|\1 512|' /etc/dovecot/conf.d/10-ssl.conf
   # Zeyple logs are needed for testing (default: logs are redirected to /dev/null)
   sed -i 's|\(log_file.*=\).*|\1 /var/log/zeyple.log|' /etc/zeyple/zeyple.conf
   # Disable fetchmail scheduled Task
@@ -498,47 +501,47 @@ postfix set-permissions &>/dev/null
 # ZEYPLE
 # ---------------------------------------------------------------------------------------------
 
-if [ "$ENABLE_ENCRYPTION" = true ]; then
+# if [ "$ENABLE_ENCRYPTION" = true ]; then
 
-  # Add Zeyple user
-  adduser --quiet \
-          --system \
-          --group \
-          --home /var/mail/zeyple \
-          --no-create-home \
-          --disabled-login \
-          --gecos "zeyple automatic GPG encryption tool" \
-          zeyple
+#   # Add Zeyple user
+#   adduser --quiet \
+#           --system \
+#           --group \
+#           --home /var/mail/zeyple \
+#           --no-create-home \
+#           --disabled-login \
+#           --gecos "zeyple automatic GPG encryption tool" \
+#           zeyple
 
-  # Create all files and directories needed by Zeyple
-  mkdir -p /var/mail/zeyple/keys
-  chmod 700 /var/mail/zeyple/keys
-  chmod 744 /usr/local/bin/zeyple.py
-  chown -R zeyple:zeyple /var/mail/zeyple /usr/local/bin/zeyple.py
+#   # Create all files and directories needed by Zeyple
+#   mkdir -p /var/mail/zeyple/keys
+#   chmod 700 /var/mail/zeyple/keys
+#   chmod 744 /usr/local/bin/zeyple.py
+#   chown -R zeyple:zeyple /var/mail/zeyple /usr/local/bin/zeyple.py
 
-  if [ "$TESTING" = true ]; then
+#   if [ "$TESTING" = true ]; then
 
-    touch /var/log/zeyple.log
-    chown zeyple:zeyple /var/log/zeyple.log
+#     touch /var/log/zeyple.log
+#     chown zeyple:zeyple /var/log/zeyple.log
 
-# Generating John Doe GPG key
-s6-setuidgid zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
-  %echo Generating John Doe GPG key
-  Key-Type: default
-  Key-Length: 1024
-  Subkey-Type: default
-  Subkey-Length: 1024
-  Name-Real: John Doe
-  Name-Comment: test key
-  Name-Email: john.doe@domain.tld
-  Expire-Date: 0
-  Passphrase: azerty
-  %commit
-  %echo done
-EOF
+# # Generating John Doe GPG key
+# s6-setuidgid zeyple gpg --homedir "/var/mail/zeyple/keys" --batch --generate-key <<EOF
+#   %echo Generating John Doe GPG key
+#   Key-Type: default
+#   Key-Length: 1024
+#   Subkey-Type: default
+#   Subkey-Length: 1024
+#   Name-Real: John Doe
+#   Name-Comment: test key
+#   Name-Email: john.doe@domain.tld
+#   Expire-Date: 0
+#   Passphrase: azerty
+#   %commit
+#   %echo done
+# EOF
 
-  fi
-fi
+#   fi
+# fi
 
 # DOVECOT
 # ---------------------------------------------------------------------------------------------
@@ -580,6 +583,10 @@ find /var/mail/vhosts ! -user vmail -print0 | xargs -0 -r chown vmail:vmail
 
 # Avoid file_dotlock_open function exception
 rm -f /var/mail/dovecot/instances
+
+if [ -f "/var/mail/dovecot/ssl-parameters.dat" ]; then
+  mv /var/mail/dovecot/ssl-parameters.dat /var/mail/dovecot/ssl-parameters.dat.backup
+fi
 
 # UNBOUND
 # ---------------------------------------------------------------------------------------------
@@ -627,7 +634,7 @@ fi
 
 if [ -z "$PASSWORD" ]; then
   echo "[ERROR] rspamadm pw : bad output"
-  exit 1
+  touch /etc/setup-error
 fi
 
 sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
@@ -743,6 +750,10 @@ chmod +x /usr/local/bin/*
 # Fix old DKIM keys permissions
 chown -R vmail:vmail /var/mail/dkim
 chmod 444 /var/mail/dkim/*/{private.key,public.key}
+
+# Ensure that hashes are calculated because Postfix require directory
+# to be set up like this in order to find CA certificates.
+c_rehash /etc/ssl/certs &>/dev/null
 
 # S6 WATCHDOG
 # ---------------------------------------------------------------------------------------------

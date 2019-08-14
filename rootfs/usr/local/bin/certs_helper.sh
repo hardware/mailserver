@@ -2,7 +2,7 @@
 
 ACME_PATH=/etc/letsencrypt/acme
 ACME_FILE="$ACME_PATH"/acme.json
-SSL_MOUNT_PATH=/var/mail/ssl/
+SSL_MOUNT_PATH=/var/mail/ssl
 ACME_DUMP="$SSL_MOUNT_PATH"/acme_dump.log
 SELFSIGNED_PATH="$SSL_MOUNT_PATH"/selfsigned
 CERT_TEMP_PATH=/tmp/ssl
@@ -28,11 +28,6 @@ _normalize_certs() {
   fi
 
   if [ "$RENEWED_CERTIFICATE" = true ] || [ ! -e "$CAFILE" ] || [ ! -e "$CERTFILE" ]; then
-    # if [ ! -e "$FULLCHAIN" ]; then
-    #   echo "[ERROR] No fullchain found in $SSL_DIR !"
-    #   exit 1
-    # fi
-
     if [ -e "$FULLCHAIN" ]; then
       # Extract cert.pem and chain.pem from fullchain.pem
       # Used for containous/traefik and jwilder/nginx-proxy
@@ -116,7 +111,7 @@ elif [ "$1" = "update_certs" ]; then
       echo "[INFO] Let's encrypt live directory found"
       echo "[INFO] Using $LETS_ENCRYPT_LIVE_PATH folder"
 
-      cp -RT "$LETS_ENCRYPT_LIVE_PATH/." "$NORMALIZED_CERT_PATH"
+      cp -RLT "$LETS_ENCRYPT_LIVE_PATH/." "$NORMALIZED_CERT_PATH"
 
     else
       echo "[INFO] No Let's encrypt live directory found"
@@ -150,13 +145,6 @@ elif [ "$1" = "update_certs" ]; then
 
   rm -rf "$LIVE_CERT_PATH/*"
   cp -RT "$NORMALIZED_CERT_PATH/." "$LIVE_CERT_PATH"
-
-  # Comment CAfile directives if Let's Encrypt CA is not used
-  if [ -f "$LIVE_CERT_PATH"/chain.pem ]; then
-    sed -i '/^#\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^#//' /etc/postfix/main.cf
-  else
-    sed -i '/^\(smtp_tls_CAfile\|smtpd_tls_CAfile\)/s/^/#/' /etc/postfix/main.cf
-  fi
 
 elif [ "$1" = "reload" ]; then
   echo "[INFO] Updating SSL certificates and reloading"
