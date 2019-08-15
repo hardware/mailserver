@@ -259,11 +259,6 @@ init:
 		-h mail.domain.tld \
 		-t $(NAME)
 
-	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"
-	docker exec mailserver_reverse /bin/sh -c "apt-get update && apt-get install -y -q netcat"
-	docker exec mailserver_ldap /bin/sh -c "apt-get update && apt-get install -y -q netcat"
-	docker exec mailserver_ldap2 /bin/sh -c "apt-get update && apt-get install -y -q netcat"
-
 fixtures:
 
 	# Wait for clamav unofficial sigs database update (default)

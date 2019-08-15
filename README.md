@@ -27,6 +27,7 @@
 - **NSD** : authoritative DNS server with DNSSEC support
 - **Træfik** : modern HTTP reverse proxy
 - **SSL** : _let's encrypt_ with auto-renewal (SAN and wildcard certificates), custom and self-signed certificates support
+- **OpenLDAP** : [BETA] ldap support available (only in `1.1-latest` for now)
 - Supporting multiple virtual domains over MySQL/PostgreSQL backend
 - Integration tests with Travis CI
 - Automated builds on DockerHub
@@ -51,7 +52,6 @@
     - [1 - Prepare your environment](#1---prepare-your-environment)
     - [2 - Postfixadmin installation](#2---postfixadmin-installation)
     - [3 - Rainloop installation (optional)](#3---rainloop-installation-optional)
-    - [3bis - Afterlogic Webmail Lite installation (optional)](#3bis---afterlogic-webmail-lite-installation-optional)
     - [4 - Done, congratulation ! :tada:](#4---done-congratulation--tada)
   - [Rancher Catalog](#rancher-catalog)
   - [Ansible Playbooks](#ansible-playbooks)
@@ -232,13 +232,6 @@ Rainloop is a simple, modern and fast webmail with Sieve scripts support (filter
 
 * Docker image : https://github.com/hardware/rainloop
 * How to setup : [Rainloop initial configuration](https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration)
-
-#### 3bis - Afterlogic Webmail Lite installation (optional)
-
-According to your preference, you can use Afterlogic Webmail Lite as alternative.
-
-* Docker image : https://github.com/hardware/afterlogic-webmail-lite
-* How to setup : [Afterlogic Webmail Lite initial configuration](https://github.com/hardware/mailserver/wiki/AfterLogic-Webmail-Lite-initial-configuration)
 
 #### 4 - Done, congratulation ! :tada:
 
