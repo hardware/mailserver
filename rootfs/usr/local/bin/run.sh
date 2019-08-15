@@ -28,9 +28,14 @@ VMAIL_SUBDIR=${VMAIL_SUBDIR:-"mail"}
 
 DBDRIVER=${DBDRIVER:-mysql}
 DBHOST=${DBHOST:-mariadb}
-DBPORT=${DBPORT:-3306}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
+
+if [ "$DBDRIVER" = "ldap" ]; then
+  DBPORT=${DBPORT:-389}
+else
+  DBPORT=${DBPORT:-3306}
+fi
 
 REDIS_HOST=${REDIS_HOST:-redis}
 REDIS_PORT=${REDIS_PORT:-6379}
@@ -40,9 +45,30 @@ REDIS_NUMB=${REDIS_NUMB:-0}
 DISABLE_CLAMAV=${DISABLE_CLAMAV:-false} # --
 DISABLE_DNS_RESOLVER=${DISABLE_DNS_RESOLVER:-false} # --
 
-if [ -z "$DBPASS" ]; then
-  echo "[ERROR] MariaDB/PostgreSQL database password must be set !"
-  exit 1
+if [ "$DBDRIVER" = "ldap" ]; then
+  export LDAP_BIND
+  export LDAP_BIND_DN
+  export LDAP_BIND_PW
+
+  LDAP_BIND=${LDAP_BIND:-true}
+  LDAP_BIND_DN=${LDAP_BIND_DN:-}
+  LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
+
+  if [ "$LDAP_BIND" = true ]; then
+    if [ -z "$LDAP_BIND_DN" ]; then
+      echo "[ERROR] LDAP_BIND_ED must be set !"
+      exit 1
+    fi
+    if [ -z "$LDAP_BIND_PW" ]; then
+      echo "[ERROR] LDAP_BIND_PW must be set !"
+      exit 1
+    fi
+  fi
+else
+  if [ -z "$DBPASS" ]; then
+    echo "[ERROR] MariaDB/PostgreSQL database password must be set !"
+    exit 1
+  fi
 fi
 
 if [ -z "$RSPAMD_PASSWORD" ]; then

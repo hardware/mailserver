@@ -7,8 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
-    postfix postfix-pgsql postfix-mysql postfix-pcre libsasl2-modules \
-    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pgsql dovecot-mysql dovecot-sieve dovecot-managesieved dovecot-pop3d \
+    postfix postfix-pgsql postfix-mysql postfix-ldap postfix-pcre libsasl2-modules \
+    dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pgsql dovecot-mysql dovecot-ldap dovecot-sieve dovecot-managesieved dovecot-pop3d \
     fetchmail libdbi-perl libdbd-pg-perl libdbd-mysql-perl liblockfile-simple-perl \
     clamav clamav-daemon \
     python3-pip python3-setuptools python3-wheel \

@@ -74,6 +74,7 @@
     - [Enable clamav-unofficial-sigs](#enable-clamav-unofficial-sigs)
   - [Unbound DNS resolver](#unbound-dns-resolver)
   - [PostgreSQL support](#postgresql-support)
+  - [LDAP support](#ldap-support)
   - [IPv6 support](#ipv6-support)
   - [Persistent files and folders in /mnt/docker/mail Docker volume](#persistent-files-and-folders-in-mntdockermail-docker-volume)
   - [Override postfix configuration](#override-postfix-configuration)
@@ -149,7 +150,7 @@ I recommend you to use [hardware/nsd-dnssec](https://github.com/hardware/nsd-dns
 
 A correct DNS setup is required, this step is very important.
 
-| HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
+| HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
 | -------- | ----- | ---- | -------- | ----- |
 | mail | IN | A/AAAA | any | 1.2.3.4 |
 | spam | IN | CNAME | any | mail.domain.tld. |
@@ -252,7 +253,7 @@ At first launch, the container takes few minutes to generate SSL certificates (i
 | **Administration** | https://postfixadmin.domain.tld/ |
 | **Webmail** | https://webmail.domain.tld/ |
 
-Traefik dashboard use a basic authentication (user:admin, password:12345), the password can be encoded in MD5, SHA1 and BCrypt. You can use [htpasswd ](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) to generate those ones. Users can be specified directly in the `traefik.toml` file. Rspamd dashboard use the password defined in your `docker-compose.yml`.
+Traefik dashboard use a basic authentication (user:admin, password:12345), the password can be encoded in MD5, SHA1 and BCrypt. You can use [htpasswd ](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) to generate those ones. Users can be specified directly in the `traefik.toml` file. Rspamd dashboard use the password defined in your `docker-compose.yml`.
 
 You can check the startup logs with this command :
 
@@ -309,12 +310,12 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
 | **DEBUG_MODE** | Enable Postfix, Dovecot, Rspamd and Unbound verbose logging | *optional* | false
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
-| **DBDRIVER** | Database type: mysql, pgsql | *optional* | mysql
+| **DBDRIVER** | Database type: mysql, pgsql, ldap | *optional* | mysql
 | **DBHOST** | Database instance ip/hostname | *optional* | mariadb
-| **DBPORT** | Database instance port | *optional* | 3306
+| **DBPORT** | Database instance port | *optional* | 3306 / 389 (sql/ldap)
 | **DBUSER** | Database username | *optional* | postfix
 | **DBNAME** | Database name | *optional* | postfix
-| **DBPASS** | Database password or location of a file containing it | **required** | null
+| **DBPASS** | Database password or location of a file containing it | **required** *\*1)* | null
 | **REDIS_HOST** | Redis instance ip/hostname | *optional*  | redis
 | **REDIS_PORT** | Redis instance port | *optional*  | 6379
 | **REDIS_PASS** | Redis database password or location of a file containing it | *optional* | null
@@ -337,6 +338,8 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **FETCHMAIL_INTERVAL** | Fetchmail polling interval | *optional* | 10
 | **RECIPIENT_DELIMITER** | RFC 5233 subaddress extension separator (single character only) | *optional* | +
 
+\*1) **DBPASS** is NOT required when using LDAP authentication
+
 * Use **DEBUG_MODE** to enable the debug mode. Switch to `true` to enable verbose logging for `postfix`, `dovecot`, `rspamd` and `Unbound`. To debug components separately, use this syntax : `DEBUG_MODE=postfix,rspamd`.
 * **VMAIL_SUBDIR** is the mail location subdirectory name `/var/mail/vhosts/%domain/%user/$subdir`. For more information, read this : https://wiki.dovecot.org/VirtualUsers/Home
 * **PASSWORD_SCHEME** for compatible schemes, read this : https://wiki.dovecot.org/Authentication/PasswordSchemes
@@ -344,6 +347,62 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 * Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
 * Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
+
+
+When using LDAP authentication the following additional variables become available. All *DBUSER*, *DBNAME* and *DBPASS* variables will not be used in this case:
+
+| Variable | Description | Type | Default value |
+| -------- | ----------- | ---- | ------------- |
+| **LDAP_TLS_ENABLED** | Enable TLS on LDAP | *optional* | false
+| **LDAP_TLS_CA_FILE** | The TLS CA File | **required** if **LDAP_TLS_ENABLED** |
+| **LDAP_TLS_FORCE** | Force TLS connections | **required** if **LDAP_TLS_ENABLED** | false
+| **LDAP_BIND** | Bind to LDAP Server | *optional* | true
+| **LDAP_BIND_DN** | The DN to bind to | **required** if **LDAP_BIND** |
+| **LDAP_BIND_PW** | LDAP password or location of a file containing it | **required** if **LDAP_BIND** |
+| **LDAP_DEFAULT_SEARCH_BASE** | The base DN for all lookus | **required** |
+| **LDAP_DEFAULT_SEARCH_SCOPE** | The default scope for all lookups (sub, base or one) | *optional* | sub
+| **LDAP_DOMAIN_SEARCH_BASE** | The search base for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_DOMAIN_SEARCH_SCOPE** | The search scope for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_DOMAIN_FILTER** | The search filter for domain lookups | **required** |
+| **LDAP_DOMAIN_ATTRIBUTE** | The attibutes for domain lookup | **required** |
+| **LDAP_DOMAIN_FORMAT** | The format for domain lookups | *optional* |
+| **LDAP_MAILBOX_SEARCH_BASE** | The search base for mailbox lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_MAILBOX_SEARCH_SCOPE** | The search scope for mailbox lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_MAILBOX_FILTER** | The search filter for mailbox lookups | **required** |
+| **LDAP_MAILBOX_ATTRIBUTE** | The attibutes for mailbox lookup | **required** |
+| **LDAP_MAILBOX_FORMAT** | The format for domain mailbox | *optional* |
+| **LDAP_ALIAS_SEARCH_BASE** | The search base for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_ALIAS_SEARCH_SCOPE** | The search scope for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_ALIAS_FILTER** | The search filter for domain lookups | **required** |
+| **LDAP_ALIAS_ATTRIBUTE** | The attibutes for domain lookup | **required** |
+| **LDAP_ALIAS_FORMAT** | The format for domain lookups | *optional* |
+| **LDAP_FORWARD_SEARCH_BASE** | The search base for forward lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_FORWARD_SEARCH_SCOPE** | The search scope for forward lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_FORWARD_FILTER** | The search filter for forward lookups | *optional* |
+| **LDAP_FORWARD_ATTRIBUTE** | The attibutes for forward lookup | *optional* |
+| **LDAP_FORWARD_FORMAT** | The format for forward lookups | *optional* |
+| **LDAP_GROUP_SEARCH_BASE** | The search base for group lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_GROUP_SEARCH_SCOPE** | The search scope for group lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_GROUP_FILTER** | The search filter for group lookups | *optional* |
+| **LDAP_GROUP_ATTRIBUTE** | The attibutes for group lookup | *optional* |
+| **LDAP_GROUP_FORMAT** | The format for group lookups | *optional* |
+| **LDAP_SENDER_SEARCH_BASE** | The search base for sender lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_SENDER_SEARCH_SCOPE** | The search scope for sender lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_SENDER_FILTER** | The search filter for sender lookups | **required** |
+| **LDAP_SENDER_ATTRIBUTE** | The attibutes for sender lookup | **required** |
+| **LDAP_SENDER_FORMAT** | The format for sender lookups | **required** |
+| **LDAP_DOVECOT_USER_ATTRS** | Dovecot user attribute mapping | **required** |
+| **LDAP_DOVECOT_USER_FILTER** | Dovecot user search filter | **required** |
+| **LDAP_DOVECOT_PASS_ATTRS** | Dovecot user password attribute mapping | **required** |
+| **LDAP_DOVECOT_PASS_FILTER** | Dovecot user password filter | **required** |
+| **LDAP_DOVECOT_ITERATE_ATTRS** | Dovecot user iterate attributes | *optional* |
+| **LDAP_DOVECOT_ITERATE_FILTER** | Dovecot user iterate filters | *optional* |
+| **LDAP_MASTER_USER_ENABLED** | Enable LDAP master users | *optional* | false
+| **LDAP_MASTER_USER_SEPARATOR** | LDAP master user seperator | **required** if **LDAP_MASTER_USER_ENABLED** | \*
+| **LDAP_MASTER_USER_SEARCH_BASE** | LDAP master user search base | **required** if **LDAP_MASTER_USER_ENABLED** | ${LDAP_DEFAULT_SEARCH_BASE}
+| **LDAP_MASTER_USER_SEARCH_SCOPE** | LDAP master user scope | **required** if **LDAP_MASTER_USER_ENABLED** | ${LDAP_DEFAULT_SEARCH_SCOPE}
+| **LDAP_DOVECOT_MASTER_USER_ATTRS** | LDAP master user dovecot attributes | **required** if **LDAP_MASTER_USER_ENABLED** |
+| **LDAP_DOVECOT_MASTER_USER_FILTER** | LDAP master user dovecot search filter | **required** if **LDAP_MASTER_USER_ENABLED** |
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
@@ -732,6 +791,62 @@ postgres:
     - ${VOLUMES_ROOT_PATH}/pgsql/db:/var/lib/postgresql/data
   networks:
     - mail_network
+```
+
+<p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
+
+### LDAP support
+
+This mailserver supports LDAP now aswell. Please keep in mind that LDAP itself is an already complicated system and using this mailserver with LDAP will require you to already have a deeper understanding on how LDAP, postfix and dovecot works. Due to the nature of LDAP there is no "default" setup you can or is suggested to be used. This means **a lot** of configuration is **required** to set this mailserver up with your LDAP system and it will definetly not work out of the box.
+
+To enable LDAP you have to set **DBDRIVER** to *ldap*. *DBHOST* and *DBPORT* must point to the LDAP server used. *DBUSER*, *DBNAME*, *DBPASS* enviroment variables will not be used in this case.
+
+If you want to use TLS set **LDAP_TLS_ENABLED** to *true* and specify a **LDAP_TLS_CA_FILE**. If you want to require the use of TLS set **LDAP_TLS_FORCE** to true.
+
+If you want to bind to the LDAP server (default) set **LDAP_BIND** to *true* (default) and give your bind user dn (full path) as **LDAP_BIND_DN** and password as **LDAP_BIND_PW**. If a path to a existing file is given in **LDAP_BIND_PW** the content of the file will be used instead.
+
+All lookups will by default use **LDAP_DEFAULT_SEARCH_BASE** as base and **LDAP_DEFAULT_SEARCH_SCOPE** as scope. But for any query a specific base and scope can be provided aswell. Valid scopes are: *sub* for subtree meaning all nodes below the base. *one* for all direct child nodes of the base and *one* for only the base node itself.
+
+Unlike with postfixadmin where all tables are fixed, this mailserver is intended to work with existing ldap structures. This requires all lookups to be specified by you.
+
+There are 4 required and 2 optional lookups for postfix that have to be provided by you. Each consists of 5 variables. The loopups are: Domain, Mailbox, Alias and Sender (all 4 required) and Forward and Group (optional). Each has the enviroment variables **LDAP_XXX_SEARCH_BASE**, **LDAP_XXX_SEARCH_SCOPE**, **LDAP_XXX_FILTER**, **LDAP_XXX_ATTRIBUTE** and **LDAP_XXXN_FORMAT** (*optional*) where **XXX*** must be replaced with **DOMAIN**, **MAILBOX**, **ALIAS**, **SENDER**, **FORWARD** or **GROUP**. E.g. **LDAP_DOMAIN_SEARCH_BASE** or **LDAP_MAILBOX_FILTER**
+
+The **LDAP_XXX_SEARCH_BASE** is the search base dn. It will default to **LDAP_DEFAULT_SEARCH_BASE** as **LDAP_XXX_SEARCH_SCOPE** will default to **LDAP_DEFAULT_SEARCH_SCOPE** (which defaults to *sub*).
+
+The **LDAP_XXX_FILTER** must be a valid LDAP query filter. For a documentation of LDAP query filters you can look at https://ldap.com/ldap-filters/. For a list of valid replacement tokens please look at http://www.postfix.org/ldap_table.5.html in the section *query_filter*. Some examples:
+
+```
+LDAP_DOMAIN_FILTER="(&(mail=*@%s)(objectClass=mailAccount))"
+
+LDAP_MAILBOX_FILTER="(&(mail=%s)(objectClass=mailAccount))"
+
+LDAP_SENDER_FILTER="(&(|(mail=%s)(mailalias=%s))(objectClass=mailAccount))"
+```
+
+The **LDAP_XXX_ATTRIBUTE** specifies which attribute of the found LDAP objects will be used. Usually these are either *mail*, *uid*, *mailalias* or *mailacceptinggeneralid* but may be completly different ones depending on your LDAP setup.
+
+
+**LDAP_XXX_FORMAT** can be used to reformat the result. E.g. you can use `LDAP_MAILBOX_FORMAT="/var/mail/vhosts/%d/%s/mail/"` to set a fixed path for the mailbox location if the path is not stored within LDAP.
+
+The optional **FORWARD** and **GROUP** lookups are technically identical to the **ALIAS** lookup and could be used interchangeably but are intended for additional alias/group/forward lookups. So you can use aliases using an alias field in your user objects. Forwards as source and destination mapping fields in forwarding objects and group address and group member emails in group objects. But you can also use them in different ways to suit your system.
+
+Then you also have to provide the lookups for dovecot. These will probably be similar to your postfix lookups but may and will differ in some cases. The variables neccessary are **LDAP_DOVECOT_USER_ATTRS**, **LDAP_DOVECOT_USER_FILTER**, **LDAP_DOVECOT_PASS_ATTRS**, **LDAP_DOVECOT_PASS_FILTER**, **LDAP_DOVECOT_ITERATE_ATTRS**, **LDAP_DOVECOT_ITERATE_FILTER**. They correspond directly to the dovecot variables of the same name. While the user and pass attributes and filters are required, the iterate attributes and filters are not. For more detailed information please look at https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb. Note that multiple attribures may be required per query and must be provided in a different form than for postfix! Here are some examples:
+
+```
+LDAP_DOVECOT_USER_ATTRS="=home=/var/mail/vhosts/%d/%n/,=mail=maildir:/var/mail/vhosts/%d/%n/mail/,mailuserquota=quota=quota_rule=*:bytes=%\$$"
+LDAP_DOVECOT_USER_FILTER="(&(mail=%u)(objectClass=mailAccount))"
+LDAP_DOVECOT_PASS_ATTRS="mail=user,userPassword=password"
+LDAP_DOVECOT_PASS_FILTER="(&(mail=%u)(objectClass=mailAccount))"
+LDAP_DOVECOT_ITERATE_ATTRS="mail=user"
+LDAP_DOVECOT_ITERATE_FILTER="(objectClass=mailAccount)"
+```
+
+This mailserver also supports the user of master users that are allowed to log into other users mailboxes using their own password. This can be used e.g. for shared mailboxes or external imap services that should be able to connect to all inboxes via imap while not knowing the users passwords. To enable the use of master users set **LDAP_MASTER_USER_ENABLED** to *true*. With **LDAP_MASTER_USER_SEPARATOR** the separator can be specified (default is \*). So you can log in with the username `normaluser@yoursystem.com*masteruser@yoursystem.com` or `normaluser*masteruser` if you only use usernames as logins. The password then has to be the password of the master user. **LDAP_MASTER_USER_SEARCH_BASE**, **LDAP_MASTER_USER_SEARCH_SCOPE**, **LDAP_DOVECOT_MASTER_USER_ATTRS** and **LDAP_DOVECOT_MASTER_USER_FILTER** work analogous to the dovecot user lookups. For more detailed documentation please look at https://wiki.dovecot.org/Authentication/MasterUsers . Note that `%u` is the master user name in this case and `%{login_user}` can be used to get the user name of the user to be loged in.
+
+```
+LDAP_MASTER_USER_ENABLED=true
+LDAP_DOVECOT_MASTER_PASS_ATTRS="mail=user,userPassword=password"
+LDAP_DOVECOT_MASTER_PASS_FILTER="(&(mail=%u)(st=%{login_user})(objectClass=mailAccount))"
 ```
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>

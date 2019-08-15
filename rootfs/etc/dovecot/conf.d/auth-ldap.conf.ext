@@ -1,0 +1,18 @@
+{{ if eq .LDAP_MASTER_USER_ENABLED "true" }}
+auth_master_user_separator = {{ .LDAP_MASTER_USER_SEPARATOR }}
+passdb {
+  driver = ldap
+  args = /etc/dovecot/dovecot-ldap-master.conf.ext
+  master = yes
+  pass = yes
+}
+{{ end }}
+passdb {
+  driver = ldap
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+}
+
+userdb {
+  driver = ldap
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+}
