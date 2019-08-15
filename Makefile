@@ -143,8 +143,8 @@ init:
 		-e LDAP_DOVECOT_PASS_FILTER="(&(mail=%u)(objectClass=mailAccount))" \
 		-e LDAP_DOVECOT_ITERATE_ATTRS="mail=user" \
 		-e LDAP_DOVECOT_ITERATE_FILTER="(objectClass=mailAccount)" \
-                -e VMAILUID=`id -u` \
-                -e VMAILGID=`id -g` \
+		-e VMAILUID=`id -u` \
+		-e VMAILGID=`id -g` \
 		-e RSPAMD_PASSWORD=testpasswd \
 		-e ADD_DOMAINS=domain2.tld,domain3.tld \
 		-e RECIPIENT_DELIMITER=: \
@@ -261,8 +261,8 @@ init:
 
 	docker exec mailserver_default /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 	docker exec mailserver_reverse /bin/sh -c "apt-get update && apt-get install -y -q netcat"
-	docker exec mailserver_ldap /bin/sh -c "apt-get update && apt-get install -y -q netcat nano"
-	docker exec mailserver_ldap2 /bin/sh -c "apt-get update && apt-get install -y -q netcat nano"
+	docker exec mailserver_ldap /bin/sh -c "apt-get update && apt-get install -y -q netcat"
+	docker exec mailserver_ldap2 /bin/sh -c "apt-get update && apt-get install -y -q netcat"
 
 fixtures:
 
@@ -275,7 +275,6 @@ fixtures:
 	docker exec mailserver_ldap /bin/sh -c "while [ -f /var/lib/clamav-unofficial-sigs/pid/clamav-unofficial-sigs.pid ] ; do sleep 1 ; done"
 	# Wait for clamav load databases (ldap)
 	docker exec mailserver_ldap /bin/sh -c "while ! echo PING | nc -z 0.0.0.0 3310 ; do sleep 1 ; done"
-
 
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user.txt"
 	docker exec mailserver_default /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-user-spam-learning.txt"
@@ -314,11 +313,9 @@ fixtures:
 	docker exec mailserver_ldap2 /bin/sh -c "nc 0.0.0.0 25 < /tmp/tests/email-templates/external-to-existing-alias-group.txt"
 	docker exec mailserver_ldap2 /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp < /tmp/tests/email-templates/internal-user-to-existing-user.txt"
 
-
 	sleep 2
 	docker exec mailserver_default /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:993 < /tmp/tests/sieve/trigger-spam-ham-learning.txt"
 	docker exec mailserver_ldap /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:993 < /tmp/tests/sieve/trigger-spam-ham-learning.txt"
-
 
 	# Wait until all mails have been processed
 	sleep 10

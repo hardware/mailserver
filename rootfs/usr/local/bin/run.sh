@@ -31,7 +31,6 @@ DBHOST=${DBHOST:-mariadb}
 DBNAME=${DBNAME:-postfix}
 DBUSER=${DBUSER:-postfix}
 
-
 if [ "$DBDRIVER" = "ldap" ]; then
   DBPORT=${DBPORT:-389}
 else
@@ -54,7 +53,6 @@ if [ "$DBDRIVER" = "ldap" ]; then
   LDAP_BIND=${LDAP_BIND:-true}
   LDAP_BIND_DN=${LDAP_BIND_DN:-}
   LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
-
 
   if [ "$LDAP_BIND" = true ]; then
     if [ -z "$LDAP_BIND_DN" ]; then

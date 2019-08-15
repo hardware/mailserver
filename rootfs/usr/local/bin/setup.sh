@@ -77,7 +77,6 @@ for domain in "${domains[@]}"; do
 
 done
 
-
 # LDAP SUPPORT
 # ---------------------------------------------------------------------------------------------
 
@@ -85,9 +84,6 @@ if [ "$DBDRIVER" = "ldap" ]; then
   export LDAP_TLS_ENABLED
   export LDAP_TLS_CA_FILE
   export LDAP_TLS_FORCE
-#  export LDAP_BIND
-#  export LDAP_BIND_DN
-#  export LDAP_BIND_PW
   export LDAP_DEFAULT_SEARCH_BASE
   export LDAP_DEFAULT_SEARCH_SCOPE
 
@@ -144,9 +140,6 @@ if [ "$DBDRIVER" = "ldap" ]; then
   LDAP_TLS_ENABLED=${LDAP_TLS_ENABLED:-false}
   LDAP_TLS_CA_FILE=${LDAP_TLS_CA_FILE:-""}
   LDAP_TLS_FORCE=${LDAP_TLS_FORCE:-false}
-#  LDAP_BIND=${LDAP_BIND:-true}
-#  LDAP_BIND_DN=${LDAP_BIND_DN:-}
-#  LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
   LDAP_DEFAULT_SEARCH_BASE=${LDAP_DEFAULT_SEARCH_BASE:-}
   LDAP_DEFAULT_SEARCH_SCOPE=${LDAP_DEFAULT_SEARCH_SCOPE:-"sub"}
 
@@ -199,7 +192,6 @@ if [ "$DBDRIVER" = "ldap" ]; then
   LDAP_MASTER_USER_SEARCH_SCOPE=${LDAP_MASTER_USER_SEARCH_SCOPE:-"${LDAP_DEFAULT_SEARCH_SCOPE}"}
   LDAP_DOVECOT_MASTER_USER_ATTRS=${LDAP_DOVECOT_USER_ATTRS:-}
   LDAP_DOVECOT_MASTER_USER_FILTER=${LDAP_DOVECOT_USER_FILTER:-}
-
 fi
 
 # ENVIRONMENT VARIABLES TEMPLATING

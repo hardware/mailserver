@@ -354,57 +354,55 @@ When using LDAP authentication the following additional variables become availab
 | Variable | Description | Type | Default value |
 | -------- | ----------- | ---- | ------------- |
 | **LDAP_TLS_ENABLED** | Enable TLS on LDAP | *optional* | false
-| **LDAP_TLS_CA_FILE** | The TLS CA File | **required** if **LDAP_TLS_ENABLED** | 
+| **LDAP_TLS_CA_FILE** | The TLS CA File | **required** if **LDAP_TLS_ENABLED** |
 | **LDAP_TLS_FORCE** | Force TLS connections | **required** if **LDAP_TLS_ENABLED** | false
 | **LDAP_BIND** | Bind to LDAP Server | *optional* | true
-| **LDAP_BIND_DN** | The DN to bind to | **required** if **LDAP_BIND** | 
-| **LDAP_BIND_PW** | LDAP password or location of a file containing it | **required** if **LDAP_BIND** | 
-| **LDAP_DEFAULT_SEARCH_BASE** | The base DN for all lookus | **required** | 
+| **LDAP_BIND_DN** | The DN to bind to | **required** if **LDAP_BIND** |
+| **LDAP_BIND_PW** | LDAP password or location of a file containing it | **required** if **LDAP_BIND** |
+| **LDAP_DEFAULT_SEARCH_BASE** | The base DN for all lookus | **required** |
 | **LDAP_DEFAULT_SEARCH_SCOPE** | The default scope for all lookups (sub, base or one) | *optional* | sub
 | **LDAP_DOMAIN_SEARCH_BASE** | The search base for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_DOMAIN_SEARCH_SCOPE** | The search scope for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_DOMAIN_FILTER** | The search filter for domain lookups | **required** | 
-| **LDAP_DOMAIN_ATTRIBUTE** | The attibutes for domain lookup | **required** | 
-| **LDAP_DOMAIN_FORMAT** | The format for domain lookups | *optional* | 
+| **LDAP_DOMAIN_FILTER** | The search filter for domain lookups | **required** |
+| **LDAP_DOMAIN_ATTRIBUTE** | The attibutes for domain lookup | **required** |
+| **LDAP_DOMAIN_FORMAT** | The format for domain lookups | *optional* |
 | **LDAP_MAILBOX_SEARCH_BASE** | The search base for mailbox lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_MAILBOX_SEARCH_SCOPE** | The search scope for mailbox lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_MAILBOX_FILTER** | The search filter for mailbox lookups | **required** | 
-| **LDAP_MAILBOX_ATTRIBUTE** | The attibutes for mailbox lookup | **required** | 
-| **LDAP_MAILBOX_FORMAT** | The format for domain mailbox | *optional* | 
+| **LDAP_MAILBOX_FILTER** | The search filter for mailbox lookups | **required** |
+| **LDAP_MAILBOX_ATTRIBUTE** | The attibutes for mailbox lookup | **required** |
+| **LDAP_MAILBOX_FORMAT** | The format for domain mailbox | *optional* |
 | **LDAP_ALIAS_SEARCH_BASE** | The search base for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_ALIAS_SEARCH_SCOPE** | The search scope for domain lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_ALIAS_FILTER** | The search filter for domain lookups | **required** | 
-| **LDAP_ALIAS_ATTRIBUTE** | The attibutes for domain lookup | **required** | 
-| **LDAP_ALIAS_FORMAT** | The format for domain lookups | *optional* | 
+| **LDAP_ALIAS_FILTER** | The search filter for domain lookups | **required** |
+| **LDAP_ALIAS_ATTRIBUTE** | The attibutes for domain lookup | **required** |
+| **LDAP_ALIAS_FORMAT** | The format for domain lookups | *optional* |
 | **LDAP_FORWARD_SEARCH_BASE** | The search base for forward lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_FORWARD_SEARCH_SCOPE** | The search scope for forward lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_FORWARD_FILTER** | The search filter for forward lookups | *optional* | 
-| **LDAP_FORWARD_ATTRIBUTE** | The attibutes for forward lookup | *optional* | 
-| **LDAP_FORWARD_FORMAT** | The format for forward lookups | *optional* | 
+| **LDAP_FORWARD_FILTER** | The search filter for forward lookups | *optional* |
+| **LDAP_FORWARD_ATTRIBUTE** | The attibutes for forward lookup | *optional* |
+| **LDAP_FORWARD_FORMAT** | The format for forward lookups | *optional* |
 | **LDAP_GROUP_SEARCH_BASE** | The search base for group lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_GROUP_SEARCH_SCOPE** | The search scope for group lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_GROUP_FILTER** | The search filter for group lookups | *optional* | 
-| **LDAP_GROUP_ATTRIBUTE** | The attibutes for group lookup | *optional* | 
-| **LDAP_GROUP_FORMAT** | The format for group lookups | *optional* | 
+| **LDAP_GROUP_FILTER** | The search filter for group lookups | *optional* |
+| **LDAP_GROUP_ATTRIBUTE** | The attibutes for group lookup | *optional* |
+| **LDAP_GROUP_FORMAT** | The format for group lookups | *optional* |
 | **LDAP_SENDER_SEARCH_BASE** | The search base for sender lookups | *optional* | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_SENDER_SEARCH_SCOPE** | The search scope for sender lookups | *optional* | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_SENDER_FILTER** | The search filter for sender lookups | **required** | 
-| **LDAP_SENDER_ATTRIBUTE** | The attibutes for sender lookup | **required** | 
-| **LDAP_SENDER_FORMAT** | The format for sender lookups | **required** | 
-| **LDAP_DOVECOT_USER_ATTRS** | Dovecot user attribute mapping | **required** | 
-| **LDAP_DOVECOT_USER_FILTER** | Dovecot user search filter | **required** | 
-| **LDAP_DOVECOT_PASS_ATTRS** | Dovecot user password attribute mapping | **required** | 
-| **LDAP_DOVECOT_PASS_FILTER** | Dovecot user password filter | **required** | 
-| **LDAP_DOVECOT_ITERATE_ATTRS** | Dovecot user iterate attributes | *optional* | 
-| **LDAP_DOVECOT_ITERATE_FILTER** | Dovecot user iterate filters | *optional* | 
+| **LDAP_SENDER_FILTER** | The search filter for sender lookups | **required** |
+| **LDAP_SENDER_ATTRIBUTE** | The attibutes for sender lookup | **required** |
+| **LDAP_SENDER_FORMAT** | The format for sender lookups | **required** |
+| **LDAP_DOVECOT_USER_ATTRS** | Dovecot user attribute mapping | **required** |
+| **LDAP_DOVECOT_USER_FILTER** | Dovecot user search filter | **required** |
+| **LDAP_DOVECOT_PASS_ATTRS** | Dovecot user password attribute mapping | **required** |
+| **LDAP_DOVECOT_PASS_FILTER** | Dovecot user password filter | **required** |
+| **LDAP_DOVECOT_ITERATE_ATTRS** | Dovecot user iterate attributes | *optional* |
+| **LDAP_DOVECOT_ITERATE_FILTER** | Dovecot user iterate filters | *optional* |
 | **LDAP_MASTER_USER_ENABLED** | Enable LDAP master users | *optional* | false
 | **LDAP_MASTER_USER_SEPARATOR** | LDAP master user seperator | **required** if **LDAP_MASTER_USER_ENABLED** | \*
 | **LDAP_MASTER_USER_SEARCH_BASE** | LDAP master user search base | **required** if **LDAP_MASTER_USER_ENABLED** | ${LDAP_DEFAULT_SEARCH_BASE}
 | **LDAP_MASTER_USER_SEARCH_SCOPE** | LDAP master user scope | **required** if **LDAP_MASTER_USER_ENABLED** | ${LDAP_DEFAULT_SEARCH_SCOPE}
-| **LDAP_DOVECOT_MASTER_USER_ATTRS** | LDAP master user dovecot attributes | **required** if **LDAP_MASTER_USER_ENABLED** | 
-| **LDAP_DOVECOT_MASTER_USER_FILTER** | LDAP master user dovecot search filter | **required** if **LDAP_MASTER_USER_ENABLED** | 
-
-
+| **LDAP_DOVECOT_MASTER_USER_ATTRS** | LDAP master user dovecot attributes | **required** if **LDAP_MASTER_USER_ENABLED** |
+| **LDAP_DOVECOT_MASTER_USER_FILTER** | LDAP master user dovecot search filter | **required** if **LDAP_MASTER_USER_ENABLED** |
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
@@ -797,8 +795,6 @@ postgres:
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
 
-
-
 ### LDAP support
 
 This mailserver supports LDAP now aswell. Please keep in mind that LDAP itself is an already complicated system and using this mailserver with LDAP will require you to already have a deeper understanding on how LDAP, postfix and dovecot works. Due to the nature of LDAP there is no "default" setup you can or is suggested to be used. This means **a lot** of configuration is **required** to set this mailserver up with your LDAP system and it will definetly not work out of the box.
@@ -854,9 +850,6 @@ LDAP_DOVECOT_MASTER_PASS_FILTER="(&(mail=%u)(st=%{login_user})(objectClass=mailA
 ```
 
 <p align="right"><a href="#summary">Back to table of contents :arrow_up_small:</a></p>
-
-
-
 
 ### IPv6 support
 

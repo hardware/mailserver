@@ -5,19 +5,19 @@ load 'test_helper/bats-assert/load'
 # system
 #
 
-@test "checking system: /etc/mailname (docker method)" {
+@test "checking system: /etc/mailname (docker method) (default)" {
   run docker exec mailserver_default cat /etc/mailname
   assert_success
   assert_output "mail.domain.tld"
 }
 
-@test "checking system: /etc/mailname (env method)" {
+@test "checking system: /etc/mailname (env method) (reverse)" {
   run docker exec mailserver_reverse cat /etc/mailname
   assert_success
   assert_output "mail.domain.tld"
 }
 
-@test "checking system: /etc/mailname (env method)" {
+@test "checking system: /etc/mailname (env method) (ldap)" {
   run docker exec mailserver_ldap cat /etc/mailname
   assert_success
   assert_output "mail.domain.tld"
@@ -53,12 +53,22 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking system: all environment variables have been replaced (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
+  run docker exec mailserver_default /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/cron.d /etc/mailname /usr/local/bin"
   assert_failure
 }
 
 @test "checking system: all environment variables have been replaced (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/mailname /usr/local/bin"
+  run docker exec mailserver_reverse /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/cron.d /etc/mailname /usr/local/bin"
+  assert_failure
+}
+
+@test "checking system: all environment variables have been replaced (ldap configuration)" {
+  run docker exec mailserver_ldap /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/cron.d /etc/mailname /usr/local/bin"
+  assert_failure
+}
+
+@test "checking system: all environment variables have been replaced (ldap2 configuration)" {
+  run docker exec mailserver_ldap2 /bin/bash -c "egrep -R -I "{{.*}}" /etc/postfix /etc/postfixadmin/fetchmail.conf /etc/dovecot /etc/rspamd /etc/cron.d /etc/mailname /usr/local/bin"
   assert_failure
 }
 
@@ -135,7 +145,6 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_default /bin/bash -c "ps aux --forest | grep '[s]6-supervise cert_watcher'"
   assert_success
 }
-
 
 #
 # processes (reverse configuration)
@@ -215,40 +224,40 @@ load 'test_helper/bats-assert/load'
 # processes (ldap configuration)
 #
 
-@test "checking process: s6        (ldap configuration)" {
+@test "checking process: s6           (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
-@test "checking process: rsyslog   (ldap configuration)" {
+@test "checking process: rsyslog      (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   assert_success
 }
 
-@test "checking process: cron      (ldap configuration)" {
+@test "checking process: cron         (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   assert_success
 }
 
-@test "checking process: postfix   (ldap configuration)" {
+@test "checking process: postfix      (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   assert_success
-  run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
+  run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -s'"
   assert_success
 }
 
-@test "checking process: dovecot   (ldap configuration)" {
+@test "checking process: dovecot      (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   assert_success
 }
 
-@test "checking process: rspamd    (ldap configuration)" {
+@test "checking process: rspamd       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -259,7 +268,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking process: clamd     (ldap configuration)" {
+@test "checking process: clamd        (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
@@ -267,60 +276,63 @@ load 'test_helper/bats-assert/load'
 
 }
 
-@test "checking process: freshclam (ldap configuration)" {
+@test "checking process: freshclam    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
   assert_success
 }
 
-@test "checking process: unbound   (ldap configuration)" {
+@test "checking process: unbound      (ldap configuration)" {
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
   assert_success
   run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_success
 }
 
-
+@test "checking process: cert_watcher (ldap configuration)" {
+  run docker exec mailserver_ldap /bin/bash -c "ps aux --forest | grep '[s]6-supervise cert_watcher'"
+  assert_success
+}
 
 #
 # processes (ldap2 configuration)
 #
 
-@test "checking process: s6        (ldap2 configuration)" {
+@test "checking process: s6           (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-svscan /services'"
   assert_success
 }
 
-@test "checking process: rsyslog   (ldap2 configuration)" {
+@test "checking process: rsyslog      (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise rsyslogd'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[r]syslogd -n -f /etc/rsyslog/rsyslog.conf'"
   assert_success
 }
 
-@test "checking process: cron      (ldap2 configuration)" {
+@test "checking process: cron         (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise cron'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[c]ron -f'"
   assert_success
 }
 
-@test "checking process: postfix   (ldap2 configuration)" {
+@test "checking process: postfix      (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise postfix'"
   assert_success
-  run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -w'"
+  run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[/]usr/lib/postfix/sbin/master -s'"
   assert_success
 }
 
-@test "checking process: dovecot   (ldap2 configuration)" {
+@test "checking process: dovecot      (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise dovecot'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[/]usr/sbin/dovecot -F'"
   assert_success
 }
 
-@test "checking process: rspamd    (ldap2 configuration)" {
+@test "checking process: rspamd       (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise rspamd'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[r]spamd: main process'"
@@ -331,34 +343,37 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking process: clamd     (ldap2 configuration)" {
+@test "checking process: clamd        (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise clamd'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[c]lamd'"
   assert_failure
 }
 
-@test "checking process: freshclam (ldap2 configuration)" {
+@test "checking process: freshclam    (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise freshclam'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[f]reshclam -d'"
   assert_failure
 }
 
-@test "checking process: unbound   (ldap2 configuration)" {
+@test "checking process: unbound      (ldap2 configuration)" {
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise unbound'"
   assert_success
   run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep -v 's6' | grep '[u]nbound'"
   assert_failure
 }
 
-
+@test "checking process: cert_watcher (ldap2 configuration)" {
+  run docker exec mailserver_ldap2 /bin/bash -c "ps aux --forest | grep '[s]6-supervise cert_watcher'"
+  assert_success
+}
 
 #
 # processes restarting
 #
 
-@test "checking process: 9 cron tasks to reset all the process counters" {
+@test "checking process: 10 cron tasks to reset all the process counters" {
   run docker exec mailserver_default /bin/bash -c "cat /etc/cron.d/counters | wc -l"
   assert_success
   assert_output 10
@@ -464,8 +479,10 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_ldap cat /tmp/counters/unbound
   assert_success
   assert_output 0
+  run docker exec mailserver_ldap cat /tmp/counters/cert_watcher
+  assert_success
+  assert_output 0
 }
-
 
 #
 # ports
@@ -481,7 +498,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port    (25): external port listening (ldap configuration)" {
+@test "checking port    (25): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 25"
   assert_success
 }
@@ -496,7 +513,7 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking port    (53): internal port listening (ldap configuration)" {
+@test "checking port    (53): internal port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 127.0.0.1 53"
   assert_success
 }
@@ -511,7 +528,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (110): external port closed    (ldap configuration)" {
+@test "checking port   (110): external port closed       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 110"
   assert_failure
 }
@@ -526,7 +543,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (143): external port listening (ldap configuration)" {
+@test "checking port   (143): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 143"
   assert_success
 }
@@ -541,7 +558,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (465): external port listening (ldap configuration)" {
+@test "checking port   (465): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 465"
   assert_success
 }
@@ -556,7 +573,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (587): external port listening (ldap configuration)" {
+@test "checking port   (587): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 587"
   assert_success
 }
@@ -571,7 +588,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (993): external port listening (ldap configuration)" {
+@test "checking port   (993): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 993"
   assert_success
 }
@@ -586,7 +603,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port   (995): external port closed    (ldap configuration)" {
+@test "checking port   (995): external port closed       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 995"
   assert_failure
 }
@@ -601,7 +618,7 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking port  (3310): external port closed    (ldap configuration)" {
+@test "checking port  (3310): external port closed       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 3310"
   assert_success
 }
@@ -616,7 +633,7 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking port  (4190): external port closed    (ldap configuration)" {
+@test "checking port  (4190): external port closed       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 4190"
   assert_success
 }
@@ -631,12 +648,12 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking port  (8953): internal port listening (ldap configuration)" {
+@test "checking port  (8953): internal port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 127.0.0.1 8953"
   assert_success
 }
 
-@test "checking port (10025): internal port closed (default configuration)" {
+@test "checking port (10025): internal port closed    (default configuration)" {
   run docker exec mailserver_default /bin/sh -c "nc -z 127.0.0.1 10025"
   assert_failure
 }
@@ -646,7 +663,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port (10025): internal port closed    (ldap configuration)" {
+@test "checking port (10025): internal port closed       (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 127.0.0.1 10025"
   assert_failure
 }
@@ -661,7 +678,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port (10026): internal port listening (ldap configuration)" {
+@test "checking port (10026): internal port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 127.0.0.1 10026"
   assert_success
 }
@@ -676,7 +693,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port (11332): external port listening (ldap configuration)" {
+@test "checking port (11332): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 11332"
   assert_success
 }
@@ -691,7 +708,7 @@ load 'test_helper/bats-assert/load'
   assert_success
 }
 
-@test "checking port (11334): external port listening (ldap configuration)" {
+@test "checking port (11334): external port listening    (ldap configuration)" {
   run docker exec mailserver_ldap /bin/sh -c "nc -z 0.0.0.0 11334"
   assert_success
 }
@@ -749,8 +766,6 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_ldap2 /bin/sh -c "doveadm auth test sarah.connor@domain.tld*john.doe@domain.tld testpasswd12 | grep 'auth failed'"
   assert_success
 }
-
-
 
 #
 # smtp
@@ -864,8 +879,8 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
-@test "checking smtp: sarah.connor should have received 2 mail (internal spam-ham test) (ldap configuration)" {
-  run docker exec mailserver_ldap /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/cur/ | wc -l"
+@test "checking smtp: sarah.connor should have received 1 mail (internal spam-ham test) (ldap configuration)" {
+  run docker exec mailserver_ldap /bin/sh -c "ls -A /var/mail/vhosts/domain.tld/sarah.connor/mail/new/ | wc -l"
   assert_success
   assert_output 1
 }
@@ -966,7 +981,6 @@ load 'test_helper/bats-assert/load'
   assert_output 1
 }
 
-
 #
 # imap
 #
@@ -1025,7 +1039,6 @@ load 'test_helper/bats-assert/load'
   run docker exec mailserver_ldap2 /bin/sh -c "openssl s_client -ign_eof -connect 0.0.0.0:993 < /tmp/tests/auth/imap-auth-master-wrong.txt 2>&1 | grep -i 'authentication failed'"
   assert_success
 }
-
 
 #
 # pop
@@ -1190,7 +1203,6 @@ load 'test_helper/bats-assert/load'
   [ "${lines[2]}" = "john.connor@domain.tld" ]
 }
 
-
 @test "checking accounts: user quotas (default configuration)" {
   run docker exec mailserver_default /bin/bash -c "doveadm quota get -A 2>&1 | grep '1000' | wc -l"
   assert_success
@@ -1248,7 +1260,6 @@ load 'test_helper/bats-assert/load'
   assert_success
   assert_output 6
 }
-
 
 @test "checking dkim: control the size of the RSA key pair (4096bits)" {
   run docker exec mailserver_reverse /bin/bash -c "openssl rsa -in /var/mail/dkim/domain.tld/private.key -text -noout | grep -i 'Private-Key: (4096 bit, 2 primes)'"
