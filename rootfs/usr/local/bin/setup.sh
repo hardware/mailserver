@@ -221,20 +221,10 @@ _envtpl /etc/postfix/sql/virtual-alias-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-maps.cf
 _envtpl /etc/postfix/sql/virtual-alias-domain-catchall-maps.cf
 
-_envtpl /etc/postfix/ldap/sender-login-maps.cf
-_envtpl /etc/postfix/ldap/virtual-mailbox-domains.cf
-_envtpl /etc/postfix/ldap/virtual-mailbox-maps.cf
-_envtpl /etc/postfix/ldap/virtual-alias-maps.cf
-_envtpl /etc/postfix/ldap/virtual-forward-maps.cf
-_envtpl /etc/postfix/ldap/virtual-group-maps.cf
-
 _envtpl /etc/postfixadmin/fetchmail.conf
 
 _envtpl /etc/dovecot/dovecot-sql.conf.ext
 _envtpl /etc/dovecot/dovecot-dict-sql.conf.ext
-
-_envtpl /etc/dovecot/dovecot-ldap.conf.ext
-_envtpl /etc/dovecot/dovecot-ldap-master.conf.ext
 
 _envtpl /etc/dovecot/conf.d/10-auth.conf
 _envtpl /etc/dovecot/conf.d/10-mail.conf
@@ -242,8 +232,6 @@ _envtpl /etc/dovecot/conf.d/10-ssl.conf
 _envtpl /etc/dovecot/conf.d/15-lda.conf
 _envtpl /etc/dovecot/conf.d/20-lmtp.conf
 _envtpl /etc/dovecot/conf.d/90-quota.conf
-
-_envtpl /etc/dovecot/conf.d/auth-ldap.conf.ext
 
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/settings.conf
@@ -253,6 +241,34 @@ _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
 _envtpl /usr/local/bin/quota-warning.sh
 _envtpl /usr/local/bin/fetchmail.pl
+
+if [ "$DBDRIVER" = "ldap" ]; then
+
+  _envtpl /etc/postfix/ldap/sender-login-maps.cf
+  _envtpl /etc/postfix/ldap/virtual-mailbox-domains.cf
+  _envtpl /etc/postfix/ldap/virtual-mailbox-maps.cf
+  _envtpl /etc/postfix/ldap/virtual-alias-maps.cf
+  _envtpl /etc/postfix/ldap/virtual-forward-maps.cf
+  _envtpl /etc/postfix/ldap/virtual-group-maps.cf
+
+  _envtpl /etc/dovecot/dovecot-ldap.conf.ext
+  _envtpl /etc/dovecot/dovecot-ldap-master.conf.ext
+
+  _envtpl /etc/dovecot/conf.d/auth-ldap.conf.ext
+
+else
+
+  rm -f /etc/postfix/ldap/sender-login-maps.cf \
+        /etc/postfix/ldap/virtual-mailbox-domains.cf \
+        /etc/postfix/ldap/virtual-mailbox-maps.cf \
+        /etc/postfix/ldap/virtual-alias-maps.cf \
+        /etc/postfix/ldap/virtual-forward-maps.cf \
+        /etc/postfix/ldap/virtual-group-maps.cf \
+        /etc/dovecot/dovecot-ldap.conf.ext \
+        /etc/dovecot/dovecot-ldap-master.conf.ext \
+        /etc/dovecot/conf.d/auth-ldap.conf.ext
+
+fi
 
 # POSTFIX CUSTOM CONFIG
 # ---------------------------------------------------------------------------------------------
