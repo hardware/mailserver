@@ -1925,7 +1925,7 @@ load 'test_helper/bats-assert/load'
 }
 
 @test "checking ssl: let's encrypt cert works correctly" {
-  run docker exec mailserver_reverse /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 21 (unable to verify the first certificate)'"
+  run docker exec mailserver_reverse /bin/sh -c "timeout 1 openssl s_client -ign_eof -connect 0.0.0.0:587 -starttls smtp | grep 'Verify return code: 10 (certificate has expired)'"
   assert_success
 }
 
