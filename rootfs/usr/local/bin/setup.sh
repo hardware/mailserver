@@ -749,7 +749,7 @@ fi
 # ---------------------------------------------------------------------------------------------
 
 # Remove invoke-rc.d warning
-sed -i 's|invoke-rc.d rsyslog rotate |invoke-rc.d --quiet rsyslog rotate \&|g' /etc/logrotate.d/rsyslog
+sed -i 's|rsyslog-rotate|rsyslog-rotate \&>/dev/null|g' /etc/logrotate.d/rsyslog
 
 # Folders and permissions
 mkdir -p /var/run/fetchmail
