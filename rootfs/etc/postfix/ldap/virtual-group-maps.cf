@@ -12,7 +12,7 @@ tls_ca_cert_file = {{ .LDAP_TLS_CA_FILE }}
 {{ end }}
 
 {{ if eq .LDAP_TLS_FORCE "true" }}
-tls_require_cert = true
+tls_require_cert = yes
 {{ end }}
 
 {{ if eq .LDAP_BIND "true" }}
