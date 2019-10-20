@@ -85,6 +85,14 @@ elif [ "$1" = "update_certs" ]; then
           mv -f "$CERT_TEMP_PATH"/certs/"*.${DOMAIN}.crt" "$CERT_TEMP_PATH"/certs/"$FQDN".crt
           mv -f "$CERT_TEMP_PATH"/private/"*.${DOMAIN}.key" "$CERT_TEMP_PATH"/private/"$FQDN".key
         fi
+    elif jq -e -r '.[].Account.PrivateKey' "$ACME_FILE" >/dev/null ; then
+        echo "[INFO] acme.json found with Traefik v2 format, dumping into pem files" | tee -a "$ACME_DUMP"
+        dumpcerts.traefik.v2.sh "$ACME_FILE" "$CERT_TEMP_PATH" >> "$ACME_DUMP" 2>&1
+        if [ -e "$CERT_TEMP_PATH"/certs/"*.${DOMAIN}.crt" ] && [ -e "$CERT_TEMP_PATH"/private/"*.${DOMAIN}.key" ]; then
+          echo "[INFO] Let's encrypt wildcard certificate found" | tee -a "$ACME_DUMP"
+          mv -f "$CERT_TEMP_PATH"/certs/"*.${DOMAIN}.crt" "$CERT_TEMP_PATH"/certs/"$FQDN".crt
+          mv -f "$CERT_TEMP_PATH"/private/"*.${DOMAIN}.key" "$CERT_TEMP_PATH"/private/"$FQDN".key
+        fi
     else
       echo "[ERROR] acme.json found but with an unknown format" >> "$ACME_DUMP"
     fi
