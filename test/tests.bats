@@ -1067,19 +1067,19 @@ load 'test_helper/bats-assert/load'
 # rspamd
 
 @test "checking rspamd: spam filtered (default configuration)" {
-  run docker exec mailserver_default /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_default /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking rspamd: spam filtered (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking rspamd: spam filtered (ldap configuration)" {
-  run docker exec mailserver_ldap /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_ldap /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }

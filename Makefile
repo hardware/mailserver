@@ -25,8 +25,9 @@ init:
 		-e MYSQL_DATABASE=postfix \
 		-e MYSQL_USER=postfix \
 		-e MYSQL_PASSWORD=testpasswd \
-		-v "`pwd`/test/config/mariadb":/docker-entrypoint-initdb.d \
-		-t mariadb:10.2
+		-v "`pwd`/test/config/mariadb/struct.sql":/docker-entrypoint-initdb.d/struct.sql \
+		-v "`pwd`/test/config/mariadb/bind.cnf":/etc/mysql/conf.d/bind.cnf \
+		-t mysql:5.7
 
 	docker run \
 		-d \
