@@ -46,10 +46,14 @@ DISABLE_CLAMAV=${DISABLE_CLAMAV:-false} # --
 DISABLE_DNS_RESOLVER=${DISABLE_DNS_RESOLVER:-false} # --
 
 if [ "$DBDRIVER" = "ldap" ]; then
+  export LDAP_URI
   export LDAP_BIND
   export LDAP_BIND_DN
   export LDAP_BIND_PW
 
+  LDAP_URI=${LDAP_URI:-ldap://$DBHOST:$DBPORT}
+  # backward compatability with host name check
+  DBHOST=${DBHOST:-localhost}
   LDAP_BIND=${LDAP_BIND:-true}
   LDAP_BIND_DN=${LDAP_BIND_DN:-}
   LDAP_BIND_PW=$([ -f "$LDAP_BIND_PW" ] && cat "$LDAP_BIND_PW" || echo "${LDAP_BIND_PW:-}")
