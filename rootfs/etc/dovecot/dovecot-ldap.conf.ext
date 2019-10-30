@@ -1,4 +1,4 @@
-hosts           = {{ .LDAP_URI }}
+uris           = {{ .LDAP_URI }}
 ldap_version    = 3
 {{ if eq .LDAP_BIND "true" }}
 auth_bind       = yes
