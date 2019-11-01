@@ -1,8 +1,8 @@
-HELO mail.example.com
-MAIL FROM: user@example.com
+HELO mx.gmail.com
+MAIL FROM: user@gmail.com
 RCPT TO: sarah.connor@domain.tld
 DATA
-From: Docker Mail Server <user@example.com>
+From: Docker Mail Server <user@gmail.com>
 To: Existing Local User <sarah.connor@domain.tld>
 Date: Sat, 28 Nov 2016 12:00:00 +0200
 Subject: Test Message

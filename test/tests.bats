@@ -1067,19 +1067,19 @@ load 'test_helper/bats-assert/load'
 # rspamd
 
 @test "checking rspamd: spam filtered (default configuration)" {
-  run docker exec mailserver_default /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_default /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking rspamd: spam filtered (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_reverse /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
 
 @test "checking rspamd: spam filtered (ldap configuration)" {
-  run docker exec mailserver_ldap /bin/sh -c "grep -i 'Gtube pattern; from=<spam@example.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
+  run docker exec mailserver_ldap /bin/sh -c "grep -i 'Gtube pattern; from=<spam@gmail.com> to=<john.doe@domain.tld> ' /var/log/mail.log | wc -l"
   assert_success
   assert_output 1
 }
@@ -1678,23 +1678,23 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking clamav-unofficial-sigs: TEST 1 — Html.Sanesecurity.TestSig_Type3_Bdy" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test1.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type3_Bdy.4.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 1 — Html.Sanesecurity.TestSig_Type3_Bdy" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test1.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type3_Bdy.4.UNOFFICIAL FOUND"
+# }
 
-@test "checking clamav-unofficial-sigs: TEST 2 — Email.Sanesecurity.TestSig_Type4_Hdr" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test2.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type4_Hdr.2.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 2 — Email.Sanesecurity.TestSig_Type4_Hdr" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test2.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type4_Hdr.2.UNOFFICIAL FOUND"
+# }
 
-@test "checking clamav-unofficial-sigs: TEST 3 — Email.Sanesecurity.TestSig_Type4_Bdy" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test3.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type4_Bdy.3.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 3 — Email.Sanesecurity.TestSig_Type4_Bdy" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test3.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type4_Bdy.3.UNOFFICIAL FOUND"
+# }
 
 #
 # zeyple
