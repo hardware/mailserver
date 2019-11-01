@@ -1,3 +1,9 @@
+:warning:
+
+# This docker image is no longer maintained.
+
+:warning:
+
 ## hardware/mailserver
 
 ### Chat & questions
