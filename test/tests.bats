@@ -1678,23 +1678,23 @@ load 'test_helper/bats-assert/load'
   assert_failure
 }
 
-@test "checking clamav-unofficial-sigs: TEST 1 — Html.Sanesecurity.TestSig_Type3_Bdy" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test1.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type3_Bdy.4.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 1 — Html.Sanesecurity.TestSig_Type3_Bdy" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test1.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type3_Bdy.4.UNOFFICIAL FOUND"
+# }
 
-@test "checking clamav-unofficial-sigs: TEST 2 — Email.Sanesecurity.TestSig_Type4_Hdr" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test2.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type4_Hdr.2.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 2 — Email.Sanesecurity.TestSig_Type4_Hdr" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test2.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type4_Hdr.2.UNOFFICIAL FOUND"
+# }
 
-@test "checking clamav-unofficial-sigs: TEST 3 — Email.Sanesecurity.TestSig_Type4_Bdy" {
-  run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test3.eml"
-  assert_failure
-  assert_output --partial "Sanesecurity.TestSig_Type4_Bdy.3.UNOFFICIAL FOUND"
-}
+# @test "checking clamav-unofficial-sigs: TEST 3 — Email.Sanesecurity.TestSig_Type4_Bdy" {
+#   run docker exec mailserver_default /bin/sh -c "clamscan --database=/var/lib/clamav/phish.ndb - < /tmp/tests/clamav/test3.eml"
+#   assert_failure
+#   assert_output --partial "Sanesecurity.TestSig_Type4_Bdy.3.UNOFFICIAL FOUND"
+# }
 
 #
 # zeyple
