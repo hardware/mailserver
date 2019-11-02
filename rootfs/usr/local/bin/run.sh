@@ -19,6 +19,7 @@ export REDIS_NUMB
 
 export DISABLE_CLAMAV
 export DISABLE_DNS_RESOLVER
+export PREFETCH_HOSTS
 
 FQDN=${FQDN:-$(hostname --fqdn)}
 DOMAIN=${DOMAIN:-$(hostname --domain)}
@@ -95,41 +96,24 @@ fi
 # We need to set these in the hosts file before Unbound takes over for DNS
 # ---------------------------------------------------------------------------------------------
 
-# Check mariadb/postgres hostname
-grep -q "${DBHOST}" /etc/hosts
+for onehost in $DBHOST $REDIS_HOST $PREFETCH_HOSTS; do
+  grep -q "$onehost" /etc/hosts
 
-if [ $? -ne 0 ]; then
-  echo "[INFO] MariaDB/PostgreSQL hostname not found in /etc/hosts"
-  IP=$(dig A ${DBHOST} +short +search)
-  if [ -n "$IP" ]; then
-    echo "[INFO] Container IP found, adding a new record in /etc/hosts"
-    echo "${IP} ${DBHOST}" >> /etc/hosts
+  if [ $? -ne 0 ]; then
+    echo "[INFO] Host $onehost not found in /etc/hosts"
+    IP=$(dig A $onehost +short +search)
+    if [ -n "$IP" ]; then
+      echo "[INFO] Host $onehost found, adding a new record in /etc/hosts"
+      echo "$IP $onehost" >> /etc/hosts
+    else
+      echo "[ERROR] Host $onehost IP not found with embedded DNS server... Abort !"
+      echo "[ERROR] Check your DBHOST/REDIS_HOST/PREFETCH_HOSTS environment variable"
+      exit 1
+    fi
   else
-    echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
-    echo "[ERROR] Check your DBHOST environment variable"
-    exit 1
+    echo "[INFO] HOst $onehost found in /etc/hosts"
   fi
-else
-  echo "[INFO] MariaDB/PostgreSQL hostname found in /etc/hosts"
-fi
-
-# Check redis hostname
-grep -q "${REDIS_HOST}" /etc/hosts
-
-if [ $? -ne 0 ]; then
-  echo "[INFO] Redis hostname not found in /etc/hosts"
-  IP=$(dig A ${REDIS_HOST} +short +search)
-  if [ -n "$IP" ]; then
-    echo "[INFO] Container IP found, adding a new record in /etc/hosts"
-    echo "${IP} ${REDIS_HOST}" >> /etc/hosts
-  else
-    echo "[ERROR] Container IP not found with embedded DNS server... Abort !"
-    echo "[ERROR] Check your REDIS_HOST environment variable"
-    exit 1
-  fi
-else
-  echo "[INFO] Redis hostname found in /etc/hosts"
-fi
+done
 
 # SETUP CONFIG FILES
 # ---------------------------------------------------------------------------------------------
