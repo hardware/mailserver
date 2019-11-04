@@ -158,20 +158,21 @@ A correct DNS setup is required, this step is very important.
 | postfixadmin | IN | CNAME | any | mail.domain.tld. |
 | @ | IN | MX | 10 | mail.domain.tld. |
 | @ | IN | TXT | any | "v=spf1 a mx ip4:SERVER_IPV4 ~all" |
-| mail._domainkey | IN | TXT | any | "v=DKIM1; k=rsa; p=YOUR DKIM Public Key" |
+| {{selector}}._domainkey | IN | TXT | any | "v=DKIM1; k=rsa; p=YOUR DKIM Public Key" |
 | _dmarc | IN | TXT | any | "v=DMARC1; p=reject; rua=mailto:postmaster@domain.tld; ruf=mailto:admin@domain.tld; fo=0; adkim=s; aspf=s; pct=100; rf=afrf; sp=reject" |
 
 **Notes:**
 
 * Make sure that the **PTR record** of your IP matches the FQDN (default : mail.domain.tld) of your mailserver host. This record is usually set in your web hosting interface.
+* {{selector}} defaults to ``mail`` unless changed via ``DKIM_SELECTOR``
 * DKIM, SPF and DMARC records are recommended to build a good reputation score.
 * The DKIM public key will be available on host after the container startup :
 
 ```
-/mnt/docker/mail/dkim/domain.tld/public.key
+/mnt/docker/mail/dkim/domain.tld/{{selector}}.public.key
 ```
 
-To regenerate your public and private keys, remove the `/mnt/docker/mail/dkim/domain.tld` folder. By default a **1024-bit** key is generated, you can increase this size by setting the `OPENDKIM_KEY_LENGTH` environment variable with a higher value. Check your domain registrar support to verify that it supports a TXT record long enough for a key larger than 1024 bits.
+To regenerate your public and private keys, remove the `/mnt/docker/mail/dkim/domain.tld` folder. By default a **1024-bit** key is generated, you can increase this size by setting the `DKIM_KEY_LENGTH` environment variable with a higher value. Check your domain registrar support to verify that it supports a TXT record long enough for a key larger than 1024 bits.
 
 These DNS record will raise your trust reputation score and reduce abuse of your domain name. You can find more information here :
 
@@ -300,7 +301,8 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 | **VMAILUID** | vmail user id | *optional* | 1024
 | **VMAILGID** | vmail group id | *optional* | 1024
 | **VMAIL_SUBDIR** | Individual mailbox' subdirectory | *optional* | mail
-| **OPENDKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
+| **DKIM_KEY_LENGTH** | Size of your DKIM RSA key pair | *optional* | 1024
+| **DKIM_SELECTOR** | Your DKIM selector | *optional* | `mail`
 | **DEBUG_MODE** | Enable Postfix, Dovecot, Rspamd and Unbound verbose logging | *optional* | false
 | **PASSWORD_SCHEME** | Passwords encryption scheme | *optional* | `SHA512-CRYPT`
 | **DBDRIVER** | Database type: mysql, pgsql, ldap | *optional* | mysql
@@ -340,7 +342,7 @@ If you use Ansible, I recommend you to go to see [@ksylvan](https://github.com/k
 * **FETCHMAIL_INTERVAL** must be a number between **1** and **59** minutes.
 * Use **DISABLE_DNS_RESOLVER** if you have some DNS troubles and DNSSEC lookup issues with the local DNS resolver.
 * Use **DISABLE_RSPAMD_MODULE** to disable any module listed here : https://rspamd.com/doc/modules/
-
+* **OPENDKIM_KEY_LENGTH** has been renamed to **DKIM_KEY_LENGTH**, but falls back to **OPENDKIM_KEY_LENGTH** for backwards compatability
 
 When using LDAP authentication the following additional variables become available. All *DBUSER*, *DBNAME* and *DBPASS* variables will not be used in this case:
 
@@ -932,8 +934,8 @@ You can read more on how and why [robbertkl/docker-ipv6nat](https://github.com/r
    │     custom.sieve (custom default sieve rules for all users)
    ├──dkim
    │  ├──domain.tld
-   │  │     private.key
-   │  │     public.key
+   │  │     {{selector}}.private.key
+   │  │     {{selector}}.public.key
    ├──ssl
    │  ├──selfsigned (Auto-generated if no certificate found)
    │  │     cert.pem
