@@ -6,6 +6,7 @@ export RECIPIENT_DELIMITER
 export FETCHMAIL_INTERVAL
 export RELAY_NETWORKS
 export PASSWORD_SCHEME
+export DKIM_SELECTOR
 
 TESTING=${TESTING:-false}
 DEBUG_MODE=${DEBUG_MODE:-false}
@@ -16,6 +17,8 @@ DBPASS=$([ -f "$DBPASS" ] && cat "$DBPASS" || echo "${DBPASS:-}")
 RSPAMD_PASSWORD=$([ -f "$RSPAMD_PASSWORD" ] && cat "$RSPAMD_PASSWORD" || echo "${RSPAMD_PASSWORD:-}")
 WHITELIST_SPAM_ADDRESSES=${WHITELIST_SPAM_ADDRESSES:-}
 OPENDKIM_KEY_LENGTH=${OPENDKIM_KEY_LENGTH:-1024}
+DKIM_KEY_LENGTH=${DKIM_KEY_LENGTH:-$OPENDKIM_KEY_LENGTH}
+DKIM_SELECTOR=${DKIM_SELECTOR:-mail}
 
 DISABLE_RSPAMD_MODULE=${DISABLE_RSPAMD_MODULE:-}
 DISABLE_SIEVE=${DISABLE_SIEVE:-false}
@@ -58,19 +61,24 @@ for domain in "${domains[@]}"; do
   mkdir -p /var/mail/dkim/"$domain"
 
   if [ -f /var/mail/opendkim/"$domain"/mail.private ]; then
-    echo "[INFO] Found an old DKIM keys, migrating files to the new location"
-    mv /var/mail/opendkim/"$domain"/mail.private /var/mail/dkim/"$domain"/private.key
-    mv /var/mail/opendkim/"$domain"/mail.txt /var/mail/dkim/"$domain"/public.key
+    echo "[INFO] Found an old OPENDKIM keys, migrating files to the new location"
+    mv /var/mail/opendkim/"$domain"/mail.private /var/mail/dkim/"$domain"/mail.private.key
+    mv /var/mail/opendkim/"$domain"/mail.txt /var/mail/dkim/"$domain"/mail.public.key
     rm -rf /var/mail/opendkim/"$domain"
     rmdir --ignore-fail-on-non-empty /var/mail/opendkim
-  elif [ ! -f /var/mail/dkim/"$domain"/private.key ]; then
+  elif [ -f /var/mail/dkim/"$domain"/private.key ]; then
+    echo "[INFO] Found an old DKIM keys, migrating files to the new location"
+    mv /var/mail/dkim/"$domain"/private.key /var/mail/dkim/"$domain"/mail.private.key
+    mv /var/mail/dkim/"$domain"/public.key /var/mail/dkim/"$domain"/mail.public.key
+  fi
+  if [ ! -f /var/mail/dkim/"$domain"/"$DKIM_SELECTOR".private.key ]; then
     echo "[INFO] Creating DKIM keys for domain $domain"
     rspamadm dkim_keygen \
-      --selector=mail \
+      --selector="$DKIM_SELECTOR" \
       --domain="$domain" \
-      --bits="$OPENDKIM_KEY_LENGTH" \
-      --privkey=/var/mail/dkim/"$domain"/private.key \
-      > /var/mail/dkim/"$domain"/public.key
+      --bits="$DKIM_KEY_LENGTH" \
+      --privkey=/var/mail/dkim/"$domain"/"$DKIM_SELECTOR".private.key \
+      > /var/mail/dkim/"$domain"/"$DKIM_SELECTOR".public.key
   else
     echo "[INFO] Found DKIM key pair for domain $domain - skip creation"
   fi
@@ -236,6 +244,8 @@ _envtpl /etc/dovecot/conf.d/90-quota.conf
 _envtpl /etc/rspamd/local.d/redis.conf
 _envtpl /etc/rspamd/local.d/settings.conf
 _envtpl /etc/rspamd/local.d/statistic.conf
+_envtpl /etc/rspamd/local.d/dkim_signing.conf
+_envtpl /etc/rspamd/local.d/arc.conf
 
 _envtpl /etc/cron.d/fetchmail
 _envtpl /etc/mailname
@@ -649,8 +659,11 @@ sed -i "s|<PASSWORD>|${PASSWORD}|g" /etc/rspamd/local.d/worker-controller.inc
 
 # Set permissions
 mkdir -p /var/mail/rspamd /var/log/rspamd /run/rspamd
-chown -R _rspamd:_rspamd /var/mail/rspamd /var/log/rspamd /run/rspamd
+chown -R _rspamd:_rspamd /var/mail/rspamd /var/log/rspamd /run/rspamd /var/mail/dkim
 chmod 750 /var/mail/rspamd /var/log/rspamd
+
+chmod 444 /var/mail/dkim/*/*.public.key
+chmod 440 /var/mail/dkim/*/*.private.key
 
 modules+=(${DISABLE_RSPAMD_MODULE//,/ })
 
@@ -756,8 +769,10 @@ mkdir -p /var/run/fetchmail
 chmod +x /usr/local/bin/*
 
 # Fix old DKIM keys permissions
-chown -R vmail:vmail /var/mail/dkim
-chmod 444 /var/mail/dkim/*/{private.key,public.key}
+# Moved to rspamd
+# chown -R vmail:vmail /var/mail/dkim
+# chmod 444 /var/mail/dkim/*/*.public.key
+# chmod 440 /var/mail/dkim/*/*.private.key
 
 # Ensure that hashes are calculated because Postfix require directory
 # to be set up like this in order to find CA certificates.

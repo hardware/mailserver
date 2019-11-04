@@ -1244,25 +1244,25 @@ load 'test_helper/bats-assert/load'
 #
 
 @test "checking dkim: all key pairs are generated (default configuration)" {
-  run docker exec mailserver_default /bin/bash -c "ls -A /var/mail/dkim/*/{private.key,public.key} | wc -l"
+  run docker exec mailserver_default /bin/bash -c "ls -A /var/mail/dkim/*/mail.{private.key,public.key} | wc -l"
   assert_success
   assert_output 6
 }
 
 @test "checking dkim: all key pairs are generated (reverse configuration)" {
-  run docker exec mailserver_reverse /bin/bash -c "ls -A /var/mail/dkim/*/{private.key,public.key} | wc -l"
+  run docker exec mailserver_reverse /bin/bash -c "ls -A /var/mail/dkim/*/other.{private.key,public.key} | wc -l"
   assert_success
   assert_output 2
 }
 
 @test "checking dkim: all key pairs are generated (ldap configuration)" {
-  run docker exec mailserver_ldap /bin/bash -c "ls -A /var/mail/dkim/*/{private.key,public.key} | wc -l"
+  run docker exec mailserver_ldap /bin/bash -c "ls -A /var/mail/dkim/*/mail20190101.{private.key,public.key} | wc -l"
   assert_success
   assert_output 6
 }
 
 @test "checking dkim: control the size of the RSA key pair (4096bits)" {
-  run docker exec mailserver_reverse /bin/bash -c "openssl rsa -in /var/mail/dkim/domain.tld/private.key -text -noout | grep -i 'Private-Key: (4096 bit, 2 primes)'"
+  run docker exec mailserver_reverse /bin/bash -c "openssl rsa -in /var/mail/dkim/domain.tld/other.private.key -text -noout | grep -i 'Private-Key: (4096 bit, 2 primes)'"
   assert_success
 }
 

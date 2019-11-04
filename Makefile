@@ -104,7 +104,8 @@ init:
 		-e ENABLE_POP3=true \
 		-e ENABLE_ENCRYPTION=true \
 		-e ENABLE_FETCHMAIL=true \
-		-e OPENDKIM_KEY_LENGTH=4096 \
+		-e DKIM_KEY_LENGTH=4096 \
+		-e DKIM_SELECTOR="other" \
 		-e TESTING=true \
 		-v "`pwd`/test/share/tests":/tmp/tests \
 		-v "`pwd`/test/share/passwd":/tmp/passwd \
@@ -144,6 +145,7 @@ init:
 		-e LDAP_DOVECOT_PASS_FILTER="(&(mail=%u)(objectClass=mailAccount))" \
 		-e LDAP_DOVECOT_ITERATE_ATTRS="mail=user" \
 		-e LDAP_DOVECOT_ITERATE_FILTER="(objectClass=mailAccount)" \
+		-e DKIM_SELECTOR="mail20190101" \
 		-e VMAILUID=`id -u` \
 		-e VMAILGID=`id -g` \
 		-e RSPAMD_PASSWORD=testpasswd \
