@@ -92,11 +92,11 @@ if [[ "$REDIS_PORT" =~ [^[:digit:]] ]]; then
   REDIS_PORT=6379
 fi
 
-# DATABASES HOSTNAME CHECKING
+# PREFETCH HOSTS
 # We need to set these in the hosts file before Unbound takes over for DNS
 # ---------------------------------------------------------------------------------------------
-
-for onehost in $DBHOST $REDIS_HOST $PREFETCH_HOSTS; do
+PREFETCH_HOSTS=${PREFETCH_HOSTS:-$DBHOST $REDIS_HOST}
+for onehost in $PREFETCH_HOSTS; do
   grep -q "$onehost" /etc/hosts
 
   if [ $? -ne 0 ]; then
