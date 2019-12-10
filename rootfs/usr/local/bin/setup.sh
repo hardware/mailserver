@@ -468,8 +468,10 @@ else
 fi
 
 rm -rf /var/lib/clamav
+rm -rf /var/lib/rspamd
 ln -s /var/mail/clamav /var/lib/clamav
 ln -s /var/mail/dovecot /var/lib/dovecot
+ln -s /var/mail/rspamd /var/lib/rspamd
 
 # POSTFIX
 # ---------------------------------------------------------------------------------------------
