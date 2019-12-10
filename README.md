@@ -1,10 +1,9 @@
-:warning:
+## alexhorn/mailserver
 
-# This docker image is no longer maintained.
+This is a fork that provides the bare minimum of maintenance for the excellent (but unmaintained) [mailserver by hardware](https://github.com/hardware/mailserver). Compared to the original repository, the `debian-mail-overlay` base image has been replaced by `debian` to make it easier to build containers with up-to-date packages.
 
-:warning:
+Please note that this is not nearly as well-tested as the original repository, so proceed with caution if you deploy this to your production server.
 
-## hardware/mailserver
 
 ### Chat & questions
 
@@ -1078,13 +1077,13 @@ NOQUEUE: reject: 554 5.7.1 <john.doe@domain.tld>: Sender address rejected: Acces
 
 - Postfix 3.1.8
 - Dovecot 2.2.27
-- Rspamd 1.9.4
+- Rspamd 1.8.1
 - Fetchmail 6.3.26
 - ClamAV 0.100.3
 - Clamav Unofficial Sigs 5.6.2
 - Zeyple 1.2.2
 - Unbound 1.6.0
-- s6 2.8.0.1
+- s6 2.7.2.2
 - Rsyslog 8.24.0
 - ManageSieve server
 
