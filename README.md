@@ -211,9 +211,9 @@ docker network create http_network
 
 # Create the required folders and files
 mkdir -p /mnt/docker/traefik/acme && cd /mnt/docker \
-&& curl https://raw.githubusercontent.com/hardware/mailserver/master/docker-compose.sample.yml -o docker-compose.yml \
-&& curl https://raw.githubusercontent.com/hardware/mailserver/master/sample.env -o .env \
-&& curl https://raw.githubusercontent.com/hardware/mailserver/master/traefik.sample.toml -o traefik/traefik.toml \
+&& curl https://raw.githubusercontent.com/ziabary/mailserver/master/docker-compose.sample.yml -o docker-compose.yml \
+&& curl https://raw.githubusercontent.com/ziabary/mailserver/master/sample.env -o .env \
+&& curl https://raw.githubusercontent.com/ziabary/mailserver/master/traefik.sample.toml -o traefik/traefik.toml \
 && touch traefik/acme/acme.json \
 && chmod 600 docker-compose.yml .env traefik/traefik.toml traefik/acme/acme.json
 ```
