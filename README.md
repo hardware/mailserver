@@ -223,6 +223,11 @@ Edit the `.env` and `traefik.toml`, adapt to your needs, then start all services
 ```
 docker-compose up -d
 ```
+Due to changes to MariaDB you must first create user and database manually
+* docker exec -it your_container_name_or_id bash
+* mysql
+* CREATE USER 'postfix'@'%' IDENTIFIED BY 'db_password';
+* GRANT ALL PRIVILEGES ON postfix.* TO 'postfix'@'%';
 
 #### 2 - Postfixadmin installation
 
