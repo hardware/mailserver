@@ -150,6 +150,7 @@ services:
       - MYSQL_PASSWORD=${DATABASE_USER_PASSWORD}
     volumes:
       - ${VOLUMES_ROOT_PATH}/mysql/db:/var/lib/mysql
+      - ${VOLUMES_ROOT_PATH}/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - mail_network
 
