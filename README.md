@@ -1,9 +1,6 @@
-## alexhorn/mailserver
+## ziabary/mailserver
 
-This is a fork that provides the bare minimum of maintenance for the excellent (but unmaintained) [mailserver by hardware](https://github.com/hardware/mailserver). Compared to the original repository, the `debian-mail-overlay` base image has been replaced by `debian` to make it easier to build containers with up-to-date packages.
-
-Please note that this is not nearly as well-tested as the original repository, so proceed with caution if you deploy this to your production server.
-
+This is a fork that provides the bare minimum of maintenance for the excellent (but unmaintained) [mailserver by hardware](https://github.com/hardware/mailserver). Compared to the original repository, the `debian-mail-overlay` base image has been replaced by `debian` to make it easier to build containers with up-to-date packages. Also a bug related to MySQL setup has been fixed
 
 ### Chat & questions
 
